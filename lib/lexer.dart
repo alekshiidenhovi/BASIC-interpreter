@@ -10,6 +10,7 @@ class Lexer {
     final RegExp numberPattern = RegExp(r'\d');
     final RegExp numberLiteralPattern = RegExp(r'(\d+(\.\d+)?)');
     final RegExp stringLiteralPattern = RegExp(r'"(.*?)"');
+    final RegExp keywordOrIdentifierPattern = RegExp(r'[A-Z]+');
 
     List<Token> tokens = [];
 
@@ -27,6 +28,20 @@ class Lexer {
         final match = stringLiteralPattern.matchAsPrefix(source, position);
         if (match != null) {
           tokens.add(Token(Category.stringLiteral, match.group(1)!));
+          position = match.end;
+          continue;
+        }
+      } else if (keywordOrIdentifierPattern.hasMatch(char)) {
+        final match = keywordOrIdentifierPattern.matchAsPrefix(source, position);
+        if (match != null) {
+          final keyword = match.group(0)!;
+          final token = switch(keyword) {
+            "LET" => Token(Category.let, keyword),
+            "PRINT" => Token(Category.print, keyword),
+            _ => Token(Category.identifier, keyword),
+          };
+
+          tokens.add(token);
           position = match.end;
           continue;
         }

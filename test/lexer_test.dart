@@ -23,4 +23,13 @@ void main() {
       Token(Category.stringLiteral, 'BASIC'),
     ]);
   });
+
+  test('Keywords and identifiers: LET PRINT A', () {
+    var lexer = Lexer('LET PRINT A');
+    expect(lexer.tokenize(), [
+      Token(Category.let, 'LET'),
+      Token(Category.print, 'PRINT'),
+      Token(Category.identifier, 'A'),
+    ]);
+  });
 }
