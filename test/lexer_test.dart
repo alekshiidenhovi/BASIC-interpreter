@@ -42,4 +42,22 @@ void main() {
       Token(Category.endOfLine, '\n'),
     ]);
   });
+
+  test('Full program', () {
+    var lexer = Lexer('''10 LET A = 5
+20 PRINT A, "Hello, BASIC!"''');
+    expect(lexer.tokenize(), [
+      Token(Category.numberLiteral, '10'),
+      Token(Category.let, 'LET'),
+      Token(Category.identifier, 'A'),
+      Token(Category.equals, '='),
+      Token(Category.numberLiteral, '5'),
+      Token(Category.endOfLine, '\n'),
+      Token(Category.numberLiteral, '20'),
+      Token(Category.print, 'PRINT'),
+      Token(Category.identifier, 'A'),
+      Token(Category.comma, ','),
+      Token(Category.stringLiteral, 'Hello, BASIC!'),
+    ]);
+  });
 }
