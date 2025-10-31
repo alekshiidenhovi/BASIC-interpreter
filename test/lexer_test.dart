@@ -20,6 +20,7 @@ void main() {
     var lexer = Lexer('"Hello", "BASIC"');
     expect(lexer.tokenize(), [
       Token(Category.stringLiteral, 'Hello'),
+      Token(Category.comma, ','),
       Token(Category.stringLiteral, 'BASIC'),
     ]);
   });
@@ -30,6 +31,15 @@ void main() {
       Token(Category.let, 'LET'),
       Token(Category.print, 'PRINT'),
       Token(Category.identifier, 'A'),
+    ]);
+  });
+
+  test('Comma, equals, and new line: , = \n', () {
+    var lexer = Lexer(', = \n');
+    expect(lexer.tokenize(), [
+      Token(Category.comma, ','),
+      Token(Category.equals, '='),
+      Token(Category.endOfLine, '\n'),
     ]);
   });
 }

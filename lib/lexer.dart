@@ -45,6 +45,18 @@ class Lexer {
           position = match.end;
           continue;
         }
+      } else if (char == '=') {
+        tokens.add(Token(Category.equals, char));
+        position++;
+        continue;
+      } else if (char == ',') {
+        tokens.add(Token(Category.comma, char));
+        position++;
+        continue;
+      } else if (char == '\n') {
+        tokens.add(Token(Category.endOfLine, char));
+        position++;
+        continue;
       }
 
       position++;
