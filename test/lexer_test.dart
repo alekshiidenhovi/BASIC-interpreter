@@ -60,4 +60,13 @@ void main() {
       Token(Category.stringLiteral, 'Hello, BASIC!'),
     ]);
   });
+
+  test('Goto statement: 10 GOTO 20', () {
+    var lexer = Lexer('10 GOTO 20');
+    expect(lexer.tokenize(), [
+      Token(Category.numberLiteral, '10'),
+      Token(Category.goto, 'GOTO'),
+      Token(Category.numberLiteral, '20'),
+    ]);
+  });
 }

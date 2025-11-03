@@ -7,6 +7,7 @@ enum Category {
   numberLiteral,
   print,
   stringLiteral,
+  goto,
 }
 
 class Token {

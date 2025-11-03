@@ -32,12 +32,16 @@ class Lexer {
           continue;
         }
       } else if (keywordOrIdentifierPattern.hasMatch(char)) {
-        final match = keywordOrIdentifierPattern.matchAsPrefix(source, position);
+        final match = keywordOrIdentifierPattern.matchAsPrefix(
+          source,
+          position,
+        );
         if (match != null) {
           final keyword = match.group(0)!;
-          final token = switch(keyword) {
+          final token = switch (keyword) {
             "LET" => Token(Category.let, keyword),
             "PRINT" => Token(Category.print, keyword),
+            "GOTO" => Token(Category.goto, keyword),
             _ => Token(Category.identifier, keyword),
           };
 
