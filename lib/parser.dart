@@ -32,7 +32,7 @@ class Parser {
     return program;
   }
 
-  Statement parseLetStatement() {
+  LetStatement parseLetStatement() {
     final identifierToken = expectToken(Category.identifier);
     expectToken(Category.equals);
     final numberToken = expectToken(Category.numberLiteral);
