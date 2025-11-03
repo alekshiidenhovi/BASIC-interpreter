@@ -2,6 +2,7 @@ import 'package:basic_interpreter/expressions.dart';
 import 'package:basic_interpreter/parser.dart';
 import 'package:basic_interpreter/statements.dart';
 import 'package:basic_interpreter/tokens.dart';
+import 'package:basic_interpreter/errors.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -31,7 +32,7 @@ void main() {
 
     final parser = Parser(tokens);
 
-    expect(() => parser.parse(), throwsException);
+    expect(parser.parse, throwsA(isA<UnexpectedTokenError>()));
   });
 
   test("Throw error if position is out of bounds", () {
@@ -44,6 +45,6 @@ void main() {
 
     final parser = Parser(tokens);
 
-    expect(() => parser.parse(), throwsException);
+    expect(parser.parse, throwsA(isA<MissingTokenError>()));
   });
 }

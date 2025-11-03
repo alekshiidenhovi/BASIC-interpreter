@@ -2,6 +2,7 @@ import 'dart:collection';
 import "expressions.dart";
 import "tokens.dart";
 import "statements.dart";
+import "errors.dart";
 
 class Parser {
   final List<Token> tokens;
@@ -42,14 +43,12 @@ class Parser {
   Token expectToken(Category category) {
     position++;
     if (position >= tokens.length) {
-      throw Exception("Unexpected end when looking for next token.");
+      throw MissingTokenError(position, category);
     }
 
     final currentToken = tokens[position];
     if (currentToken.category != category) {
-      throw Exception(
-        "Expected token category $category, found ${currentToken.category}",
-      );
+      throw UnexpectedTokenError(position, category, currentToken.category);
     }
     return currentToken;
   }
