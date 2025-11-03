@@ -61,7 +61,7 @@ class Parser {
         ),
         Category.stringLiteral => StringLiteralExpression(token.value),
         Category.identifier => IdentifierExpression(token.value),
-        _ => throw InvalidTokenError(position, token.category),
+        _ => throw InvalidTokenError(i, token.category),
       };
       arguments.add(expression);
     }
