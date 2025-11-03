@@ -16,10 +16,10 @@ class LetStatement extends Statement<void> {
   }
 }
 
-class PrintStamement extends Statement<String> {
+class PrintStatement extends Statement<String> {
   final List<Expression> arguments;
 
-  PrintStamement(this.arguments);
+  PrintStatement(this.arguments);
 
   @override
   String execute(Map<String, num> variables) {
