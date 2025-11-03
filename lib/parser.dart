@@ -5,7 +5,7 @@ import "statements.dart";
 
 class Parser {
   final List<Token> tokens;
-  int position = 0;
+  int position = -1;
 
   Parser(this.tokens);
 
@@ -13,9 +13,10 @@ class Parser {
     SplayTreeMap<int, Statement> program = SplayTreeMap();
 
     while (position < tokens.length) {
-      final lineNumber = int.parse(tokens[position].value);
-      position++;
+      final lineNumberToken = expectToken(Category.numberLiteral);
+      final lineNumber = int.parse(lineNumberToken.value);
 
+      position++;
       final keywordToken = tokens[position];
 
       final statement = switch (keywordToken.category) {
@@ -31,11 +32,25 @@ class Parser {
   }
 
   Statement parseLetStatement() {
+    final identifierToken = expectToken(Category.identifier);
+    expectToken(Category.equals);
+    final numberToken = expectToken(Category.numberLiteral);
+    final expression = NumberLiteralExpression(num.parse(numberToken.value));
+    return LetStatement(identifierToken.value, expression);
+  }
+
+  Token expectToken(Category category) {
     position++;
-    final identifier = tokens[position].value;
-    position += 2;
-    final assignedToken = tokens[position];
-    final expression = NumberLiteralExpression(num.parse(assignedToken.value));
-    return LetStatement(identifier, expression);
+    if (position >= tokens.length) {
+      throw Exception("Unexpected end when looking for next token.");
+    }
+
+    final currentToken = tokens[position];
+    if (currentToken.category != category) {
+      throw Exception(
+        "Expected token category $category, found ${currentToken.category}",
+      );
+    }
+    return currentToken;
   }
 }

@@ -19,4 +19,31 @@ void main() {
 
     expect(program[10], isA<LetStatement>());
   });
+
+  test("Throw error if tokens are not in the correct order", () {
+    final tokens = [
+      Token(Category.numberLiteral, "10"),
+      Token(Category.let, "LET"),
+      Token(Category.equals, "="),
+      Token(Category.identifier, "A"),
+      Token(Category.numberLiteral, "5"),
+    ];
+
+    final parser = Parser(tokens);
+
+    expect(() => parser.parse(), throwsException);
+  });
+
+  test("Throw error if position is out of bounds", () {
+    final tokens = [
+      Token(Category.numberLiteral, "10"),
+      Token(Category.let, "LET"),
+      Token(Category.identifier, "A"),
+      Token(Category.equals, "="),
+    ];
+
+    final parser = Parser(tokens);
+
+    expect(() => parser.parse(), throwsException);
+  });
 }
