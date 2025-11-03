@@ -42,6 +42,8 @@ class Lexer {
             "LET" => Token(Category.let, keyword),
             "PRINT" => Token(Category.print, keyword),
             "GOTO" => Token(Category.goto, keyword),
+            "IF" => Token(Category.ifToken, keyword),
+            "THEN" => Token(Category.then, keyword),
             _ => Token(Category.identifier, keyword),
           };
 

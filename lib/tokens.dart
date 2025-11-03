@@ -8,6 +8,8 @@ enum Category {
   print,
   stringLiteral,
   goto,
+  ifToken,
+  then,
 }
 
 class Token {

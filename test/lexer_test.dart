@@ -69,4 +69,17 @@ void main() {
       Token(Category.numberLiteral, '20'),
     ]);
   });
+
+  test('If statement: 20 IF A = 5 THEN 40', () {
+    var lexer = Lexer('20 IF A = 5 THEN 40');
+    expect(lexer.tokenize(), [
+      Token(Category.numberLiteral, '20'),
+      Token(Category.ifToken, 'IF'),
+      Token(Category.identifier, 'A'),
+      Token(Category.equals, '='),
+      Token(Category.numberLiteral, '5'),
+      Token(Category.then, 'THEN'),
+      Token(Category.numberLiteral, '40'),
+    ]);
+  });
 }
