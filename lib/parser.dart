@@ -1,4 +1,6 @@
 import 'dart:collection';
+import "package:basic_interpreter/operators.dart";
+
 import "expressions.dart";
 import "tokens.dart";
 import "statements.dart";
@@ -24,6 +26,7 @@ class Parser {
         Category.let => parseLetStatement(),
         Category.print => parsePrintStatement(),
         Category.goto => parseGotoStatement(),
+        Category.ifToken => parseIfStatement(),
         _ => throw InvalidTokenError(position, keywordToken.category),
       };
 
@@ -75,6 +78,34 @@ class Parser {
     expectToken(Category.numberLiteral);
     final lineNumber = int.parse(tokens[position].value);
     return GotoStatement(lineNumber);
+  }
+
+  Statement parseIfStatement() {
+    position++;
+    final Expression<num> lhs = switch (tokens[position].category) {
+      Category.numberLiteral => NumberLiteralExpression(
+        num.parse(tokens[position].value),
+      ),
+      Category.identifier => IdentifierExpression(tokens[position].value),
+      _ => throw InvalidTokenError(position, tokens[position].category),
+    };
+
+    expectToken(Category.equals);
+    ComparisonOperator operator = ComparisonOperator.equals;
+
+    position++;
+    final Expression<num> rhs = switch (tokens[position].category) {
+      Category.numberLiteral => NumberLiteralExpression(
+        num.parse(tokens[position].value),
+      ),
+      Category.identifier => IdentifierExpression(tokens[position].value),
+      _ => throw InvalidTokenError(position, tokens[position].category),
+    };
+
+    expectToken(Category.then);
+    final lineNumber = int.parse(expectToken(Category.numberLiteral).value);
+    final condition = ComparisonExpression(lhs, rhs, operator);
+    return IfStatement(condition, lineNumber);
   }
 
   Token expectToken(Category category) {

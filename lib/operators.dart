@@ -1,0 +1,1 @@
+enum ComparisonOperator { equals }

@@ -121,4 +121,23 @@ void main() {
       expect(program[10], isA<GotoStatement>());
     });
   });
+
+  group("IF THEN statements", () {
+    test("If statement", () {
+      final tokens = [
+        Token(Category.numberLiteral, "20"),
+        Token(Category.ifToken, "IF"),
+        Token(Category.identifier, "A"),
+        Token(Category.equals, "="),
+        Token(Category.numberLiteral, "5"),
+        Token(Category.then, "THEN"),
+        Token(Category.numberLiteral, "40"),
+      ];
+
+      final parser = Parser(tokens);
+      final program = parser.parse();
+
+      expect(program[20], isA<IfStatement>());
+    });
+  });
 }

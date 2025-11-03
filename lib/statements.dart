@@ -37,3 +37,15 @@ class GotoStatement extends Statement<int> {
     return lineNumber;
   }
 }
+
+class IfStatement extends Statement<int?> {
+  final ComparisonExpression condition;
+  final int lineNumber;
+
+  IfStatement(this.condition, this.lineNumber);
+
+  @override
+  int? execute(Map<String, num> variables) {
+    return condition.evaluate(variables) ? lineNumber : null;
+  }
+}
