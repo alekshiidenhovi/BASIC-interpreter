@@ -71,4 +71,21 @@ void main() {
       expect(program[20], isA<LetStatement>());
     });
   });
+
+  group("PRINT statement", () {
+    test("Parse PRINT statement", () {
+      final tokens = [
+        Token(Category.numberLiteral, "10"),
+        Token(Category.print, "PRINT"),
+        Token(Category.identifier, "A"),
+        Token(Category.comma, ","),
+        Token(Category.identifier, "A"),
+      ];
+
+      final parser = Parser(tokens);
+      final program = parser.parse();
+
+      expect(program[10], isA<PrintStatement>());
+    });
+  });
 }

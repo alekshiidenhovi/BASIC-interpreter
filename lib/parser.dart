@@ -22,7 +22,8 @@ class Parser {
 
       final statement = switch (keywordToken.category) {
         Category.let => parseLetStatement(),
-        _ => throw UnexpectedTokenError(position, keywordToken.category),
+        Category.print => parsePrintStatement(),
+        _ => throw InvalidTokenError(position, keywordToken.category),
       };
 
       position++;
@@ -32,12 +33,41 @@ class Parser {
     return program;
   }
 
-  LetStatement parseLetStatement() {
+  Statement parseLetStatement() {
     final identifierToken = expectToken(Category.identifier);
     expectToken(Category.equals);
     final numberToken = expectToken(Category.numberLiteral);
     final expression = NumberLiteralExpression(num.parse(numberToken.value));
     return LetStatement(identifierToken.value, expression);
+  }
+
+  Statement parsePrintStatement() {
+    position++;
+
+    final int endOfLineIndex = tokens.indexOf(
+      Token(Category.endOfLine, "\n"),
+      position,
+    );
+    final int endPosition = endOfLineIndex == -1
+        ? tokens.length
+        : endOfLineIndex;
+    final List<Expression> arguments = [];
+
+    for (int i = position; i < endPosition; i += 2) {
+      final token = tokens[i];
+      Expression expression = switch (token.category) {
+        Category.numberLiteral => NumberLiteralExpression(
+          num.parse(token.value),
+        ),
+        Category.stringLiteral => StringLiteralExpression(token.value),
+        Category.identifier => IdentifierExpression(token.value),
+        _ => throw InvalidTokenError(position, token.category),
+      };
+      arguments.add(expression);
+    }
+
+    position = endPosition - 1;
+    return PrintStatement(arguments);
   }
 
   Token expectToken(Category category) {

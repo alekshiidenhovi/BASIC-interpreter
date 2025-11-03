@@ -19,19 +19,17 @@ sealed class ParserError extends Error {
 
 class UnexpectedTokenError extends ParserError {
   final Category actualTokenCategory;
-  final Category? expectedTokenCategory;
+  final Category expectedTokenCategory;
 
   UnexpectedTokenError(
     int tokenNumber,
-    this.actualTokenCategory, [
+    this.actualTokenCategory,
     this.expectedTokenCategory,
-  ]) : super(
-         tokenNumber,
-         expectedTokenCategory != null
-             ? "expected $expectedTokenCategory, got $actualTokenCategory!"
-             : "got $actualTokenCategory!"
-                   "Unexpected token error",
-       );
+  ) : super(
+        tokenNumber,
+        "expected $expectedTokenCategory, got $actualTokenCategory!"
+        "Unexpected token error",
+      );
 }
 
 class MissingTokenError extends ParserError {
@@ -43,4 +41,11 @@ class MissingTokenError extends ParserError {
         "expected $expectedTokenCategory, no token was found!",
         "Missing token error",
       );
+}
+
+class InvalidTokenError extends ParserError {
+  final Category actualTokenCategory;
+
+  InvalidTokenError(int tokenNumber, this.actualTokenCategory)
+    : super(tokenNumber, "got $actualTokenCategory!", "Invalid token error");
 }
