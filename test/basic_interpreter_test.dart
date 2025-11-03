@@ -56,4 +56,16 @@ void main() {
       );
     });
   });
+
+  group("If-then statements", () {
+    test("If statement", () {
+      expect(
+        interpreter.interpret('''10 LET A = 5
+20 IF A = 5 THEN 40
+30 PRINT "This is skipped"
+40 PRINT "Thanks, BASIC!"'''),
+        ["Thanks, BASIC!"],
+      );
+    });
+  });
 }

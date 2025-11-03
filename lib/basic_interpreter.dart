@@ -28,6 +28,14 @@ class Interpreter {
         continue;
       }
 
+      if (statement is IfStatement) {
+        int? jumpLine = statement.execute(variables);
+        if (jumpLine != null) {
+          currentLine = jumpLine;
+        }
+        continue;
+      }
+
       if (statement is PrintStatement) {
         String output = statement.execute(variables);
         outputLines.add(output);
