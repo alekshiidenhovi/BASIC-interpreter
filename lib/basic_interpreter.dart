@@ -14,14 +14,31 @@ class Interpreter {
     programLines = parser.parse();
     List<String> outputLines = [];
 
-    for (var entry in programLines.entries) {
-      Statement statement = entry.value;
+    int? firstLine = programLines.firstKey();
+    if (firstLine == null) {
+      throw Exception("Parser did not find any statements!");
+    }
+
+    int currentLine = firstLine;
+    while (currentLine > 0) {
+      Statement statement = programLines[currentLine]!;
+
+      if (statement is GotoStatement) {
+        currentLine = statement.execute(variables);
+        continue;
+      }
+
       if (statement is PrintStatement) {
         String output = statement.execute(variables);
         outputLines.add(output);
       } else {
         statement.execute(variables);
       }
+
+      currentLine = programLines.keys.firstWhere(
+        (lineNumber) => lineNumber > currentLine,
+        orElse: () => -1,
+      );
     }
 
     return outputLines;

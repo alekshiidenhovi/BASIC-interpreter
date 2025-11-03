@@ -47,4 +47,13 @@ void main() {
       ]);
     });
   });
+
+  group("Goto statements", () {
+    test("Goto statement skipping a line", () {
+      expect(
+        interpreter.interpret('10 GOTO 30\n20 PRINT "SKIP"\n30 PRINT "END"'),
+        ["END"],
+      );
+    });
+  });
 }
