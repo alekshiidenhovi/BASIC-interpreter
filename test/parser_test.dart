@@ -87,5 +87,23 @@ void main() {
 
       expect(program[10], isA<PrintStatement>());
     });
+
+    test("Two PRINT statements", () {
+      final tokens = [
+        Token(Category.numberLiteral, "10"),
+        Token(Category.print, "PRINT"),
+        Token(Category.identifier, "A"),
+        Token(Category.endOfLine, "\n"),
+        Token(Category.numberLiteral, "20"),
+        Token(Category.print, "PRINT"),
+        Token(Category.stringLiteral, "Hello, BASIC!"),
+      ];
+
+      final parser = Parser(tokens);
+      final program = parser.parse();
+
+      expect(program[10], isA<PrintStatement>());
+      expect(program[20], isA<PrintStatement>());
+    });
   });
 }
