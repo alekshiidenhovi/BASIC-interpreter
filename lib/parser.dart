@@ -22,7 +22,7 @@ class Parser {
 
       final statement = switch (keywordToken.category) {
         Category.let => parseLetStatement(),
-        _ => throw Exception("Unexpected token: ${tokens[position]}"),
+        _ => throw UnexpectedTokenError(position, keywordToken.category),
       };
 
       position++;
