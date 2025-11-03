@@ -72,7 +72,7 @@ void main() {
     });
   });
 
-  group("PRINT statement", () {
+  group("PRINT statements", () {
     test("Parse PRINT statement", () {
       final tokens = [
         Token(Category.numberLiteral, "10"),
