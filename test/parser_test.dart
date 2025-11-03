@@ -106,4 +106,19 @@ void main() {
       expect(program[20], isA<PrintStatement>());
     });
   });
+
+  group("GOTO statements", () {
+    test("Parse GOTO statement", () {
+      final tokens = [
+        Token(Category.numberLiteral, "10"),
+        Token(Category.goto, "GOTO"),
+        Token(Category.numberLiteral, "20"),
+      ];
+
+      final parser = Parser(tokens);
+      final program = parser.parse();
+
+      expect(program[10], isA<GotoStatement>());
+    });
+  });
 }

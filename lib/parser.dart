@@ -23,6 +23,7 @@ class Parser {
       final statement = switch (keywordToken.category) {
         Category.let => parseLetStatement(),
         Category.print => parsePrintStatement(),
+        Category.goto => parseGotoStatement(),
         _ => throw InvalidTokenError(position, keywordToken.category),
       };
 
@@ -68,6 +69,12 @@ class Parser {
 
     position = endPosition - 1;
     return PrintStatement(arguments);
+  }
+
+  Statement parseGotoStatement() {
+    expectToken(Category.numberLiteral);
+    final lineNumber = int.parse(tokens[position].value);
+    return GotoStatement(lineNumber);
   }
 
   Token expectToken(Category category) {

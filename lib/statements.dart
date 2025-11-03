@@ -26,3 +26,14 @@ class PrintStatement extends Statement<String> {
     return arguments.map((expr) => expr.evaluate(variables)).join("\t");
   }
 }
+
+class GotoStatement extends Statement<int> {
+  final int lineNumber;
+
+  GotoStatement(this.lineNumber);
+
+  @override
+  int execute(Map<String, num> variables) {
+    return lineNumber;
+  }
+}
