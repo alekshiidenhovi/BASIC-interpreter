@@ -47,4 +47,26 @@ void main() {
 
     expect(parser.parse, throwsA(isA<MissingTokenError>()));
   });
+
+  test("Two LET statements", () {
+    final tokens = [
+      Token(Category.numberLiteral, "10"),
+      Token(Category.let, "LET"),
+      Token(Category.identifier, "A"),
+      Token(Category.equals, "="),
+      Token(Category.numberLiteral, "5"),
+      Token(Category.endOfLine, "\n"),
+      Token(Category.numberLiteral, "20"),
+      Token(Category.let, "LET"),
+      Token(Category.identifier, "B"),
+      Token(Category.equals, "="),
+      Token(Category.numberLiteral, "10"),
+    ];
+
+    final parser = Parser(tokens);
+    final program = parser.parse();
+
+    expect(program[10], isA<LetStatement>());
+    expect(program[20], isA<LetStatement>());
+  });
 }
