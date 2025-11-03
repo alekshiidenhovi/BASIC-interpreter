@@ -57,17 +57,23 @@ class Parser {
         : endOfLineIndex;
     final List<Expression> arguments = [];
 
-    for (int i = position; i < endPosition; i += 2) {
-      final token = tokens[i];
+    while (position < endPosition) {
+      final token = tokens[position];
       Expression expression = switch (token.category) {
         Category.numberLiteral => NumberLiteralExpression(
           num.parse(token.value),
         ),
         Category.stringLiteral => StringLiteralExpression(token.value),
         Category.identifier => IdentifierExpression(token.value),
-        _ => throw InvalidTokenError(i, token.category),
+        _ => throw InvalidTokenError(position, token.category),
       };
       arguments.add(expression);
+
+      if (position + 1 >= endPosition) {
+        break;
+      }
+      expectToken(Category.comma);
+      position++;
     }
 
     position = endPosition - 1;

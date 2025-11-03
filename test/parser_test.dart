@@ -88,6 +88,19 @@ void main() {
       expect(program[10], isA<PrintStatement>());
     });
 
+    test("Invalid if - two consecutive commas", () {
+      final tokens = [
+        Token(Category.numberLiteral, "10"),
+        Token(Category.print, "PRINT"),
+        Token(Category.identifier, "A"),
+        Token(Category.comma, ","),
+        Token(Category.comma, ","),
+      ];
+
+      final parser = Parser(tokens);
+      expect(parser.parse, throwsA(isA<InvalidTokenError>()));
+    });
+
     test("Two PRINT statements", () {
       final tokens = [
         Token(Category.numberLiteral, "10"),
