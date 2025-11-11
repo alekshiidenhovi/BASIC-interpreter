@@ -1,11 +1,18 @@
 import "tokens.dart";
 
+/// A lexer that tokenizes a given source string into a list of tokens.
 class Lexer {
+  /// The source string to tokenize.
   final String source;
+  /// The current position in the source string during tokenization.
   int position = 0;
 
+  /// Creates a new [Lexer] instance with the given source string.
   Lexer(this.source);
 
+  /// Tokenizes the source string into a list of [Token] objects.
+  ///
+  /// Returns a [List<Token>] representing the tokenized source code.
   List<Token> tokenize() {
     final RegExp numberPattern = RegExp(r'\d');
     final RegExp numberLiteralPattern = RegExp(r'(\d+(\.\d+)?)');
