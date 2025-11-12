@@ -1,13 +1,24 @@
 import "expressions.dart";
 
+/// An executable statement in the BASIC language.
 sealed class Statement<T> {
+  /// Executes the statement and returns a result.
+  ///
+  /// [variables] is a map of variable names to their numeric values.
   T execute(Map<String, num> variables);
 }
 
+/// A statement, which assigns the result of an expression to a variable.
 class LetStatement extends Statement<void> {
+  /// The identifier of the variable to assign.
   final String identifier;
+
+  /// The expression whose value will be assigned to the identifier.
   final Expression expression;
 
+  /// Creates a new [LetStatement].
+  ///
+  /// Requires the [identifier] to assign to and the [expression] to evaluate.
   LetStatement(this.identifier, this.expression);
 
   @override
@@ -16,9 +27,14 @@ class LetStatement extends Statement<void> {
   }
 }
 
+/// A statement, which evaluates a list of expressions and concatenates their string representations.
 class PrintStatement extends Statement<String> {
+  /// The list of expressions to evaluate and print.
   final List<Expression> arguments;
 
+  /// Creates a new [PrintStatement].
+  ///
+  /// Requires a list of [arguments] to evaluate and print.
   PrintStatement(this.arguments);
 
   @override
@@ -27,9 +43,14 @@ class PrintStatement extends Statement<String> {
   }
 }
 
+/// A statement, which unconditionally jumps to a specified line number.
 class GotoStatement extends Statement<int> {
+  /// The line number to jump to.
   final int lineNumber;
 
+  /// Creates a new [GotoStatement].
+  ///
+  /// Requires the [lineNumber] to jump to.
   GotoStatement(this.lineNumber);
 
   @override
@@ -38,10 +59,17 @@ class GotoStatement extends Statement<int> {
   }
 }
 
+/// Statement, which conditionally jumps to a specified line number based on an expression's evaluation.
 class IfStatement extends Statement<int?> {
+  /// The comparison expression that determines whether to jump.
   final ComparisonExpression condition;
+
+  /// The line number to jump to if the condition is true.
   final int lineNumber;
 
+  /// Creates a new [IfStatement].
+  ///
+  /// Requires the [condition] to evaluate and the [lineNumber] to jump to if true.
   IfStatement(this.condition, this.lineNumber);
 
   @override
