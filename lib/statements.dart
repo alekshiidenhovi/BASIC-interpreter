@@ -59,7 +59,7 @@ class GotoStatement extends Statement<int> {
   }
 }
 
-/// Statement, which conditionally jumps to a specified line number based on an expression's evaluation.
+/// A statement, which conditionally jumps to a specified line number based on an expression's evaluation.
 class IfStatement extends Statement<int?> {
   /// The comparison expression that determines whether to jump.
   final ComparisonExpression condition;
@@ -75,5 +75,16 @@ class IfStatement extends Statement<int?> {
   @override
   int? execute(Map<String, num> variables) {
     return condition.evaluate(variables) ? lineNumber : null;
+  }
+}
+
+/// A statement, which unconditionally ends the program.
+class EndStatement extends Statement<void> {
+  /// Creates a new [EndStatement].
+  EndStatement();
+
+  @override
+  void execute(Map<String, num> variables) {
+    throw Exception("END statement reached!");
   }
 }

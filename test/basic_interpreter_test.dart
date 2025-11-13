@@ -68,4 +68,17 @@ void main() {
       );
     });
   });
+
+  group("END statements", () {
+    test("END statement", () {
+      expect(
+        interpreter.interpret('''10 LET A = 5
+20 IF A = 5 THEN 40
+30 PRINT "This is skipped"
+40 END
+50 PRINT "This is not executed"'''),
+        [],
+      );
+    });
+  });
 }

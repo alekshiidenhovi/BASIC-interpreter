@@ -56,6 +56,7 @@ class Lexer {
             "GOTO" => Token(Category.goto, keyword),
             "IF" => Token(Category.ifToken, keyword),
             "THEN" => Token(Category.then, keyword),
+            "END" => Token(Category.endToken, keyword),
             _ => Token(Category.identifier, keyword),
           };
 

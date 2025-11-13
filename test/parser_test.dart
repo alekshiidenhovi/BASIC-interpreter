@@ -450,4 +450,18 @@ void main() {
       );
     });
   });
+
+  group("END statements", () {
+    test("Parse END statement", () {
+      final tokens = [
+        Token(Category.numberLiteral, "10"),
+        Token(Category.endToken, "END"),
+      ];
+
+      final parser = Parser(tokens);
+      final program = parser.parse();
+
+      expect(program[10], isA<EndStatement>());
+    });
+  });
 }

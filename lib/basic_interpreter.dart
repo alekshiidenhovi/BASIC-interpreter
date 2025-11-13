@@ -35,6 +35,7 @@ class Interpreter {
     int currentLine = firstLine;
     while (currentLine > 0) {
       Statement statement = programLines[currentLine]!;
+      print("$currentLine: $statement");
 
       if (statement is GotoStatement) {
         currentLine = statement.execute(variables);
@@ -49,11 +50,18 @@ class Interpreter {
         continue;
       }
 
+      if (statement is EndStatement) {
+        break;
+      }
+
+      // These statements increment line number regularly
       if (statement is PrintStatement) {
         String output = statement.execute(variables);
         outputLines.add(output);
-      } else {
+      } else if (statement is LetStatement) {
         statement.execute(variables);
+      } else {
+        throw Exception("Unsupported statement type: $statement");
       }
 
       currentLine = programLines.keys.firstWhere(
@@ -65,4 +73,3 @@ class Interpreter {
     return outputLines;
   }
 }
-

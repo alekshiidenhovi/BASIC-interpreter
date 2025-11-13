@@ -38,6 +38,7 @@ class Parser {
         Category.print => parsePrintStatement(),
         Category.goto => parseGotoStatement(),
         Category.ifToken => parseIfStatement(),
+        Category.endToken => parseEndStatement(),
         _ => throw InvalidTokenError(position, keywordToken.category),
       };
 
@@ -155,6 +156,10 @@ class Parser {
     final lineNumber = int.parse(expectToken(Category.numberLiteral).value);
     final condition = ComparisonExpression(lhs, rhs, operator);
     return IfStatement(condition, lineNumber);
+  }
+
+  Statement parseEndStatement() {
+    return EndStatement();
   }
 
   /// Expects a token of the given [category] and return it when matched.

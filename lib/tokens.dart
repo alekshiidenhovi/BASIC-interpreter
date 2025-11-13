@@ -2,6 +2,7 @@
 enum Category {
   comma,
   endOfLine,
+  endToken,
   equals,
   lessThan,
   lessThanOrEqual,
