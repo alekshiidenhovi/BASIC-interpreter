@@ -1,3 +1,4 @@
+/// Represents the different categories of tokens that can be recognized during lexing.
 enum Category {
   comma,
   endOfLine,
@@ -12,10 +13,18 @@ enum Category {
   then,
 }
 
+/// Represents a single token identified during the lexing process.
+///
+/// A token has a [category] indicating its type and a [value] which is the
+/// actual string that the token represents.
 class Token {
+  /// The category of this token.
   final Category category;
+
+  /// The string value of this token.
   final String value;
 
+  /// Creates a new [Token] with the given [category] and [value].
   Token(this.category, this.value);
 
   @override
