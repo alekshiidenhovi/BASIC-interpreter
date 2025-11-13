@@ -1,7 +1,9 @@
 import 'package:basic_interpreter/parser.dart';
 import 'package:basic_interpreter/statements.dart';
+import 'package:basic_interpreter/expressions.dart';
 import 'package:basic_interpreter/tokens.dart';
 import 'package:basic_interpreter/errors.dart';
+import 'package:basic_interpreter/operators.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -18,7 +20,16 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[10], isA<LetStatement>());
+      expect(
+        program[10],
+        isA<LetStatement>()
+            .having((p) => p.identifier, "identifier", "A")
+            .having(
+              (p) => p.expression,
+              "expression",
+              isA<NumberLiteralExpression>(),
+            ),
+      );
     });
 
     test("Throw error if tokens are not in the correct order", () {
@@ -66,8 +77,26 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[10], isA<LetStatement>());
-      expect(program[20], isA<LetStatement>());
+      expect(
+        program[10],
+        isA<LetStatement>()
+            .having((p) => p.identifier, "identifier", "A")
+            .having(
+              (p) => p.expression,
+              "expression",
+              isA<NumberLiteralExpression>(),
+            ),
+      );
+      expect(
+        program[20],
+        isA<LetStatement>()
+            .having((p) => p.identifier, "identifier", "B")
+            .having(
+              (p) => p.expression,
+              "expression",
+              isA<NumberLiteralExpression>(),
+            ),
+      );
     });
   });
 
@@ -84,7 +113,14 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[10], isA<PrintStatement>());
+      expect(
+        program[10],
+        isA<PrintStatement>().having(
+          (p) => p.arguments.length,
+          "argument count",
+          equals(2),
+        ),
+      );
     });
 
     test("Invalid if - two consecutive commas", () {
@@ -114,8 +150,26 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[10], isA<PrintStatement>());
-      expect(program[20], isA<PrintStatement>());
+      expect(
+        program[10],
+        isA<PrintStatement>().having((p) => p.arguments, "arguments", [
+          isA<IdentifierExpression>().having(
+            (p) => p.identifier,
+            "identifier",
+            "A",
+          ),
+        ]),
+      );
+      expect(
+        program[20],
+        isA<PrintStatement>().having((p) => p.arguments, "arguments", [
+          isA<StringLiteralExpression>().having(
+            (p) => p.value,
+            "value",
+            "Hello, BASIC!",
+          ),
+        ]),
+      );
     });
   });
 
@@ -130,7 +184,10 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[10], isA<GotoStatement>());
+      expect(
+        program[10],
+        isA<GotoStatement>().having((p) => p.lineNumber, "lineNumber", 20),
+      );
     });
   });
 
@@ -149,14 +206,40 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[20], isA<IfStatement>());
+      expect(
+        program[20],
+        isA<IfStatement>().having(
+          (p) => p.condition,
+          "condition",
+          isA<ComparisonExpression>()
+              .having(
+                (p) => p.lhs,
+                "lhs",
+                isA<IdentifierExpression>().having(
+                  (p) => p.identifier,
+                  "identifier",
+                  "A",
+                ),
+              )
+              .having((p) => p.operator, "operator", ComparisonOperator.eq)
+              .having(
+                (p) => p.rhs,
+                "rhs",
+                isA<NumberLiteralExpression>().having(
+                  (p) => p.value,
+                  "value",
+                  5,
+                ),
+              ),
+        ),
+      );
     });
 
     test("If with greater than comparison operator", () {
       final tokens = [
         Token(Category.numberLiteral, "20"),
         Token(Category.ifToken, "IF"),
-        Token(Category.identifier, "A"),
+        Token(Category.numberLiteral, "10"),
         Token(Category.greaterThan, ">"),
         Token(Category.numberLiteral, "5"),
         Token(Category.then, "THEN"),
@@ -166,7 +249,33 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[20], isA<IfStatement>());
+      expect(
+        program[20],
+        isA<IfStatement>().having(
+          (p) => p.condition,
+          "condition",
+          isA<ComparisonExpression>()
+              .having(
+                (p) => p.lhs,
+                "lhs",
+                isA<NumberLiteralExpression>().having(
+                  (p) => p.value,
+                  "value",
+                  10,
+                ),
+              )
+              .having((p) => p.operator, "operator", ComparisonOperator.gt)
+              .having(
+                (p) => p.rhs,
+                "rhs",
+                isA<NumberLiteralExpression>().having(
+                  (p) => p.value,
+                  "value",
+                  5,
+                ),
+              ),
+        ),
+      );
     });
 
     test("If with less than comparison operator", () {
@@ -183,7 +292,33 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[20], isA<IfStatement>());
+      expect(
+        program[20],
+        isA<IfStatement>().having(
+          (p) => p.condition,
+          "condition",
+          isA<ComparisonExpression>()
+              .having(
+                (p) => p.lhs,
+                "lhs",
+                isA<IdentifierExpression>().having(
+                  (p) => p.identifier,
+                  "identifier",
+                  "A",
+                ),
+              )
+              .having((p) => p.operator, "operator", ComparisonOperator.lt)
+              .having(
+                (p) => p.rhs,
+                "rhs",
+                isA<NumberLiteralExpression>().having(
+                  (p) => p.value,
+                  "value",
+                  5,
+                ),
+              ),
+        ),
+      );
     });
 
     test("If with greater than or equal comparison operator", () {
@@ -200,7 +335,33 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[20], isA<IfStatement>());
+      expect(
+        program[20],
+        isA<IfStatement>().having(
+          (p) => p.condition,
+          "condition",
+          isA<ComparisonExpression>()
+              .having(
+                (p) => p.lhs,
+                "lhs",
+                isA<IdentifierExpression>().having(
+                  (p) => p.identifier,
+                  "identifier",
+                  "A",
+                ),
+              )
+              .having((p) => p.operator, "operator", ComparisonOperator.gte)
+              .having(
+                (p) => p.rhs,
+                "rhs",
+                isA<NumberLiteralExpression>().having(
+                  (p) => p.value,
+                  "value",
+                  5,
+                ),
+              ),
+        ),
+      );
     });
 
     test("If with less than or equal comparison operator", () {
@@ -217,7 +378,33 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[20], isA<IfStatement>());
+      expect(
+        program[20],
+        isA<IfStatement>().having(
+          (p) => p.condition,
+          "condition",
+          isA<ComparisonExpression>()
+              .having(
+                (p) => p.lhs,
+                "lhs",
+                isA<IdentifierExpression>().having(
+                  (p) => p.identifier,
+                  "identifier",
+                  "A",
+                ),
+              )
+              .having((p) => p.operator, "operator", ComparisonOperator.lte)
+              .having(
+                (p) => p.rhs,
+                "rhs",
+                isA<NumberLiteralExpression>().having(
+                  (p) => p.value,
+                  "value",
+                  5,
+                ),
+              ),
+        ),
+      );
     });
 
     test("If with not equal comparison operator", () {
@@ -234,7 +421,33 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[20], isA<IfStatement>());
+      expect(
+        program[20],
+        isA<IfStatement>().having(
+          (p) => p.condition,
+          "condition",
+          isA<ComparisonExpression>()
+              .having(
+                (p) => p.lhs,
+                "lhs",
+                isA<IdentifierExpression>().having(
+                  (p) => p.identifier,
+                  "identifier",
+                  "A",
+                ),
+              )
+              .having((p) => p.operator, "operator", ComparisonOperator.neq)
+              .having(
+                (p) => p.rhs,
+                "rhs",
+                isA<NumberLiteralExpression>().having(
+                  (p) => p.value,
+                  "value",
+                  5,
+                ),
+              ),
+        ),
+      );
     });
   });
 }
