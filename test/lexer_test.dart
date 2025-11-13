@@ -25,13 +25,33 @@ void main() {
     ]);
   });
 
-  test('Keywords and identifiers: LET PRINT A', () {
-    var lexer = Lexer('LET PRINT A');
-    expect(lexer.tokenize(), [
-      Token(Category.let, 'LET'),
-      Token(Category.print, 'PRINT'),
-      Token(Category.identifier, 'A'),
-    ]);
+  group("Keywords and identifiers", () {
+    test("Identifier with a single letter", () {
+      var lexer = Lexer('LET PRINT A');
+      expect(lexer.tokenize(), [
+        Token(Category.let, 'LET'),
+        Token(Category.print, 'PRINT'),
+        Token(Category.identifier, 'A'),
+      ]);
+    });
+
+    test("Identifier with multiple letters", () {
+      var lexer = Lexer('LET PRINT ABC');
+      expect(lexer.tokenize(), [
+        Token(Category.let, 'LET'),
+        Token(Category.print, 'PRINT'),
+        Token(Category.identifier, 'ABC'),
+      ]);
+    });
+
+    test("Identifier with numbers", () {
+      var lexer = Lexer('LET PRINT A1');
+      expect(lexer.tokenize(), [
+        Token(Category.let, 'LET'),
+        Token(Category.print, 'PRINT'),
+        Token(Category.identifier, 'A1'),
+      ]);
+    });
   });
 
   test('Comma, equals, and new line: , = \n', () {
