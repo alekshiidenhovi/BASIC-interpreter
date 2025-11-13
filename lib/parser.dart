@@ -129,8 +129,16 @@ class Parser {
     };
 
     position++;
-    expectToken(Category.equals);
-    ComparisonOperator operator = ComparisonOperator.equals;
+    expectComparisonOperator();
+    ComparisonOperator operator = switch (tokens[position].category) {
+      Category.equals => ComparisonOperator.eq,
+      Category.notEqual => ComparisonOperator.neq,
+      Category.lessThan => ComparisonOperator.lt,
+      Category.lessThanOrEqual => ComparisonOperator.lte,
+      Category.greaterThan => ComparisonOperator.gt,
+      Category.greaterThanOrEqual => ComparisonOperator.gte,
+      _ => throw InvalidTokenError(position, tokens[position].category),
+    };
 
     position++;
     final Expression<num> rhs = switch (tokens[position].category) {
@@ -160,6 +168,22 @@ class Parser {
     final currentToken = tokens[position];
     if (currentToken.category != category) {
       throw UnexpectedTokenError(position, category, currentToken.category);
+    }
+    return currentToken;
+  }
+
+  Token expectComparisonOperator() {
+    if (position >= tokens.length) {
+      throw MissingTokenError(position, Category.equals);
+    }
+
+    final currentToken = tokens[position];
+    if (!currentToken.category.isComparisonOperator()) {
+      throw UnexpectedTokenError(
+        position,
+        Category.equals,
+        currentToken.category,
+      );
     }
     return currentToken;
   }

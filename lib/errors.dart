@@ -1,6 +1,6 @@
 import "tokens.dart";
 
-/// Represents a generic error that can occur during parsing.
+/// Generic error that occurs during parsing.
 ///
 /// This class serves as a base for all specific parser errors, providing common
 /// properties like the token number, a descriptive message, and an error name.
@@ -78,4 +78,44 @@ class InvalidTokenError extends ParserError {
   /// Creates a new [InvalidTokenError].
   InvalidTokenError(int tokenNumber, this.actualTokenCategory)
     : super(tokenNumber, "got $actualTokenCategory!", "Invalid token error");
+}
+
+/// Generic error that occurs during lexing.
+///
+/// This class serves as a base for all specific lexer errors, providing common
+/// properties like the character number, a descriptive message, and an error name.
+sealed class LexerError extends Error {
+  /// The number of the character where the error occurred.
+  final int characterNumber;
+
+  /// A message describing the error.
+  final String message;
+
+  /// The name of the error.
+  final String errorName;
+
+  /// Creates a new [LexerError].
+  LexerError(
+    this.characterNumber,
+    this.message, [
+    this.errorName = "Lexer error",
+  ]);
+
+  @override
+  String toString() {
+    return "$errorName at character number $characterNumber: $message";
+  }
+}
+
+class InvalidCharacterError extends LexerError {
+  /// The character that was found to be invalid.
+  final String actualCharacter;
+
+  /// Creates a new [InvalidCharacterError].
+  InvalidCharacterError(int characterNumber, this.actualCharacter)
+    : super(
+        characterNumber,
+        "invalid character '$actualCharacter'",
+        "Invalid character error",
+      );
 }

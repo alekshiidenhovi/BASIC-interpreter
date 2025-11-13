@@ -70,16 +70,83 @@ void main() {
     ]);
   });
 
-  test('If statement: 20 IF A = 5 THEN 40', () {
-    var lexer = Lexer('20 IF A = 5 THEN 40');
-    expect(lexer.tokenize(), [
-      Token(Category.numberLiteral, '20'),
-      Token(Category.ifToken, 'IF'),
-      Token(Category.identifier, 'A'),
-      Token(Category.equals, '='),
-      Token(Category.numberLiteral, '5'),
-      Token(Category.then, 'THEN'),
-      Token(Category.numberLiteral, '40'),
-    ]);
+  group("If statement", () {
+    test("equal comparison operator", () {
+      var lexer = Lexer('20 IF A = 5 THEN 40');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '20'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.identifier, 'A'),
+        Token(Category.equals, '='),
+        Token(Category.numberLiteral, '5'),
+        Token(Category.then, 'THEN'),
+        Token(Category.numberLiteral, '40'),
+      ]);
+    });
+
+    test("greater than comparison operator", () {
+      var lexer = Lexer('20 IF A > 5 THEN 40');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '20'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.identifier, 'A'),
+        Token(Category.greaterThan, '>'),
+        Token(Category.numberLiteral, '5'),
+        Token(Category.then, 'THEN'),
+        Token(Category.numberLiteral, '40'),
+      ]);
+    });
+
+    test("less than comparison operator", () {
+      var lexer = Lexer('20 IF A < 5 THEN 40');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '20'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.identifier, 'A'),
+        Token(Category.lessThan, '<'),
+        Token(Category.numberLiteral, '5'),
+        Token(Category.then, 'THEN'),
+        Token(Category.numberLiteral, '40'),
+      ]);
+    });
+
+    test("greater than or equal comparison operator", () {
+      var lexer = Lexer('20 IF A >= 5 THEN 40');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '20'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.identifier, 'A'),
+        Token(Category.greaterThanOrEqual, '>='),
+        Token(Category.numberLiteral, '5'),
+        Token(Category.then, 'THEN'),
+        Token(Category.numberLiteral, '40'),
+      ]);
+    });
+
+    test("less than or equal comparison operator", () {
+      var lexer = Lexer('20 IF A <= 5 THEN 40');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '20'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.identifier, 'A'),
+        Token(Category.lessThanOrEqual, '<='),
+        Token(Category.numberLiteral, '5'),
+        Token(Category.then, 'THEN'),
+        Token(Category.numberLiteral, '40'),
+      ]);
+    });
+
+    test("not equal comparison operator", () {
+      var lexer = Lexer('20 IF A <> 5 THEN 40');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '20'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.identifier, 'A'),
+        Token(Category.notEqual, '<>'),
+        Token(Category.numberLiteral, '5'),
+        Token(Category.then, 'THEN'),
+        Token(Category.numberLiteral, '40'),
+      ]);
+    });
   });
 }

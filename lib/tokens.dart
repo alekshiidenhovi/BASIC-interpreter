@@ -3,6 +3,11 @@ enum Category {
   comma,
   endOfLine,
   equals,
+  lessThan,
+  lessThanOrEqual,
+  greaterThan,
+  greaterThanOrEqual,
+  notEqual,
   identifier,
   let,
   numberLiteral,
@@ -10,7 +15,16 @@ enum Category {
   stringLiteral,
   goto,
   ifToken,
-  then,
+  then;
+
+  /// Whether this token can be used as a comparison operator.
+  bool isComparisonOperator() =>
+      equals == this ||
+      lessThan == this ||
+      lessThanOrEqual == this ||
+      greaterThan == this ||
+      greaterThanOrEqual == this ||
+      notEqual == this;
 }
 
 /// Represents a single token identified during the lexing process.

@@ -84,9 +84,13 @@ class ComparisonExpression extends Expression<bool> {
     num leftValue = lhs.evaluate(variables);
     num rightValue = rhs.evaluate(variables);
 
-    // TODO: Implement other comparison operators (e.g., greater than, less than).
     return switch (operator) {
-      ComparisonOperator.equals => leftValue == rightValue,
+      ComparisonOperator.eq => leftValue == rightValue,
+      ComparisonOperator.neq => leftValue != rightValue,
+      ComparisonOperator.gt => leftValue > rightValue,
+      ComparisonOperator.lt => leftValue < rightValue,
+      ComparisonOperator.gte => leftValue >= rightValue,
+      ComparisonOperator.lte => leftValue <= rightValue,
     };
   }
 }
