@@ -26,6 +26,7 @@ class Parser {
     SplayTreeMap<int, Statement> program = SplayTreeMap();
 
     while (position < tokens.length) {
+      position++;
       final lineNumberToken = expectToken(Category.numberLiteral);
       final lineNumber = int.parse(lineNumberToken.value);
 
@@ -52,8 +53,11 @@ class Parser {
   /// Expects an identifier, an equals sign, and a number literal.
   /// Returns a [LetStatement] representing the parsed statement.
   Statement parseLetStatement() {
+    position++;
     final identifierToken = expectToken(Category.identifier);
+    position++;
     expectToken(Category.equals);
+    position++;
     final numberToken = expectToken(Category.numberLiteral);
     final expression = NumberLiteralExpression(num.parse(numberToken.value));
     return LetStatement(identifierToken.value, expression);
@@ -90,6 +94,7 @@ class Parser {
       if (position + 1 >= endPosition) {
         break;
       }
+      position++;
       expectToken(Category.comma);
       position++;
     }
@@ -100,9 +105,10 @@ class Parser {
 
   /// Parses a GOTO statement.
   ///
-  /// Expects a number literal representing the line number to jump to.
+  /// equalsExpects a number literal representing the line number to jump to.
   /// Returns a [GotoStatement] representing the parsed statement.
   Statement parseGotoStatement() {
+    position++;
     expectToken(Category.numberLiteral);
     final lineNumber = int.parse(tokens[position].value);
     return GotoStatement(lineNumber);
@@ -122,6 +128,7 @@ class Parser {
       _ => throw InvalidTokenError(position, tokens[position].category),
     };
 
+    position++;
     expectToken(Category.equals);
     ComparisonOperator operator = ComparisonOperator.equals;
 
@@ -134,18 +141,18 @@ class Parser {
       _ => throw InvalidTokenError(position, tokens[position].category),
     };
 
+    position++;
     expectToken(Category.then);
+    position++;
     final lineNumber = int.parse(expectToken(Category.numberLiteral).value);
     final condition = ComparisonExpression(lhs, rhs, operator);
     return IfStatement(condition, lineNumber);
   }
 
-  /// Expects a token of a specific category at the following position.
+  /// Expects a token of the given [category] and return it when matched.
   ///
-  /// Advances the position to the next token and returns the token.
   /// Otherwise, it throws an [UnexpectedTokenError] or [MissingTokenError].
   Token expectToken(Category category) {
-    position++;
     if (position >= tokens.length) {
       throw MissingTokenError(position, category);
     }
