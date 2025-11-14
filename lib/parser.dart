@@ -106,7 +106,7 @@ class Parser {
 
   /// Parses a GOTO statement.
   ///
-  /// equalsExpects a number literal representing the line number to jump to.
+  /// Expects a number literal representing the line number to jump to.
   /// Returns a [GotoStatement] representing the parsed statement.
   Statement parseGotoStatement() {
     position++;
@@ -164,7 +164,8 @@ class Parser {
 
   /// Expects a token of the given [category] and return it when matched.
   ///
-  /// Otherwise, it throws an [UnexpectedTokenError] or [MissingTokenError].
+  /// Throws a [MissingTokenError] if the end of the token stream is reached.
+  /// Throws an [UnexpectedTokenError] if the current token is not of the given [category].
   Token expectToken(Category category) {
     if (position >= tokens.length) {
       throw MissingTokenError(position, category);
@@ -177,6 +178,10 @@ class Parser {
     return currentToken;
   }
 
+  /// Ensures the current token is a comparison operator and returns it.
+  ///
+  /// Throws a [MissingTokenError] if the end of the token stream is reached.
+  /// Throws an [UnexpectedTokenError] if the current token is not a comparison operator.
   Token expectComparisonOperator() {
     if (position >= tokens.length) {
       throw MissingTokenError(position, Category.equals);
