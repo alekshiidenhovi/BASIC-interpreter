@@ -1,4 +1,5 @@
 import "tokens.dart";
+import "expressions.dart";
 
 /// Generic error that occurs during parsing.
 ///
@@ -117,5 +118,41 @@ class InvalidCharacterError extends LexerError {
         characterNumber,
         "invalid character '$actualCharacter'",
         "Invalid character error",
+      );
+}
+
+class ExpressionEvaluationError extends Error {
+  /// The expression that could not be evaluated.
+  final Expression expression;
+
+  /// The error message.
+  final String message;
+
+  /// The name of the error.
+  final String errorName;
+
+  /// Creates a new [ExpressionEvaluationError].
+  ExpressionEvaluationError(
+    this.expression,
+    this.message, [
+    this.errorName = "Expression evaluation error",
+  ]);
+
+  @override
+  String toString() {
+    return "Expression evaluation error: $message";
+  }
+}
+
+class MissingIdentifierError extends ExpressionEvaluationError {
+  /// The identifier that was expected but not found.
+  final String identifier;
+
+  /// Creates a new [MissingIdentifierError].
+  MissingIdentifierError(Expression expression, this.identifier)
+    : super(
+        expression,
+        "missing identifier '$identifier'",
+        "Missing identifier error",
       );
 }

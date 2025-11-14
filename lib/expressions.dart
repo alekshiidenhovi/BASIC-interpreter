@@ -1,4 +1,5 @@
-import 'operators.dart';
+import "operators.dart";
+import "errors.dart";
 
 /// Represents an abstract expression that can be evaluated given a set of variables.
 ///
@@ -56,9 +57,11 @@ class IdentifierExpression extends Expression<num> {
 
   @override
   num evaluate(Map<String, num> variables) {
-    // Assumes the identifier will always be present in the variables map.
-    // Consider adding error handling for cases where the identifier might be missing.
-    return variables[identifier]!;
+    final value = variables[identifier];
+    if (value == null) {
+      throw MissingIdentifierError(this, identifier);
+    }
+    return value;
   }
 }
 
