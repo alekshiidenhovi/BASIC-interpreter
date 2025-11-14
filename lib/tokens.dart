@@ -8,6 +8,10 @@ enum Category {
   lessThanOrEqual,
   greaterThan,
   greaterThanOrEqual,
+  plus,
+  minus,
+  times,
+  divide,
   notEqual,
   identifier,
   let,
@@ -26,6 +30,10 @@ enum Category {
       greaterThan == this ||
       greaterThanOrEqual == this ||
       notEqual == this;
+
+  /// Whether this token can be used as an arithmetic operator.
+  bool isArithmeticOperator() =>
+      plus == this || minus == this || times == this || divide == this;
 }
 
 /// Represents a single token identified during the lexing process.

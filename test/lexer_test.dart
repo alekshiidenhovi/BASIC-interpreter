@@ -82,6 +82,44 @@ void main() {
     });
   });
 
+  group("Arithmetic operators", () {
+    test("Addition", () {
+      var lexer = Lexer('10 + 20');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '10'),
+        Token(Category.plus, '+'),
+        Token(Category.numberLiteral, '20'),
+      ]);
+    });
+
+    test("Subtraction", () {
+      var lexer = Lexer('10 - 20');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '10'),
+        Token(Category.minus, '-'),
+        Token(Category.numberLiteral, '20'),
+      ]);
+    });
+
+    test("Multiplication", () {
+      var lexer = Lexer('10 * 20');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '10'),
+        Token(Category.times, '*'),
+        Token(Category.numberLiteral, '20'),
+      ]);
+    });
+
+    test("Division", () {
+      var lexer = Lexer('10 / 20');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '10'),
+        Token(Category.divide, '/'),
+        Token(Category.numberLiteral, '20'),
+      ]);
+    });
+  });
+
   test('Comma, equals, and new line: , = \n', () {
     var lexer = Lexer(', = \n');
     expect(lexer.tokenize(), [

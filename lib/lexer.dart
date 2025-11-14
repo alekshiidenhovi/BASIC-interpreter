@@ -25,6 +25,7 @@ class Lexer {
     final RegExp comparisonOperatorPattern = RegExp(
       r'>=|<=|<>|=|<|>',
     ); // IMPORTANT: The pattern matching happens from left to right, so we need to matched GE/LE before GT/LT.
+    final RegExp arithmeticOperatorPattern = RegExp(r'\+|-|\*|/');
 
     List<Token> tokens = [];
 
@@ -80,6 +81,24 @@ class Lexer {
             ">=" => Token(Category.greaterThanOrEqual, operator),
             "<" => Token(Category.lessThan, operator),
             ">" => Token(Category.greaterThan, operator),
+            _ => throw InvalidCharacterError(_position, char),
+          };
+          tokens.add(token);
+          _setPosition(match.end);
+          continue;
+        }
+      } else if (arithmeticOperatorPattern.hasMatch(char)) {
+        final match = arithmeticOperatorPattern.matchAsPrefix(
+          source,
+          _position,
+        );
+        if (match != null) {
+          final operator = match.group(0)!;
+          final token = switch (operator) {
+            "+" => Token(Category.plus, operator),
+            "-" => Token(Category.minus, operator),
+            "*" => Token(Category.times, operator),
+            "/" => Token(Category.divide, operator),
             _ => throw InvalidCharacterError(_position, char),
           };
           tokens.add(token);
