@@ -140,7 +140,7 @@ class ExpressionEvaluationError extends Error {
 
   @override
   String toString() {
-    return "Expression evaluation error: $message";
+    return "Expression evaluation error: $expression - $message";
   }
 }
 
@@ -155,4 +155,10 @@ class MissingIdentifierError extends ExpressionEvaluationError {
         "missing identifier '$identifier'",
         "Missing identifier error",
       );
+}
+
+class DivisionByZeroError extends ExpressionEvaluationError {
+  /// Creates a new [DivisionByZeroError].
+  DivisionByZeroError(Expression expression)
+    : super(expression, "division by zero", "Division by zero");
 }

@@ -97,3 +97,37 @@ class ComparisonExpression extends Expression<bool> {
     };
   }
 }
+
+/// Represents an arithmetic operation between two numerical expressions.
+///
+/// This expression evaluates to a numerical value resulting from applying the given [operator]
+/// to the numerical values of the [lhs] and [rhs] expressions.
+class ArithmeticExpression extends Expression<num> {
+  /// The left-hand side of the arithmetic expression.
+  final Expression<num> lhs;
+
+  /// The right-hand side of the arithmetic expression.
+  final Expression<num> rhs;
+
+  /// The arithmetic operator to apply to the [lhs] and [rhs].
+  final ArithmeticOperator operator;
+
+  /// Creates a new [ArithmeticExpression] with the given [lhs], [rhs], and [operator].
+  ArithmeticExpression(this.lhs, this.rhs, this.operator);
+
+  @override
+  num evaluate(Map<String, num> variables) {
+    num leftValue = lhs.evaluate(variables);
+    num rightValue = rhs.evaluate(variables);
+
+    return switch (operator) {
+      ArithmeticOperator.add => leftValue + rightValue,
+      ArithmeticOperator.sub => leftValue - rightValue,
+      ArithmeticOperator.mul => leftValue * rightValue,
+      ArithmeticOperator.div =>
+        rightValue == 0
+            ? throw DivisionByZeroError(this)
+            : leftValue / rightValue,
+    };
+  }
+}

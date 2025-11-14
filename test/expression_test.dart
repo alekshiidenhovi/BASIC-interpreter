@@ -515,4 +515,206 @@ void main() {
       });
     });
   });
+
+  group("Arithmetic expressions", () {
+    group("Addition", () {
+      test("Two positive numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(43),
+          ArithmeticOperator.add,
+        );
+        expect(expression.evaluate({}), 85);
+      });
+
+      test("Two negative numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(-43),
+          ArithmeticOperator.add,
+        );
+        expect(expression.evaluate({}), -85);
+      });
+
+      test("One positive number, one negative number", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(-43),
+          ArithmeticOperator.add,
+        );
+        expect(expression.evaluate({}), -1);
+      });
+
+      test("One negative number, one positive number", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(43),
+          ArithmeticOperator.add,
+        );
+        expect(expression.evaluate({}), 1);
+      });
+
+      test("One positive number, one zero", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(0),
+          ArithmeticOperator.add,
+        );
+        expect(expression.evaluate({}), 42);
+      });
+
+      test("One negative number, one zero", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(0),
+          ArithmeticOperator.add,
+        );
+        expect(expression.evaluate({}), -42);
+      });
+    });
+
+    group("Subtraction", () {
+      test("Two positive numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(43),
+          ArithmeticOperator.sub,
+        );
+        expect(expression.evaluate({}), -1);
+      });
+
+      test("Two negative numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(-43),
+          ArithmeticOperator.sub,
+        );
+        expect(expression.evaluate({}), 1);
+      });
+
+      test("One positive number, one negative number", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(-43),
+          ArithmeticOperator.sub,
+        );
+        expect(expression.evaluate({}), 85);
+      });
+
+      test("One negative number, one positive number", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(43),
+          ArithmeticOperator.sub,
+        );
+        expect(expression.evaluate({}), -85);
+      });
+
+      test("One positive number, one zero", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(0),
+          ArithmeticOperator.sub,
+        );
+        expect(expression.evaluate({}), 42);
+      });
+
+      test("One negative number, one zero", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(0),
+          ArithmeticOperator.sub,
+        );
+        expect(expression.evaluate({}), -42);
+      });
+    });
+
+    group("Multiplication", () {
+      test("Two positive numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(2),
+          NumberLiteralExpression(3),
+          ArithmeticOperator.mul,
+        );
+        expect(expression.evaluate({}), 6);
+      });
+
+      test("Two negative numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-2),
+          NumberLiteralExpression(-3),
+          ArithmeticOperator.mul,
+        );
+        expect(expression.evaluate({}), 6);
+      });
+
+      test("One positive number, one negative number", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(2),
+          NumberLiteralExpression(-3),
+          ArithmeticOperator.mul,
+        );
+        expect(expression.evaluate({}), -6);
+      });
+
+      test("One zero", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(0),
+          NumberLiteralExpression(3),
+          ArithmeticOperator.mul,
+        );
+        expect(expression.evaluate({}), 0);
+      });
+    });
+
+    group("Division", () {
+      test("Two positive numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(42),
+          ArithmeticOperator.div,
+        );
+        expect(expression.evaluate({}), 1);
+      });
+
+      test("Two negative numbers", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(-42),
+          ArithmeticOperator.div,
+        );
+        expect(expression.evaluate({}), 1);
+      });
+
+      test("One positive number, one negative number", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(3),
+          NumberLiteralExpression(-2),
+          ArithmeticOperator.div,
+        );
+        expect(expression.evaluate({}), -1.5);
+      });
+
+      test("One negative number, one positive number", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(-42),
+          NumberLiteralExpression(6),
+          ArithmeticOperator.div,
+        );
+        expect(expression.evaluate({}), -7);
+      });
+
+      test("Division by zero", () {
+        final expression = ArithmeticExpression(
+          NumberLiteralExpression(42),
+          NumberLiteralExpression(0),
+          ArithmeticOperator.div,
+        );
+        expect(
+          () => expression.evaluate({}),
+          throwsA(isA<DivisionByZeroError>()),
+        );
+      });
+    });
+  });
 }
