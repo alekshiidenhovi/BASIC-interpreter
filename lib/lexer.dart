@@ -22,7 +22,9 @@ class Lexer {
     final RegExp keywordOrIdentifierPattern = RegExp(r'[A-Za-z][A-Za-z0-9]*');
 
     final RegExp comparisonStartingOperatorPattern = RegExp(r'=|>|<');
-    final RegExp comparisonOperatorPattern = RegExp(r'>=|<=|<>|=|<|>'); // IMPORTANT: The pattern matching happens from left to right, so we need to matched GE/LE before GT/LT.
+    final RegExp comparisonOperatorPattern = RegExp(
+      r'>=|<=|<>|=|<|>',
+    ); // IMPORTANT: The pattern matching happens from left to right, so we need to matched GE/LE before GT/LT.
 
     List<Token> tokens = [];
 
@@ -49,7 +51,7 @@ class Lexer {
           _position,
         );
         if (match != null) {
-          final keyword = match.group(0)!;
+          final keyword = match.group(0)!.toUpperCase();
           final token = switch (keyword) {
             "LET" => Token(Category.let, keyword),
             "PRINT" => Token(Category.print, keyword),
@@ -65,10 +67,13 @@ class Lexer {
           continue;
         }
       } else if (comparisonStartingOperatorPattern.hasMatch(char)) {
-        final match = comparisonOperatorPattern.matchAsPrefix(source, _position);
+        final match = comparisonOperatorPattern.matchAsPrefix(
+          source,
+          _position,
+        );
         if (match != null) {
           final operator = match.group(0)!;
-          final token  = switch (operator) {
+          final token = switch (operator) {
             "=" => Token(Category.equals, operator),
             "<>" => Token(Category.notEqual, operator),
             "<=" => Token(Category.lessThanOrEqual, operator),
@@ -101,14 +106,14 @@ class Lexer {
   void _advance() {
     _position++;
   }
-  
+
   /// Returns the nect character in the source string.
   String _peek() {
     return source[_position + 1];
   }
 
   /// Set the current character position to the given position.
-  void  _setPosition(int position) {
+  void _setPosition(int position) {
     _position = position;
   }
 

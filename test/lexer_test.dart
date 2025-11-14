@@ -52,6 +52,30 @@ void main() {
         Token(Category.identifier, 'A1'),
       ]);
     });
+
+    test("Uppercase keywords", () {
+      var lexer = Lexer('LET PRINT GOTO IF THEN END');
+      expect(lexer.tokenize(), [
+        Token(Category.let, 'LET'),
+        Token(Category.print, 'PRINT'),
+        Token(Category.goto, 'GOTO'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.then, 'THEN'),
+        Token(Category.endToken, 'END'),
+      ]);
+    });
+
+    test("Lowercase keywords", () {
+      var lexer = Lexer('let print goto if then end');
+      expect(lexer.tokenize(), [
+        Token(Category.let, 'LET'),
+        Token(Category.print, 'PRINT'),
+        Token(Category.goto, 'GOTO'),
+        Token(Category.ifToken, 'IF'),
+        Token(Category.then, 'THEN'),
+        Token(Category.endToken, 'END'),
+      ]);
+    });
   });
 
   test('Comma, equals, and new line: , = \n', () {
