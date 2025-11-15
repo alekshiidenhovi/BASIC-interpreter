@@ -18,6 +18,10 @@ enum Category {
   numberLiteral,
   print,
   stringLiteral,
+  forToken,
+  toToken,
+  stepToken,
+  nextToken,
   goto,
   ifToken,
   then;

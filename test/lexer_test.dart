@@ -156,6 +156,35 @@ void main() {
     ]);
   });
 
+  test("For statement", () {
+    var lexer = Lexer("""10 FOR I = 1 TO 10 STEP 2
+20 PRINT I
+30 NEXT I
+40 END""");
+    expect(lexer.tokenize(), [
+      Token(Category.numberLiteral, '10'),
+      Token(Category.forToken, 'FOR'),
+      Token(Category.identifier, 'I'),
+      Token(Category.equals, '='),
+      Token(Category.numberLiteral, '1'),
+      Token(Category.toToken, 'TO'),
+      Token(Category.numberLiteral, '10'),
+      Token(Category.stepToken, 'STEP'),
+      Token(Category.numberLiteral, '2'),
+      Token(Category.endOfLine, '\n'), // 10 FOR i = 1 TO 10 STEP 2
+      Token(Category.numberLiteral, '20'),
+      Token(Category.print, 'PRINT'),
+      Token(Category.identifier, 'I'),
+      Token(Category.endOfLine, '\n'), // 20 PRINT I
+      Token(Category.numberLiteral, '30'),
+      Token(Category.nextToken, 'NEXT'),
+      Token(Category.identifier, 'I'),
+      Token(Category.endOfLine, '\n'), // 30 NEXT I
+      Token(Category.numberLiteral, '40'),
+      Token(Category.endToken, 'END'), // 40 END
+    ]);
+  });
+
   group("If statement", () {
     test("equal comparison operator", () {
       var lexer = Lexer('20 IF A = 5 THEN 40');

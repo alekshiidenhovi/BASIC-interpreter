@@ -60,6 +60,10 @@ class Lexer {
             "IF" => Token(Category.ifToken, keyword),
             "THEN" => Token(Category.then, keyword),
             "END" => Token(Category.endToken, keyword),
+            "FOR" => Token(Category.forToken, keyword),
+            "TO" => Token(Category.toToken, keyword),
+            "STEP" => Token(Category.stepToken, keyword),
+            "NEXT" => Token(Category.nextToken, keyword),
             _ => Token(Category.identifier, keyword),
           };
 
