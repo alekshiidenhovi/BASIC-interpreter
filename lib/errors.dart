@@ -46,7 +46,7 @@ class UnexpectedTokenError extends ParserError {
     this.expectedTokenCategory,
   ) : super(
         tokenNumber,
-        "expected $expectedTokenCategory, got $actualTokenCategory!"
+        "expected $expectedTokenCategory, got $actualTokenCategory!",
         "Unexpected token error",
       );
 }
@@ -121,22 +121,37 @@ class InvalidCharacterError extends LexerError {
       );
 }
 
-class ExpressionEvaluationError extends Error {
-  /// The expression that could not be evaluated.
-  final Expression expression;
-
-  /// The error message.
+/// Generic error that occurs during interpretation.
+///
+/// This class serves as a base for all specific interpreter errors, providing
+/// common properties like a descriptive message and an error name.
+sealed class InterpreterError extends Error {
+  /// A message describing the error.
   final String message;
 
   /// The name of the error.
   final String errorName;
 
+  /// Creates a new [InterpreterError].
+  InterpreterError(this.message, [this.errorName = "Interpreter error"]);
+
+  @override
+  String toString() {
+    return "$errorName: $message";
+  }
+}
+
+/// Represents an error during expression evaluation.
+///
+/// This error is raised when an expression cannot be evaluated due to various
+/// reasons, such as missing identifiers or division by zero.
+class ExpressionEvaluationError extends InterpreterError {
+  /// The expression that could not be evaluated.
+  final Expression expression;
+
   /// Creates a new [ExpressionEvaluationError].
-  ExpressionEvaluationError(
-    this.expression,
-    this.message, [
-    this.errorName = "Expression evaluation error",
-  ]);
+  ExpressionEvaluationError(this.expression, String message, String errorName)
+    : super(message, errorName);
 
   @override
   String toString() {
@@ -144,6 +159,16 @@ class ExpressionEvaluationError extends Error {
   }
 }
 
+/// Represents an error that occurs during the runtime execution of a program.
+class RuntimeError extends InterpreterError {
+  /// Creates a new [RuntimeError].
+  RuntimeError(super.message, [super.errorName = "Runtime error"]);
+}
+
+/// Represents an error when a required identifier is missing during expression evaluation.
+///
+/// This error is raised when an expression references an identifier that has not
+/// been defined in the current scope.
 class MissingIdentifierError extends ExpressionEvaluationError {
   /// The identifier that was expected but not found.
   final String identifier;
@@ -157,6 +182,9 @@ class MissingIdentifierError extends ExpressionEvaluationError {
       );
 }
 
+/// Represents an error when division by zero occurs during expression evaluation.
+///
+/// This error is raised when an attempt is made to divide a number by zero.
 class DivisionByZeroError extends ExpressionEvaluationError {
   /// Creates a new [DivisionByZeroError].
   DivisionByZeroError(Expression expression)
