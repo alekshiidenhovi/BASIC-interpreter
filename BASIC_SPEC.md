@@ -113,18 +113,17 @@ BASIC is a line-oriented programming language. A BASIC program is a sequence of 
 ### Syntax
 1. program = block* end-line
 2. block = (line/for-block)*
-3. line = line-number statement end-of-line
-4. line-number = digit digit? digit? digit?
+3. line = statement end-of-line
 5. end-of-line = \n
-6. end-line = line-number end-statement end-of-line
+6. end-line = end-statement end-of-line
 7. end-statement = END
-8. statement = data-statement / def-statement / dimension -statement / gosub-statement / goto-statement / if-then-statement / input-statement / let-statement / on-goto-statement / option-statement / print-statement / randomize-statement / read-statement / remark-statement / restore-statement / return-statement / stop-statement
+8. statement = data-statement / def-statement / dimension-statement / if-then-statement / input-statement / let-statement / option-statement / print-statement / randomize-statement / read-statement / remark-statement / restore-statement / stop-statement
 
 ### Examples
 999 END
 
 ### Semantics
-A BASIC program consists of a sequence of lines ordered by line-numbers, where the last line contains an end-statement. Lines are executed in sequential order, starting with the first line, until
+A BASIC program consists of a sequence of lines ordered from top to bottom, where the last line contains an end-statement. Lines are executed in sequential order, starting with the first line, until
 - a control statement point to some other line, or
 - a fatal exception occurs, resulting in the program termination, or
 - a stop-statement or end-statement is executed.
@@ -133,13 +132,10 @@ Spaces may be used to improve the appearance and readability of the program. By 
 - at the beginning of a line
 - within keywords
 - within numeric constants
-- within line numbers
 - within function or variables names
 - within two-character relation symbols
 
 All keywords in a program must have at leasat one space before and after them. An exception is an end-of-line, where the space is not required.
-
-Each line must begin with a line-number. The line-number must be a positive integer. Leading zeros have no effect. Statements are executed in ascending line-number order, unless control flow alters the execution order of the program.
 
 Lines may contain up to 255 characters. The end-of-line character is not included in the line length.
 
@@ -775,7 +771,7 @@ Executing the randomize-statement sets a new random number seed, and causes the 
 None
 
 ## Differences with original Minimal BASIC
-- Lines do not require a line number. The order of execution is determined by the order of statements in the program / Duplicate line numbers are not allowed
+- Lines do not require a line number. The order of execution is determined by the order of statements in the program 
   - GOTO and GOSUB statements are not thus supported
 - Specific end-of-line character has been specified as `\n`.
 - Maximum number of characters per line has been increased from 72 to 255.
