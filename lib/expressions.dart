@@ -5,6 +5,8 @@ import "errors.dart";
 ///
 /// The type parameter `T` represents the return type of the expression when evaluated.
 sealed class Expression<T> {
+  const Expression();
+
   /// Evaluates the expression using the provided [variables].
   ///
   /// The [variables] map should contain mappings from variable names (Strings) to their
@@ -20,7 +22,7 @@ class NumberLiteralExpression extends Expression<num> {
   final num value;
 
   /// Creates a new [NumberLiteralExpression] with the given [value].
-  NumberLiteralExpression(this.value);
+  const NumberLiteralExpression(this.value);
 
   @override
   num evaluate(Map<String, num> variables) {
@@ -36,7 +38,7 @@ class StringLiteralExpression extends Expression<String> {
   final String value;
 
   /// Creates a new [StringLiteralExpression] with the given [value].
-  StringLiteralExpression(this.value);
+  const StringLiteralExpression(this.value);
 
   @override
   String evaluate(Map<String, num> variables) {
@@ -53,7 +55,7 @@ class IdentifierExpression extends Expression<num> {
   final String identifier;
 
   /// Creates a new [IdentifierExpression] with the given [identifier].
-  IdentifierExpression(this.identifier);
+  const IdentifierExpression(this.identifier);
 
   @override
   num evaluate(Map<String, num> variables) {
@@ -80,7 +82,7 @@ class ComparisonExpression extends Expression<bool> {
   final ComparisonOperator operator;
 
   /// Creates a new [ComparisonExpression] with the given [lhs], [rhs], and [operator].
-  ComparisonExpression(this.lhs, this.rhs, this.operator);
+  const ComparisonExpression(this.lhs, this.rhs, this.operator);
 
   @override
   bool evaluate(Map<String, num> variables) {
@@ -113,7 +115,7 @@ class ArithmeticExpression extends Expression<num> {
   final ArithmeticOperator operator;
 
   /// Creates a new [ArithmeticExpression] with the given [lhs], [rhs], and [operator].
-  ArithmeticExpression(this.lhs, this.rhs, this.operator);
+  const ArithmeticExpression(this.lhs, this.rhs, this.operator);
 
   @override
   num evaluate(Map<String, num> variables) {
