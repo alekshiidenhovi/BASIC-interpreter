@@ -34,81 +34,104 @@ class Lexer {
 
       if (numberPattern.hasMatch(char)) {
         final match = numberLiteralPattern.matchAsPrefix(source, _position);
-        if (match != null) {
-          tokens.add(Token(Category.numberLiteral, match.group(1)!));
-          _setPosition(match.end);
-          continue;
+        if (match == null) {
+          throw MissingRegexMatchError(_position);
         }
+        final group = match.group(1);
+        if (group == null) {
+          throw MissingRegexGroupError(_position);
+        }
+        tokens.add(Token(Category.numberLiteral, group));
+        _setPosition(match.end);
+        continue;
       } else if (char == '"') {
         final match = stringLiteralPattern.matchAsPrefix(source, _position);
-        if (match != null) {
-          tokens.add(Token(Category.stringLiteral, match.group(1)!));
-          _setPosition(match.end);
-          continue;
+        if (match == null) {
+          throw MissingRegexMatchError(_position);
         }
+        final group = match.group(1);
+        if (group == null) {
+          throw MissingRegexGroupError(_position);
+        }
+        tokens.add(Token(Category.stringLiteral, group));
+        _setPosition(match.end);
+        continue;
       } else if (keywordOrIdentifierPattern.hasMatch(char)) {
         final match = keywordOrIdentifierPattern.matchAsPrefix(
           source,
           _position,
         );
-        if (match != null) {
-          final keyword = match.group(0)!.toUpperCase();
-          final token = switch (keyword) {
-            "LET" => Token(Category.let, keyword),
-            "PRINT" => Token(Category.print, keyword),
-            "GOTO" => Token(Category.goto, keyword),
-            "IF" => Token(Category.ifToken, keyword),
-            "THEN" => Token(Category.then, keyword),
-            "END" => Token(Category.endToken, keyword),
-            "FOR" => Token(Category.forToken, keyword),
-            "TO" => Token(Category.toToken, keyword),
-            "STEP" => Token(Category.stepToken, keyword),
-            "NEXT" => Token(Category.nextToken, keyword),
-            _ => Token(Category.identifier, keyword),
-          };
-
-          tokens.add(token);
-          _setPosition(match.end);
-          continue;
+        if (match == null) {
+          throw MissingRegexMatchError(_position);
         }
+        final group = match.group(0);
+        if (group == null) {
+          throw MissingRegexGroupError(_position);
+        }
+        final keyword = group.toUpperCase();
+        final token = switch (keyword) {
+          "LET" => Token(Category.let, keyword),
+          "PRINT" => Token(Category.print, keyword),
+          "GOTO" => Token(Category.goto, keyword),
+          "IF" => Token(Category.ifToken, keyword),
+          "THEN" => Token(Category.then, keyword),
+          "END" => Token(Category.endToken, keyword),
+          "FOR" => Token(Category.forToken, keyword),
+          "TO" => Token(Category.toToken, keyword),
+          "STEP" => Token(Category.stepToken, keyword),
+          "NEXT" => Token(Category.nextToken, keyword),
+          _ => Token(Category.identifier, keyword),
+        };
+
+        tokens.add(token);
+        _setPosition(match.end);
+        continue;
       } else if (comparisonStartingOperatorPattern.hasMatch(char)) {
         final match = comparisonOperatorPattern.matchAsPrefix(
           source,
           _position,
         );
-        if (match != null) {
-          final operator = match.group(0)!;
-          final token = switch (operator) {
-            "=" => Token(Category.equals, operator),
-            "<>" => Token(Category.notEqual, operator),
-            "<=" => Token(Category.lessThanOrEqual, operator),
-            ">=" => Token(Category.greaterThanOrEqual, operator),
-            "<" => Token(Category.lessThan, operator),
-            ">" => Token(Category.greaterThan, operator),
-            _ => throw InvalidCharacterError(_position, char),
-          };
-          tokens.add(token);
-          _setPosition(match.end);
-          continue;
+        if (match == null) {
+          throw MissingRegexMatchError(_position);
         }
+        final operator = match.group(0);
+        if (operator == null) {
+          throw MissingRegexGroupError(_position);
+        }
+        final token = switch (operator) {
+          "=" => Token(Category.equals, operator),
+          "<>" => Token(Category.notEqual, operator),
+          "<=" => Token(Category.lessThanOrEqual, operator),
+          ">=" => Token(Category.greaterThanOrEqual, operator),
+          "<" => Token(Category.lessThan, operator),
+          ">" => Token(Category.greaterThan, operator),
+          _ => throw InvalidCharacterError(_position, char),
+        };
+        tokens.add(token);
+        _setPosition(match.end);
+        continue;
       } else if (arithmeticOperatorPattern.hasMatch(char)) {
         final match = arithmeticOperatorPattern.matchAsPrefix(
           source,
           _position,
         );
-        if (match != null) {
-          final operator = match.group(0)!;
-          final token = switch (operator) {
-            "+" => Token(Category.plus, operator),
-            "-" => Token(Category.minus, operator),
-            "*" => Token(Category.times, operator),
-            "/" => Token(Category.divide, operator),
-            _ => throw InvalidCharacterError(_position, char),
-          };
-          tokens.add(token);
-          _setPosition(match.end);
-          continue;
+        if (match == null) {
+          throw MissingRegexMatchError(_position);
         }
+        final operator = match.group(0);
+        if (operator == null) {
+          throw MissingRegexGroupError(_position);
+        }
+        final token = switch (operator) {
+          "+" => Token(Category.plus, operator),
+          "-" => Token(Category.minus, operator),
+          "*" => Token(Category.times, operator),
+          "/" => Token(Category.divide, operator),
+          _ => throw InvalidCharacterError(_position, char),
+        };
+        tokens.add(token);
+        _setPosition(match.end);
+        continue;
       } else if (char == ',') {
         tokens.add(Token(Category.comma, char));
         _advance();

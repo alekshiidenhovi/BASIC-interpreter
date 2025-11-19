@@ -122,6 +122,26 @@ class InvalidCharacterError extends LexerError {
       );
 }
 
+class MissingRegexMatchError extends LexerError {
+  /// Creates a new [MissingRegexMatchError].
+  MissingRegexMatchError(int characterNumber)
+    : super(
+        characterNumber,
+        "missing regex match",
+        "Missing regex match error",
+      );
+}
+
+class MissingRegexGroupError extends LexerError {
+  /// Creates a new [MissingRegexGroupError].
+  MissingRegexGroupError(int characterNumber)
+    : super(
+        characterNumber,
+        "missing regex group",
+        "Missing regex group error",
+      );
+}
+
 /// Generic error that occurs during interpretation.
 ///
 /// This class serves as a base for all specific interpreter errors, providing
