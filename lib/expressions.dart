@@ -86,8 +86,8 @@ class ComparisonExpression extends Expression<bool> {
 
   @override
   bool evaluate(Map<String, num> variables) {
-    num leftValue = lhs.evaluate(variables);
-    num rightValue = rhs.evaluate(variables);
+    final num leftValue = lhs.evaluate(variables);
+    final num rightValue = rhs.evaluate(variables);
 
     return switch (operator) {
       ComparisonOperator.eq => leftValue == rightValue,
@@ -119,8 +119,8 @@ class ArithmeticExpression extends Expression<num> {
 
   @override
   num evaluate(Map<String, num> variables) {
-    num leftValue = lhs.evaluate(variables);
-    num rightValue = rhs.evaluate(variables);
+    final num leftValue = lhs.evaluate(variables);
+    final num rightValue = rhs.evaluate(variables);
 
     return switch (operator) {
       ArithmeticOperator.add => leftValue + rightValue,
