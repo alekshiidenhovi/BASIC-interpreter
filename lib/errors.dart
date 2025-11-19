@@ -108,6 +108,7 @@ sealed class LexerError extends Error {
   }
 }
 
+/// Represents an error when an invalid character is encountered during lexing.
 class InvalidCharacterError extends LexerError {
   /// The character that was found to be invalid.
   final String actualCharacter;
