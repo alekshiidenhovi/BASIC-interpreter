@@ -4,11 +4,24 @@ import 'package:test/test.dart';
 
 void main() {
   group("Literals", () {
-    test('Number literals: 10 4.2', () {
+    test('Positive number literals', () {
       var lexer = Lexer('10 4.2');
       expect(lexer.tokenize(), [
         Token(Category.numberLiteral, '10'),
         Token(Category.numberLiteral, '4.2'),
+      ]);
+    });
+
+    test("Zero number literal", () {
+      var lexer = Lexer('0');
+      expect(lexer.tokenize(), [Token(Category.numberLiteral, '0')]);
+    });
+
+    test('Negative number literals', () {
+      var lexer = Lexer('-10 -4.2');
+      expect(lexer.tokenize(), [
+        Token(Category.numberLiteral, '-10'),
+        Token(Category.numberLiteral, '-4.2'),
       ]);
     });
 

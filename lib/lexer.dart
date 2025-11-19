@@ -1,5 +1,6 @@
 import "tokens.dart";
 import "errors.dart";
+import "regex.dart";
 
 /// A lexer that tokenizes a given source string into a list of tokens.
 class Lexer {
@@ -16,23 +17,13 @@ class Lexer {
   ///
   /// Returns a [List<Token>] representing the tokenized source code.
   List<Token> tokenize() {
-    final RegExp numberPattern = RegExp(r'\d');
-    final RegExp numberLiteralPattern = RegExp(r'(\d+(\.\d+)?)');
-    final RegExp stringLiteralPattern = RegExp(r'"(.*?)"');
-    final RegExp keywordOrIdentifierPattern = RegExp(r'[A-Za-z][A-Za-z0-9]*');
-
-    final RegExp comparisonStartingOperatorPattern = RegExp(r'=|>|<');
-    final RegExp comparisonOperatorPattern = RegExp(
-      r'>=|<=|<>|=|<|>',
-    ); // IMPORTANT: The pattern matching happens from left to right, so we need to matched GE/LE before GT/LT.
-    final RegExp arithmeticOperatorPattern = RegExp(r'\+|-|\*|/');
-
     List<Token> tokens = [];
 
     while (_position < source.length) {
       String char = source[_position];
 
-      if (numberPattern.hasMatch(char)) {
+      if (numberPattern.hasMatch(char) ||
+          _isNegativeDigitPrefix(source, _position)) {
         final match = numberLiteralPattern.matchAsPrefix(source, _position);
         if (match == null) {
           throw MissingRegexMatchError(_position);
@@ -165,6 +156,16 @@ class Lexer {
   /// Set the current character position to the given position.
   void _setPosition(int position) {
     _position = position;
+  }
+
+  bool _isNegativeDigitPrefix(String source, int position) {
+    final nextPosition = position + 1;
+    if (nextPosition >= source.length) {
+      return false;
+    }
+    final char = source[position];
+    final nextChar = source[nextPosition];
+    return char == '-' && numberPattern.hasMatch(nextChar);
   }
 
   /// Returns the current character position.
