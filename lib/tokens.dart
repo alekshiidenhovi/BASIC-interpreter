@@ -1,6 +1,7 @@
 /// Represents the different categories of tokens that can be recognized during lexing.
 enum Category {
   comma,
+  semicolon,
   endOfLine,
   endToken,
   equals,

@@ -27,6 +27,16 @@ void main() {
         Token(Category.stringLiteral, 'BASIC'),
       ]);
     });
+
+    test("Semicolon separator", () {
+      var lexer = Lexer("PRINT 1; 2");
+      expect(lexer.tokenize(), [
+        Token(Category.print, 'PRINT'),
+        Token(Category.numberLiteral, '1'),
+        Token(Category.semicolon, ';'),
+        Token(Category.numberLiteral, '2'),
+      ]);
+    });
   });
 
   group("Keywords and identifiers", () {

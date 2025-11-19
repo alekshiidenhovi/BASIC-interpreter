@@ -136,6 +136,10 @@ class Lexer {
         tokens.add(Token(Category.comma, char));
         _advance();
         continue;
+      } else if (char == ';') {
+        tokens.add(Token(Category.semicolon, char));
+        _advance();
+        continue;
       } else if (char == '\n') {
         tokens.add(Token(Category.endOfLine, char));
         _advance();
