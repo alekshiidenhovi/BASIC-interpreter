@@ -166,12 +166,13 @@ A string-constant is a character string enclosed in quotation marks.
 
 ### Syntax
 1. numeric-constant = minus-sign? numeric-rep
-2. numeric-rep = significand exponent?
-3. significand = integer full-stop / integer? fraction
-4. integer = digit digit*
-5. fraction = full-stop digit digit*
-6. exponent = E sign? integer
-7. string-constant = quoted-string
+2. sign = plus-sign / minus-sign
+3. numeric-rep = significand exponent?
+4. significand = integer fraction?
+5. integer = digit digit*
+6. fraction = full-stop digit digit*
+7. exponent = E sign? integer
+8. string-constant = quoted-string
 
 ### Examples
 - implicit point unscaled representation    (123, -9)
