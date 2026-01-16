@@ -1,13 +1,15 @@
 import "tokens.dart";
 import "errors.dart";
-import "regex.dart";
+
+/// A parser that parses a given source string into a value of type [T].
+typedef LexerParser<T> = T Function(String source);
 
 /// A lexer that tokenizes a given source string into a list of tokens.
 class Lexer {
   /// The source string to tokenize.
-  final String source;
+  String source;
 
-  /// The current position in the source string during tokenization.
+  /// The current position in the source string during tokenization, initialized to 0.
   int _position = 0;
 
   /// Creates a new [Lexer] instance with the given source string.
@@ -19,150 +21,141 @@ class Lexer {
   List<Token> tokenize() {
     List<Token> tokens = [];
 
-    while (_position < source.length) {
-      String char = source[_position];
+    final whitespaceParser = createWhitespaceParser();
 
-      if (numberPattern.hasMatch(char) ||
-          _isNegativeDigitPrefix(source, _position)) {
-        final match = numberLiteralPattern.matchAsPrefix(source, _position);
-        if (match == null) {
-          throw MissingRegexMatchError(_position);
-        }
-        final group = match.group(1);
-        if (group == null) {
-          throw MissingRegexGroupError(_position);
-        }
-        tokens.add(NumberLiteralToken(num.parse(group)));
-        _setPosition(match.end);
-        continue;
-      } else if (char == '"') {
-        final match = stringLiteralPattern.matchAsPrefix(source, _position);
-        if (match == null) {
-          throw MissingRegexMatchError(_position);
-        }
-        final group = match.group(1);
-        if (group == null) {
-          throw MissingRegexGroupError(_position);
-        }
-        tokens.add(StringLiteralToken(group));
-        _setPosition(match.end);
-        continue;
-      } else if (keywordOrIdentifierPattern.hasMatch(char)) {
-        final match = keywordOrIdentifierPattern.matchAsPrefix(
-          source,
-          _position,
-        );
-        if (match == null) {
-          throw MissingRegexMatchError(_position);
-        }
-        final group = match.group(0);
-        if (group == null) {
-          throw MissingRegexGroupError(_position);
-        }
-        final keyword = group.toUpperCase();
-        final token = switch (keyword) {
-          "LET" => LetKeywordToken(),
-          "PRINT" => PrintKeywordToken(),
-          "GOTO" => GotoKeywordToken(),
-          "IF" => IfKeywordToken(),
-          "THEN" => ThenKeywordToken(),
-          "END" => EndKeywordToken(),
-          "FOR" => ForKeywordToken(),
-          "TO" => ToKeywordToken(),
-          "STEP" => StepKeywordToken(),
-          "NEXT" => NextKeywordToken(),
-          _ => IdentifierToken(group),
-        };
+    final parsers = [
+      createNumberLiteralParser(),
+      createStringLiteralParser(),
+      createKeywordOrIdentifierParser(),
+      createRegexParser(RegExp(r'^>='), GreaterThanOrEqualToken()),
+      createRegexParser(RegExp(r'^<='), LessThanOrEqualToken()),
+      createRegexParser(RegExp(r'^<>'), NotEqualToken()),
+      createRegexParser(RegExp(r'^='), EqualsToken()),
+      createRegexParser(RegExp(r'^<'), LessThanToken()),
+      createRegexParser(RegExp(r'^>'), GreaterThanToken()),
+      createRegexParser(RegExp(r'^\+'), PlusToken()),
+      createRegexParser(RegExp(r'^\-'), MinusToken()),
+      createRegexParser(RegExp(r'^\*'), TimesToken()),
+      createRegexParser(RegExp(r'^/'), DivideToken()),
+      createRegexParser(RegExp(r'^,'), CommaToken()),
+      createRegexParser(RegExp(r'^;'), SemicolonToken()),
+      createRegexParser(RegExp(r'^\n'), EndOfLineToken()),
+    ];
 
-        tokens.add(token);
-        _setPosition(match.end);
-        continue;
-      } else if (comparisonStartingOperatorPattern.hasMatch(char)) {
-        final match = comparisonOperatorPattern.matchAsPrefix(
-          source,
-          _position,
-        );
-        if (match == null) {
-          throw MissingRegexMatchError(_position);
+    while (source.isNotEmpty) {
+      source = whitespaceParser(source);
+      if (source.isEmpty) break;
+
+      bool matched = false;
+      for (final parser in parsers) {
+        try {
+          final (remainingStr, token) = parser(source);
+          tokens.add(token);
+          source = remainingStr;
+          matched = true;
+          break;
+        } catch (_) {
+          continue;
         }
-        final operator = match.group(0);
-        if (operator == null) {
-          throw MissingRegexGroupError(_position);
-        }
-        final token = switch (operator) {
-          "=" => EqualsToken(),
-          "<>" => NotEqualToken(),
-          "<=" => LessThanOrEqualToken(),
-          ">=" => GreaterThanOrEqualToken(),
-          "<" => LessThanToken(),
-          ">" => GreaterThanToken(),
-          _ => throw InvalidCharacterError(_position, char),
-        };
-        tokens.add(token);
-        _setPosition(match.end);
-        continue;
-      } else if (arithmeticOperatorPattern.hasMatch(char)) {
-        final match = arithmeticOperatorPattern.matchAsPrefix(
-          source,
-          _position,
-        );
-        if (match == null) {
-          throw MissingRegexMatchError(_position);
-        }
-        final operator = match.group(0);
-        if (operator == null) {
-          throw MissingRegexGroupError(_position);
-        }
-        final token = switch (operator) {
-          "+" => PlusToken(),
-          "-" => MinusToken(),
-          "*" => TimesToken(),
-          "/" => DivideToken(),
-          _ => throw InvalidCharacterError(_position, char),
-        };
-        tokens.add(token);
-        _setPosition(match.end);
-        continue;
-      } else if (char == ',') {
-        tokens.add(CommaToken());
-        _advance();
-        continue;
-      } else if (char == ';') {
-        tokens.add(SemicolonToken());
-        _advance();
-        continue;
-      } else if (char == '\n') {
-        tokens.add(EndOfLineToken());
-        _advance();
-        continue;
       }
-
-      _advance();
+      if (!matched) {
+        throw UnmatchedStringError(_position, source);
+      }
     }
 
     return tokens;
   }
 
-  /// Advances the  current character position by one.
-  void _advance() {
-    _position++;
+  LexerParser<String> createWhitespaceParser() {
+    return (String source) {
+      final pattern = RegExp(r'^ ');
+      final match = pattern.matchAsPrefix(source);
+
+      if (match == null) return source;
+      _position += match.end;
+      return source.substring(match.end);
+    };
   }
 
-  /// Set the current character position to the given position.
-  void _setPosition(int position) {
-    _position = position;
+  LexerParser<(String, Token)> createNumberLiteralParser() {
+    return (String source) {
+      final pattern = RegExp(r'^(-?\d+(\.\d+)?)');
+      final match = pattern.matchAsPrefix(source);
+      if (match == null) {
+        throw MissingRegexMatchError(_position, source, pattern);
+      }
+      final matchedStr = match.group(0);
+      if (matchedStr == null) {
+        throw MissingRegexGroupError(_position, source, pattern);
+      }
+      _position += matchedStr.length;
+      return (
+        source.substring(match.end),
+        NumberLiteralToken(num.parse(matchedStr)),
+      );
+    };
   }
 
-  bool _isNegativeDigitPrefix(String source, int position) {
-    final nextPosition = position + 1;
-    if (nextPosition >= source.length) {
-      return false;
-    }
-    final char = source[position];
-    final nextChar = source[nextPosition];
-    return char == '-' && numberPattern.hasMatch(nextChar);
+  LexerParser<(String, Token)> createStringLiteralParser() {
+    return (String source) {
+      final pattern = RegExp(r'^"(.*?)"');
+      final match = pattern.matchAsPrefix(source);
+      if (match == null) {
+        throw MissingRegexMatchError(_position, source, pattern);
+      }
+      final fullMatch = match.group(0);
+      final content = match.group(1);
+
+      if (content == null || fullMatch == null) {
+        throw MissingRegexGroupError(_position, source, pattern);
+      }
+      _position += fullMatch.length;
+      return (source.substring(fullMatch.length), StringLiteralToken(content));
+    };
   }
 
-  /// Returns the current character position.
-  int get position => _position;
+  LexerParser<(String, Token)> createKeywordOrIdentifierParser() {
+    return (String source) {
+      final pattern = RegExp(r'^[A-Za-z][A-Za-z0-9]*');
+      final match = pattern.matchAsPrefix(source);
+      if (match == null) {
+        throw MissingRegexMatchError(_position, source, pattern);
+      }
+      final matchedStr = match.group(0);
+      if (matchedStr == null) {
+        throw MissingRegexGroupError(_position, source, pattern);
+      }
+      final uppercaseStr = matchedStr.toUpperCase();
+      final token = switch (uppercaseStr) {
+        "LET" => LetKeywordToken(),
+        "PRINT" => PrintKeywordToken(),
+        "GOTO" => GotoKeywordToken(),
+        "IF" => IfKeywordToken(),
+        "THEN" => ThenKeywordToken(),
+        "END" => EndKeywordToken(),
+        "FOR" => ForKeywordToken(),
+        "TO" => ToKeywordToken(),
+        "STEP" => StepKeywordToken(),
+        "NEXT" => NextKeywordToken(),
+        _ => IdentifierToken(matchedStr),
+      };
+      _position += uppercaseStr.length;
+      return (source.substring(uppercaseStr.length), token);
+    };
+  }
+
+  LexerParser<(String, Token)> createRegexParser(RegExp pattern, Token token) {
+    return (String source) {
+      final match = pattern.matchAsPrefix(source);
+      if (match == null) {
+        throw MissingRegexMatchError(_position, source, pattern);
+      }
+      final matchedStr = match.group(0);
+      if (matchedStr == null) {
+        throw MissingRegexGroupError(_position, source, pattern);
+      }
+      _position += matchedStr.length;
+      return (source.substring(matchedStr.length), token);
+    };
+  }
 }

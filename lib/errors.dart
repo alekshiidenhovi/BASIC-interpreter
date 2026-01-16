@@ -122,39 +122,51 @@ sealed class LexerError extends Error {
   }
 }
 
-/// Represents an error when an invalid character is encountered during lexing.
-class InvalidCharacterError extends LexerError {
-  /// The character that was found to be invalid.
-  final String actualCharacter;
-
-  /// Creates a new [InvalidCharacterError].
-  InvalidCharacterError(int characterNumber, this.actualCharacter)
-    : super(
-        characterNumber,
-        "invalid character '$actualCharacter'",
-        "Invalid character error",
-      );
-}
-
 /// Represents an error when a regex match is missing during lexing.
 class MissingRegexMatchError extends LexerError {
+  /// The source string that could not be matched.
+  final String source;
+
+  /// The regex pattern that was expected but not found.
+  final RegExp pattern;
+
   /// Creates a new [MissingRegexMatchError].
-  MissingRegexMatchError(int characterNumber)
+  MissingRegexMatchError(int characterNumber, this.source, this.pattern)
     : super(
         characterNumber,
-        "missing regex match",
+        "missing regex match, expected pattern '$pattern' to match '$source'",
         "Missing regex match error",
       );
 }
 
 /// Represents an error when a regex group is missing during lexing.
 class MissingRegexGroupError extends LexerError {
+  /// The source string that could not be matched.
+  final String source;
+
+  /// The regex pattern that was expected but not found.
+  final RegExp pattern;
+
   /// Creates a new [MissingRegexGroupError].
-  MissingRegexGroupError(int characterNumber)
+  MissingRegexGroupError(int characterNumber, this.source, this.pattern)
     : super(
         characterNumber,
         "missing regex group",
         "Missing regex group error",
+      );
+}
+
+/// Represents an error when a string is not matched during lexing against any of the parsers.
+class UnmatchedStringError extends LexerError {
+  /// The source string that could not be matched.
+  final String source;
+
+  /// Creates a new [NonmatchingParserError].
+  UnmatchedStringError(int characterNumber, this.source)
+    : super(
+        characterNumber,
+        "unmatched string '$source'",
+        "Nonmatching parser error",
       );
 }
 
