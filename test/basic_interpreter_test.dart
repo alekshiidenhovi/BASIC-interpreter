@@ -10,7 +10,7 @@ void main() {
 
   group("Printing", () {
     test('10 PRINT "HELLO, WORLD!"', () {
-      expect(interpreter.interpret('10 PRINT "HELLO, WORLD!"'), [
+      expect(interpreter.interpret('10 PRINT "HELLO, WORLD!"\n'), [
         "HELLO, WORLD!",
       ]);
     });
@@ -18,7 +18,7 @@ void main() {
     test('Two print statements', () {
       expect(
         interpreter.interpret(
-          '10 PRINT "HELLO, WORLD!"\n20 PRINT "HELLO, BASIC!"',
+          '10 PRINT "HELLO, WORLD!"\n20 PRINT "HELLO, BASIC!"\n',
         ),
         ["HELLO, WORLD!", "HELLO, BASIC!"],
       );
@@ -26,7 +26,7 @@ void main() {
 
     test('10 PRINT "HELLO, WORLD!", "HELLO, BASIC!"', () {
       expect(
-        interpreter.interpret('10 PRINT "HELLO, WORLD!", "HELLO, BASIC!"'),
+        interpreter.interpret('10 PRINT "HELLO, WORLD!", "HELLO, BASIC!"\n'),
         ["HELLO, WORLD!\tHELLO, BASIC!"],
       );
     });
@@ -34,15 +34,15 @@ void main() {
 
   group("Variables", () {
     test('10 LET A = 5\n20 PRINT A', () {
-      expect(interpreter.interpret('10 LET A = 5\n20 PRINT A'), ["5"]);
+      expect(interpreter.interpret('10 LET A = 5\n20 PRINT A\n'), ["5"]);
     });
 
     test('10 LET A = 5.2\n20 PRINT A', () {
-      expect(interpreter.interpret('10 LET A = 5.2\n20 PRINT A'), ["5.2"]);
+      expect(interpreter.interpret('10 LET A = 5.2\n20 PRINT A\n'), ["5.2"]);
     });
 
     test('10 LET A = 42\n20 PRINT "A IS", A', () {
-      expect(interpreter.interpret('10 LET A = 42\n20 PRINT "A IS", A'), [
+      expect(interpreter.interpret('10 LET A = 42\n20 PRINT "A IS", A\n'), [
         "A IS\t42",
       ]);
     });
@@ -51,7 +51,7 @@ void main() {
   group("Goto statements", () {
     test("Goto statement skipping a line", () {
       expect(
-        interpreter.interpret('10 GOTO 30\n20 PRINT "SKIP"\n30 PRINT "END"'),
+        interpreter.interpret('10 GOTO 30\n20 PRINT "SKIP"\n30 PRINT "END"\n'),
         ["END"],
       );
     });
@@ -63,7 +63,8 @@ void main() {
         interpreter.interpret('''10 LET A = 5
 20 IF A = 5 THEN 40
 30 PRINT "This is skipped"
-40 PRINT "Thanks, BASIC!"'''),
+40 PRINT "Thanks, BASIC!"
+'''),
         ["Thanks, BASIC!"],
       );
     });
@@ -76,7 +77,8 @@ void main() {
 20 IF A = 5 THEN 40
 30 PRINT "This is skipped"
 40 END
-50 PRINT "This is not executed"'''),
+50 PRINT "This is not executed"
+'''),
         [],
       );
     });

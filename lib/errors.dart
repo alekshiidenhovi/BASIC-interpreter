@@ -28,44 +28,44 @@ sealed class ParserError extends Error {
   }
 }
 
+/// Represents a token type option for the [UnexpectedTokenError] error.
+sealed class TokenTypeOption {
+  const TokenTypeOption();
+}
+
+/// Represents a single token type option for the [UnexpectedTokenError] error.
+class TokenTypeOptionOne extends TokenTypeOption {
+  final TokenType tokenType;
+
+  const TokenTypeOptionOne(this.tokenType);
+}
+
+/// Represents multiple token type options for the [UnexpectedTokenError] error.
+class TokenTypeOptionMany extends TokenTypeOption {
+  final List<TokenType> tokenTypes;
+
+  const TokenTypeOptionMany(this.tokenTypes);
+}
+
 /// Represents an error when an unexpected token is encountered during parsing.
 ///
 /// This error is raised when the parser finds a token that it did not expect,
 /// given the current parsing state.
 class UnexpectedTokenError extends ParserError {
-  /// The category of the token that was actually found.
-  final Category actualTokenCategory;
+  /// The token that was actually found.
+  final TokenType actualToken;
 
-  /// The category of the token that was expected.
-  final Category expectedTokenCategory;
+  /// The token that was expected.
+  final TokenTypeOption expected;
 
   /// Creates a new [UnexpectedTokenError].
-  UnexpectedTokenError(
-    int tokenNumber,
-    this.actualTokenCategory,
-    this.expectedTokenCategory,
-  ) : super(
-        tokenNumber,
-        "expected $expectedTokenCategory, got $actualTokenCategory!",
-        "Unexpected token error",
-      );
-}
-
-/// Represents an error when a required token is missing during parsing.
-///
-/// This error is raised when the parser expects a specific token but does not
-/// find any token at the current position.
-class MissingTokenError extends ParserError {
-  /// The category of the token that was expected but not found.
-  final Category expectedTokenCategory;
-
-  /// Creates a new [MissingTokenError].
-  MissingTokenError(int tokenNumber, this.expectedTokenCategory)
-    : super(
-        tokenNumber,
-        "expected $expectedTokenCategory, no token was found!",
-        "Missing token error",
-      );
+  UnexpectedTokenError(int tokenNumber, this.actualToken, this.expected)
+    : super(tokenNumber, switch (expected) {
+        TokenTypeOptionOne(tokenType: var t) =>
+          "expected $t, got $actualToken!",
+        TokenTypeOptionMany(tokenTypes: var ts) =>
+          "expected one of ${ts.join(", ")}, got $actualToken!",
+      }, "Unexpected token error");
 }
 
 /// Represents an error when an invalid token is encountered during parsing.
@@ -73,12 +73,26 @@ class MissingTokenError extends ParserError {
 /// This error is raised when the parser finds a token that is not valid in the
 /// current context, even if it's not strictly an unexpected category.
 class InvalidTokenError extends ParserError {
-  /// The category of the token that was found to be invalid.
-  final Category actualTokenCategory;
+  /// The token that was found to be invalid.
+  final TokenType actualToken;
 
   /// Creates a new [InvalidTokenError].
-  InvalidTokenError(int tokenNumber, this.actualTokenCategory)
-    : super(tokenNumber, "got $actualTokenCategory!", "Invalid token error");
+  InvalidTokenError(int tokenNumber, this.actualToken)
+    : super(tokenNumber, "got $actualToken!", "Invalid token error");
+}
+
+/// Represents an error when the end of the input is encountered during parsing.
+///
+/// This error is raised when the parser encounters the end of the input before
+/// it has encountered the expected end of statement token.
+class UnexpectedEndOfInputError extends ParserError {
+  /// Creates a new [UnexpectedEndOfInputError].
+  UnexpectedEndOfInputError(int tokenNumber)
+    : super(
+        tokenNumber,
+        "unexpected end of input at token number $tokenNumber",
+        "Unexpected end of input error",
+      );
 }
 
 /// Generic error that occurs during lexing.
@@ -122,6 +136,7 @@ class InvalidCharacterError extends LexerError {
       );
 }
 
+/// Represents an error when a regex match is missing during lexing.
 class MissingRegexMatchError extends LexerError {
   /// Creates a new [MissingRegexMatchError].
   MissingRegexMatchError(int characterNumber)
@@ -132,6 +147,7 @@ class MissingRegexMatchError extends LexerError {
       );
 }
 
+/// Represents an error when a regex group is missing during lexing.
 class MissingRegexGroupError extends LexerError {
   /// Creates a new [MissingRegexGroupError].
   MissingRegexGroupError(int characterNumber)

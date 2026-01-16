@@ -32,7 +32,7 @@ class Lexer {
         if (group == null) {
           throw MissingRegexGroupError(_position);
         }
-        tokens.add(Token(Category.numberLiteral, group));
+        tokens.add(NumberLiteralToken(num.parse(group)));
         _setPosition(match.end);
         continue;
       } else if (char == '"') {
@@ -44,7 +44,7 @@ class Lexer {
         if (group == null) {
           throw MissingRegexGroupError(_position);
         }
-        tokens.add(Token(Category.stringLiteral, group));
+        tokens.add(StringLiteralToken(group));
         _setPosition(match.end);
         continue;
       } else if (keywordOrIdentifierPattern.hasMatch(char)) {
@@ -61,17 +61,17 @@ class Lexer {
         }
         final keyword = group.toUpperCase();
         final token = switch (keyword) {
-          "LET" => Token(Category.let, keyword),
-          "PRINT" => Token(Category.print, keyword),
-          "GOTO" => Token(Category.goto, keyword),
-          "IF" => Token(Category.ifToken, keyword),
-          "THEN" => Token(Category.then, keyword),
-          "END" => Token(Category.endToken, keyword),
-          "FOR" => Token(Category.forToken, keyword),
-          "TO" => Token(Category.toToken, keyword),
-          "STEP" => Token(Category.stepToken, keyword),
-          "NEXT" => Token(Category.nextToken, keyword),
-          _ => Token(Category.identifier, keyword),
+          "LET" => LetKeywordToken(),
+          "PRINT" => PrintKeywordToken(),
+          "GOTO" => GotoKeywordToken(),
+          "IF" => IfKeywordToken(),
+          "THEN" => ThenKeywordToken(),
+          "END" => EndKeywordToken(),
+          "FOR" => ForKeywordToken(),
+          "TO" => ToKeywordToken(),
+          "STEP" => StepKeywordToken(),
+          "NEXT" => NextKeywordToken(),
+          _ => IdentifierToken(group),
         };
 
         tokens.add(token);
@@ -90,12 +90,12 @@ class Lexer {
           throw MissingRegexGroupError(_position);
         }
         final token = switch (operator) {
-          "=" => Token(Category.equals, operator),
-          "<>" => Token(Category.notEqual, operator),
-          "<=" => Token(Category.lessThanOrEqual, operator),
-          ">=" => Token(Category.greaterThanOrEqual, operator),
-          "<" => Token(Category.lessThan, operator),
-          ">" => Token(Category.greaterThan, operator),
+          "=" => EqualsToken(),
+          "<>" => NotEqualToken(),
+          "<=" => LessThanOrEqualToken(),
+          ">=" => GreaterThanOrEqualToken(),
+          "<" => LessThanToken(),
+          ">" => GreaterThanToken(),
           _ => throw InvalidCharacterError(_position, char),
         };
         tokens.add(token);
@@ -114,25 +114,25 @@ class Lexer {
           throw MissingRegexGroupError(_position);
         }
         final token = switch (operator) {
-          "+" => Token(Category.plus, operator),
-          "-" => Token(Category.minus, operator),
-          "*" => Token(Category.times, operator),
-          "/" => Token(Category.divide, operator),
+          "+" => PlusToken(),
+          "-" => MinusToken(),
+          "*" => TimesToken(),
+          "/" => DivideToken(),
           _ => throw InvalidCharacterError(_position, char),
         };
         tokens.add(token);
         _setPosition(match.end);
         continue;
       } else if (char == ',') {
-        tokens.add(Token(Category.comma, char));
+        tokens.add(CommaToken());
         _advance();
         continue;
       } else if (char == ';') {
-        tokens.add(Token(Category.semicolon, char));
+        tokens.add(SemicolonToken());
         _advance();
         continue;
       } else if (char == '\n') {
-        tokens.add(Token(Category.endOfLine, char));
+        tokens.add(EndOfLineToken());
         _advance();
         continue;
       }
@@ -146,11 +146,6 @@ class Lexer {
   /// Advances the  current character position by one.
   void _advance() {
     _position++;
-  }
-
-  /// Returns the nect character in the source string.
-  String _peek() {
-    return source[_position + 1];
   }
 
   /// Set the current character position to the given position.

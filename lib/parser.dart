@@ -1,10 +1,10 @@
 import 'dart:collection';
-import "package:basic_interpreter/operators.dart";
 
 import "expressions.dart";
 import "tokens.dart";
 import "statements.dart";
 import "errors.dart";
+import "operators.dart";
 
 /// Parses a list of tokens into executable statements.
 class Parser {
@@ -12,7 +12,7 @@ class Parser {
   final List<Token> tokens;
 
   /// The position, initialized to -1 to indicate an invalid or unset state.
-  int position = -1;
+  int position = 0;
 
   /// Creates a new [Parser] instance.
   ///
@@ -26,23 +26,27 @@ class Parser {
     SplayTreeMap<int, Statement> program = SplayTreeMap();
 
     while (position < tokens.length) {
-      position++;
-      final lineNumberToken = expectToken(Category.numberLiteral);
-      final lineNumber = int.parse(lineNumberToken.value);
-
-      position++;
-      final keywordToken = tokens[position];
-
-      final statement = switch (keywordToken.category) {
-        Category.let => parseLetStatement(),
-        Category.print => parsePrintStatement(),
-        Category.goto => parseGotoStatement(),
-        Category.ifToken => parseIfStatement(),
-        Category.endToken => parseEndStatement(),
-        _ => throw InvalidTokenError(position, keywordToken.category),
+      final lineNumberToken = parseNumberLiteral();
+      final keywordToken = peekToken();
+      final statement = switch (keywordToken) {
+        LetKeywordToken() => parseLetStatement(),
+        PrintKeywordToken() => parsePrintStatement(),
+        GotoKeywordToken() => parseGotoStatement(),
+        IfKeywordToken() => parseIfStatement(),
+        EndKeywordToken() => parseEndStatement(),
+        _ => throw UnexpectedTokenError(
+          position,
+          keywordToken.kind(),
+          TokenTypeOptionMany([
+            TokenType.letKeyword,
+            TokenType.printKeyword,
+            TokenType.gotoKeyword,
+            TokenType.ifKeyword,
+            TokenType.endKeyword,
+          ]),
+        ),
       };
-
-      position++;
+      final lineNumber = lineNumberToken.value.toInt();
       program[lineNumber] = statement;
     }
 
@@ -54,13 +58,12 @@ class Parser {
   /// Expects an identifier, an equals sign, and a number literal.
   /// Returns a [LetStatement] representing the parsed statement.
   Statement parseLetStatement() {
-    position++;
-    final identifierToken = expectToken(Category.identifier);
-    position++;
-    expectToken(Category.equals);
-    position++;
-    final numberToken = expectToken(Category.numberLiteral);
-    final expression = NumberLiteralExpression(num.parse(numberToken.value));
+    expectToken(TokenType.letKeyword);
+    final identifierToken = parseIdentifier();
+    expectToken(TokenType.equals);
+    final numberLiteralToken = parseNumberLiteral();
+    expectToken(TokenType.endOfLine);
+    final expression = NumberLiteralExpression(numberLiteralToken.value);
     return LetStatement(identifierToken.value, expression);
   }
 
@@ -69,38 +72,25 @@ class Parser {
   /// Expects a list of expressions separated by commas, ending with a newline.
   /// Returns a [PrintStatement] representing the parsed statement.
   Statement parsePrintStatement() {
-    position++;
-
-    final int endOfLineIndex = tokens.indexOf(
-      Token(Category.endOfLine, "\n"),
-      position,
-    );
-    final int endPosition = endOfLineIndex == -1
-        ? tokens.length
-        : endOfLineIndex;
+    expectToken(TokenType.printKeyword);
     final List<Expression> arguments = [];
 
-    while (position < endPosition) {
-      final token = tokens[position];
-      Expression expression = switch (token.category) {
-        Category.numberLiteral => NumberLiteralExpression(
-          num.parse(token.value),
-        ),
-        Category.stringLiteral => StringLiteralExpression(token.value),
-        Category.identifier => IdentifierExpression(token.value),
-        _ => throw InvalidTokenError(position, token.category),
-      };
-      arguments.add(expression);
-
-      if (position + 1 >= endPosition) {
-        break;
-      }
-      position++;
-      expectToken(Category.comma);
-      position++;
+    if (peekToken().kind() == EndOfLineToken().kind()) {
+      consumeToken();
+      return PrintStatement(arguments);
     }
 
-    position = endPosition - 1;
+    while (true) {
+      arguments.add(parseExpression());
+
+      if (peekToken().kind() == TokenType.comma) {
+        consumeToken();
+      } else {
+        break;
+      }
+    }
+
+    expectToken(TokenType.endOfLine);
     return PrintStatement(arguments);
   }
 
@@ -109,9 +99,10 @@ class Parser {
   /// Expects a number literal representing the line number to jump to.
   /// Returns a [GotoStatement] representing the parsed statement.
   Statement parseGotoStatement() {
-    position++;
-    expectToken(Category.numberLiteral);
-    final lineNumber = int.parse(tokens[position].value);
+    expectToken(TokenType.gotoKeyword);
+    final lineNumberToken = parseNumberLiteral();
+    expectToken(TokenType.endOfLine);
+    final lineNumber = lineNumberToken.value.toInt();
     return GotoStatement(lineNumber);
   }
 
@@ -120,81 +111,160 @@ class Parser {
   /// Expects a condition (two expressions and an operator), followed by THEN and a line number.
   /// Returns an [IfStatement] representing the parsed statement.
   Statement parseIfStatement() {
-    position++;
-    final Expression<num> lhs = switch (tokens[position].category) {
-      Category.numberLiteral => NumberLiteralExpression(
-        num.parse(tokens[position].value),
-      ),
-      Category.identifier => IdentifierExpression(tokens[position].value),
-      _ => throw InvalidTokenError(position, tokens[position].category),
-    };
-
-    position++;
-    expectComparisonOperator();
-    ComparisonOperator operator = switch (tokens[position].category) {
-      Category.equals => ComparisonOperator.eq,
-      Category.notEqual => ComparisonOperator.neq,
-      Category.lessThan => ComparisonOperator.lt,
-      Category.lessThanOrEqual => ComparisonOperator.lte,
-      Category.greaterThan => ComparisonOperator.gt,
-      Category.greaterThanOrEqual => ComparisonOperator.gte,
-      _ => throw InvalidTokenError(position, tokens[position].category),
-    };
-
-    position++;
-    final Expression<num> rhs = switch (tokens[position].category) {
-      Category.numberLiteral => NumberLiteralExpression(
-        num.parse(tokens[position].value),
-      ),
-      Category.identifier => IdentifierExpression(tokens[position].value),
-      _ => throw InvalidTokenError(position, tokens[position].category),
-    };
-
-    position++;
-    expectToken(Category.then);
-    position++;
-    final lineNumber = int.parse(expectToken(Category.numberLiteral).value);
-    final condition = ComparisonExpression(lhs, rhs, operator);
+    expectToken(TokenType.ifKeyword);
+    final Expression<num> lhs = parseNumExpression();
+    final comparisonOperator = parseComparisonOperator();
+    final Expression<num> rhs = parseNumExpression();
+    expectToken(TokenType.thenKeyword);
+    final numberLiteralToken = parseNumberLiteral();
+    expectToken(TokenType.endOfLine);
+    final lineNumber = numberLiteralToken.value.toInt();
+    final condition = ComparisonExpression(lhs, rhs, comparisonOperator);
     return IfStatement(condition, lineNumber);
   }
 
+  /// Parses an END statement.
+  ///
+  /// Expects an END keyword followed by an end of line.
+  /// Returns an [EndStatement] representing the parsed statement.
   Statement parseEndStatement() {
+    expectToken(TokenType.endKeyword);
+    expectToken(TokenType.endOfLine);
     return EndStatement();
+  }
+
+  /// Parses an expression that evaluates to a number.
+  ///
+  /// Returns an [Expression] of type [num] representing the parsed expression.
+  Expression<num> parseNumExpression() {
+    final token = consumeToken();
+    return switch (token) {
+      NumberLiteralToken(value: var v) => NumberLiteralExpression(v),
+      IdentifierToken(value: var i) => IdentifierExpression(i),
+      _ => throw UnexpectedTokenError(
+        position,
+        token.kind(),
+        TokenTypeOptionMany([
+          TokenType.numberLiteral,
+          TokenType.stringLiteral,
+          TokenType.identifier,
+        ]),
+      ),
+    };
+  }
+
+  /// Parses an expression that evaluates to a value.
+  ///
+  /// Returns an [Expression] representing the parsed expression.
+  Expression parseExpression() {
+    final token = consumeToken();
+    return switch (token) {
+      NumberLiteralToken(value: var v) => NumberLiteralExpression(v),
+      StringLiteralToken(value: var s) => StringLiteralExpression(s),
+      IdentifierToken(value: var i) => IdentifierExpression(i),
+      _ => throw UnexpectedTokenError(
+        position,
+        token.kind(),
+        TokenTypeOptionMany([
+          TokenType.numberLiteral,
+          TokenType.stringLiteral,
+          TokenType.identifier,
+        ]),
+      ),
+    };
+  }
+
+  /// Parses a number literal token.
+  ///
+  /// Expects a number literal token and returns a [NumberLiteralToken] representing the parsed token.
+  NumberLiteralToken parseNumberLiteral() {
+    final expectedNumberLiteralToken = expectToken(TokenType.numberLiteral);
+    return switch (expectedNumberLiteralToken) {
+      NumberLiteralToken(value: var v) => NumberLiteralToken(v),
+      _ => throw UnexpectedTokenError(
+        position,
+        expectedNumberLiteralToken.kind(),
+        TokenTypeOptionOne(TokenType.numberLiteral),
+      ),
+    };
+  }
+
+  /// Parses an identifier token.
+  ///
+  /// Expects an identifier token and returns an [IdentifierToken] representing the parsed token.
+  IdentifierToken parseIdentifier() {
+    final expectedIdentifierToken = expectToken(TokenType.identifier);
+    return switch (expectedIdentifierToken) {
+      IdentifierToken(value: var v) => IdentifierToken(v),
+      _ => throw UnexpectedTokenError(
+        position,
+        expectedIdentifierToken.kind(),
+        TokenTypeOptionOne(TokenType.identifier),
+      ),
+    };
+  }
+
+  /// Parses a comparison operator token
+  ///
+  /// Expects a comparison operator token and returns a [ComparisonOperator] representing the parsed token.
+  ComparisonOperator parseComparisonOperator() {
+    final comparisonOperatorToken = consumeToken();
+    return switch (comparisonOperatorToken) {
+      EqualsToken() => ComparisonOperator.eq,
+      NotEqualToken() => ComparisonOperator.neq,
+      LessThanToken() => ComparisonOperator.lt,
+      LessThanOrEqualToken() => ComparisonOperator.lte,
+      GreaterThanToken() => ComparisonOperator.gt,
+      GreaterThanOrEqualToken() => ComparisonOperator.gte,
+      _ => throw UnexpectedTokenError(
+        position,
+        comparisonOperatorToken.kind(),
+        TokenTypeOptionMany([
+          TokenType.equals,
+          TokenType.notEqual,
+          TokenType.lessThan,
+          TokenType.lessThanOrEqual,
+          TokenType.greaterThan,
+          TokenType.greaterThanOrEqual,
+        ]),
+      ),
+    };
   }
 
   /// Expects a token of the given [category] and return it when matched.
   ///
-  /// Throws a [MissingTokenError] if the end of the token stream is reached.
+  /// Throws a [UnexpectedEndOfInputError] if the end of the token stream is reached.
   /// Throws an [UnexpectedTokenError] if the current token is not of the given [category].
-  Token expectToken(Category category) {
-    if (position >= tokens.length) {
-      throw MissingTokenError(position, category);
-    }
-
-    final currentToken = tokens[position];
-    if (currentToken.category != category) {
-      throw UnexpectedTokenError(position, category, currentToken.category);
+  Token expectToken(TokenType expectedTokenType) {
+    final currentToken = consumeToken();
+    if (currentToken.kind() != expectedTokenType) {
+      throw UnexpectedTokenError(
+        position,
+        currentToken.kind(),
+        TokenTypeOptionOne(expectedTokenType),
+      );
     }
     return currentToken;
   }
 
-  /// Ensures the current token is a comparison operator and returns it.
+  /// Consumes the current token and returns it.
   ///
-  /// Throws a [MissingTokenError] if the end of the token stream is reached.
-  /// Throws an [UnexpectedTokenError] if the current token is not a comparison operator.
-  Token expectComparisonOperator() {
-    if (position >= tokens.length) {
-      throw MissingTokenError(position, Category.equals);
-    }
+  /// Side effect: increments the current position by one.
+  ///
+  /// Throws an [UnexpectedEndOfInputError] if the end of the token stream is reached.
+  Token consumeToken() {
+    final token = peekToken();
+    position++;
+    return token;
+  }
 
-    final currentToken = tokens[position];
-    if (!currentToken.category.isComparisonOperator()) {
-      throw UnexpectedTokenError(
-        position,
-        Category.equals,
-        currentToken.category,
-      );
+  /// Returns the current token without consuming it.
+  ///
+  /// Throws an [UnexpectedEndOfInputError] if the end of the token stream is reached.
+  Token peekToken() {
+    if (position >= tokens.length) {
+      throw UnexpectedEndOfInputError(position);
     }
-    return currentToken;
+    return tokens[position];
   }
 }

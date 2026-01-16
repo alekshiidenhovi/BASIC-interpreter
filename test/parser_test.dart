@@ -10,11 +10,12 @@ void main() {
   group("LET statements", () {
     test("Parse LET statement", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.let, "LET"),
-        Token(Category.identifier, "A"),
-        Token(Category.equals, "="),
-        Token(Category.numberLiteral, "5"),
+        NumberLiteralToken(10),
+        LetKeywordToken(),
+        IdentifierToken("A"),
+        EqualsToken(),
+        NumberLiteralToken(5),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -34,11 +35,12 @@ void main() {
 
     test("Throw error if tokens are not in the correct order", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.let, "LET"),
-        Token(Category.equals, "="),
-        Token(Category.identifier, "A"),
-        Token(Category.numberLiteral, "5"),
+        NumberLiteralToken(10),
+        LetKeywordToken(),
+        EqualsToken(),
+        IdentifierToken("A"),
+        NumberLiteralToken(5),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -48,30 +50,32 @@ void main() {
 
     test("Throw error if position is out of bounds", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.let, "LET"),
-        Token(Category.identifier, "A"),
-        Token(Category.equals, "="),
+        NumberLiteralToken(10),
+        LetKeywordToken(),
+        IdentifierToken("A"),
+        EqualsToken(),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
 
-      expect(parser.parse, throwsA(isA<MissingTokenError>()));
+      expect(parser.parse, throwsA(isA<UnexpectedTokenError>()));
     });
 
     test("Two LET statements", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.let, "LET"),
-        Token(Category.identifier, "A"),
-        Token(Category.equals, "="),
-        Token(Category.numberLiteral, "5"),
-        Token(Category.endOfLine, "\n"),
-        Token(Category.numberLiteral, "20"),
-        Token(Category.let, "LET"),
-        Token(Category.identifier, "B"),
-        Token(Category.equals, "="),
-        Token(Category.numberLiteral, "10"),
+        NumberLiteralToken(10),
+        LetKeywordToken(),
+        IdentifierToken("A"),
+        EqualsToken(),
+        NumberLiteralToken(5),
+        EndOfLineToken(),
+        NumberLiteralToken(20),
+        LetKeywordToken(),
+        IdentifierToken("B"),
+        EqualsToken(),
+        NumberLiteralToken(10),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -103,11 +107,12 @@ void main() {
   group("PRINT statements", () {
     test("Parse PRINT statement", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.print, "PRINT"),
-        Token(Category.identifier, "A"),
-        Token(Category.comma, ","),
-        Token(Category.identifier, "A"),
+        NumberLiteralToken(10),
+        PrintKeywordToken(),
+        IdentifierToken("A"),
+        CommaToken(),
+        IdentifierToken("B"),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -125,26 +130,28 @@ void main() {
 
     test("Invalid if - two consecutive commas", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.print, "PRINT"),
-        Token(Category.identifier, "A"),
-        Token(Category.comma, ","),
-        Token(Category.comma, ","),
+        NumberLiteralToken(10),
+        PrintKeywordToken(),
+        IdentifierToken("A"),
+        CommaToken(),
+        CommaToken(),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
-      expect(parser.parse, throwsA(isA<InvalidTokenError>()));
+      expect(parser.parse, throwsA(isA<UnexpectedTokenError>()));
     });
 
     test("Two PRINT statements", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.print, "PRINT"),
-        Token(Category.identifier, "A"),
-        Token(Category.endOfLine, "\n"),
-        Token(Category.numberLiteral, "20"),
-        Token(Category.print, "PRINT"),
-        Token(Category.stringLiteral, "Hello, BASIC!"),
+        NumberLiteralToken(10),
+        PrintKeywordToken(),
+        IdentifierToken("A"),
+        EndOfLineToken(),
+        NumberLiteralToken(20),
+        PrintKeywordToken(),
+        StringLiteralToken("Hello, BASIC!"),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -176,9 +183,10 @@ void main() {
   group("GOTO statements", () {
     test("Parse GOTO statement", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.goto, "GOTO"),
-        Token(Category.numberLiteral, "20"),
+        NumberLiteralToken(10),
+        GotoKeywordToken(),
+        NumberLiteralToken(20),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -194,13 +202,14 @@ void main() {
   group("IF THEN statements", () {
     test("If with equals comparison operator", () {
       final tokens = [
-        Token(Category.numberLiteral, "20"),
-        Token(Category.ifToken, "IF"),
-        Token(Category.identifier, "A"),
-        Token(Category.equals, "="),
-        Token(Category.numberLiteral, "5"),
-        Token(Category.then, "THEN"),
-        Token(Category.numberLiteral, "40"),
+        NumberLiteralToken(20),
+        IfKeywordToken(),
+        IdentifierToken("A"),
+        EqualsToken(),
+        NumberLiteralToken(5),
+        ThenKeywordToken(),
+        NumberLiteralToken(40),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -237,13 +246,14 @@ void main() {
 
     test("If with greater than comparison operator", () {
       final tokens = [
-        Token(Category.numberLiteral, "20"),
-        Token(Category.ifToken, "IF"),
-        Token(Category.numberLiteral, "10"),
-        Token(Category.greaterThan, ">"),
-        Token(Category.numberLiteral, "5"),
-        Token(Category.then, "THEN"),
-        Token(Category.numberLiteral, "40"),
+        NumberLiteralToken(20),
+        IfKeywordToken(),
+        NumberLiteralToken(10),
+        GreaterThanToken(),
+        NumberLiteralToken(5),
+        ThenKeywordToken(),
+        NumberLiteralToken(40),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -280,13 +290,14 @@ void main() {
 
     test("If with less than comparison operator", () {
       final tokens = [
-        Token(Category.numberLiteral, "20"),
-        Token(Category.ifToken, "IF"),
-        Token(Category.identifier, "A"),
-        Token(Category.lessThan, "<"),
-        Token(Category.numberLiteral, "5"),
-        Token(Category.then, "THEN"),
-        Token(Category.numberLiteral, "40"),
+        NumberLiteralToken(20),
+        IfKeywordToken(),
+        IdentifierToken("A"),
+        LessThanToken(),
+        NumberLiteralToken(5),
+        ThenKeywordToken(),
+        NumberLiteralToken(40),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -323,13 +334,14 @@ void main() {
 
     test("If with greater than or equal comparison operator", () {
       final tokens = [
-        Token(Category.numberLiteral, "20"),
-        Token(Category.ifToken, "IF"),
-        Token(Category.identifier, "A"),
-        Token(Category.greaterThanOrEqual, ">="),
-        Token(Category.numberLiteral, "5"),
-        Token(Category.then, "THEN"),
-        Token(Category.numberLiteral, "40"),
+        NumberLiteralToken(20),
+        IfKeywordToken(),
+        IdentifierToken("A"),
+        GreaterThanOrEqualToken(),
+        NumberLiteralToken(5),
+        ThenKeywordToken(),
+        NumberLiteralToken(40),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -366,13 +378,14 @@ void main() {
 
     test("If with less than or equal comparison operator", () {
       final tokens = [
-        Token(Category.numberLiteral, "20"),
-        Token(Category.ifToken, "IF"),
-        Token(Category.identifier, "A"),
-        Token(Category.lessThanOrEqual, "<="),
-        Token(Category.numberLiteral, "5"),
-        Token(Category.then, "THEN"),
-        Token(Category.numberLiteral, "40"),
+        NumberLiteralToken(20),
+        IfKeywordToken(),
+        IdentifierToken("A"),
+        LessThanOrEqualToken(),
+        NumberLiteralToken(5),
+        ThenKeywordToken(),
+        NumberLiteralToken(40),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -409,13 +422,14 @@ void main() {
 
     test("If with not equal comparison operator", () {
       final tokens = [
-        Token(Category.numberLiteral, "20"),
-        Token(Category.ifToken, "IF"),
-        Token(Category.identifier, "A"),
-        Token(Category.notEqual, "<>"),
-        Token(Category.numberLiteral, "5"),
-        Token(Category.then, "THEN"),
-        Token(Category.numberLiteral, "40"),
+        NumberLiteralToken(20),
+        IfKeywordToken(),
+        IdentifierToken("A"),
+        NotEqualToken(),
+        NumberLiteralToken(5),
+        ThenKeywordToken(),
+        NumberLiteralToken(40),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
@@ -454,8 +468,9 @@ void main() {
   group("END statements", () {
     test("Parse END statement", () {
       final tokens = [
-        Token(Category.numberLiteral, "10"),
-        Token(Category.endToken, "END"),
+        NumberLiteralToken(10),
+        EndKeywordToken(),
+        EndOfLineToken(),
       ];
 
       final parser = Parser(tokens);
