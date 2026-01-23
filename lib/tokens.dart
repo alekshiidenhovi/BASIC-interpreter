@@ -1,6 +1,7 @@
 /// Represents the type of a token.
 enum TokenType {
-  numberLiteral,
+  integerLiteral,
+  floatingPointLiteral,
   stringLiteral,
   identifier,
   endOfLine,
@@ -34,7 +35,8 @@ sealed class Token {
   const Token();
 
   String get name => switch (this) {
-    NumberLiteralToken(value: var v) => "NumberLiteralToken $v",
+    IntegerLiteralToken(value: var v) => "IntegerLiteralToken $v",
+    FloatingPointLiteralToken(value: var v) => "FloatingPointLiteralToken $v",
     StringLiteralToken(value: var s) => "StringLiteralToken $s",
     IdentifierToken() => "IdentifierToken",
     EndOfLineToken() => "EndOfLineToken",
@@ -65,7 +67,8 @@ sealed class Token {
 
   /// Returns the type of the token.
   TokenType kind() => switch (this) {
-    NumberLiteralToken() => TokenType.numberLiteral,
+    IntegerLiteralToken() => TokenType.integerLiteral,
+    FloatingPointLiteralToken() => TokenType.floatingPointLiteral,
     StringLiteralToken() => TokenType.stringLiteral,
     IdentifierToken() => TokenType.identifier,
     EndOfLineToken() => TokenType.endOfLine,
@@ -104,13 +107,22 @@ sealed class Token {
   int get hashCode => name.hashCode;
 }
 
-/// Represents a number literal token, holds a [num] value.
+/// Represents an integer literal token, holds a [int] value.
 ///
-/// The value hold by this token can be either an integer or a floating point, and either positive or negative.
-class NumberLiteralToken extends Token {
-  final num value;
+/// The integer value held by this token can be either positive or negative.
+class IntegerLiteralToken extends Token {
+  final int value;
 
-  NumberLiteralToken(this.value);
+  IntegerLiteralToken(this.value);
+}
+
+/// Represents a double-precision floating point literal token, holds a [double] value.
+///
+/// The floating point value held by this token can be either positive or negative.
+class FloatingPointLiteralToken extends Token {
+  final double value;
+
+  FloatingPointLiteralToken(this.value);
 }
 
 /// Represents a string literal token, holds a [String] value.

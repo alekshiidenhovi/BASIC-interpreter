@@ -2,17 +2,18 @@ import 'dart:collection';
 import "statements.dart";
 import "lexer.dart";
 import "parser.dart";
+import "context.dart";
 
 /// Interpreter for a simple BASIC-like programming language.
 ///
-/// This interpreter parses and executes a list of statements, managing [variables]
+/// This interpreter parses and executes a list of statements, managing [context]
 /// and program flow.
 class Interpreter {
   /// A sorted map where keys are line numbers and values are the corresponding statements.
   SplayTreeMap<int, Statement> programLines = SplayTreeMap();
 
   /// A map storing the current values of variables.
-  Map<String, num> variables = {};
+  final Context context = Context();
 
   /// Interprets the given program code.
   ///
@@ -38,12 +39,12 @@ class Interpreter {
       print("$currentLine: $statement");
 
       if (statement is GotoStatement) {
-        currentLine = statement.execute(variables);
+        currentLine = statement.execute(context);
         continue;
       }
 
       if (statement is IfStatement) {
-        int? jumpLine = statement.execute(variables);
+        int? jumpLine = statement.execute(context);
         if (jumpLine != null) {
           currentLine = jumpLine;
         }
@@ -56,10 +57,10 @@ class Interpreter {
 
       // These statements increment line number in a normal way
       if (statement is PrintStatement) {
-        String output = statement.execute(variables);
+        String output = statement.execute(context);
         outputLines.add(output);
       } else if (statement is LetStatement) {
-        statement.execute(variables);
+        statement.execute(context);
       } else if (statement is RemarkStatement) {
         // Do nothing
       } else {

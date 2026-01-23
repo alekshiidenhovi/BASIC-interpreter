@@ -10,11 +10,11 @@ void main() {
   group("LET statements", () {
     test("Parse LET statement", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         LetKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         EndOfLineToken(),
       ];
 
@@ -28,18 +28,18 @@ void main() {
             .having(
               (p) => p.expression,
               "expression",
-              isA<NumberLiteralExpression>(),
+              isA<IntegerLiteralExpression>(),
             ),
       );
     });
 
     test("Throw error if tokens are not in the correct order", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         LetKeywordToken(),
         EqualsToken(),
         IdentifierToken("A"),
-        NumberLiteralToken(5),
+        FloatingPointLiteralToken(5),
         EndOfLineToken(),
       ];
 
@@ -50,7 +50,7 @@ void main() {
 
     test("Throw error if position is out of bounds", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         LetKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
@@ -64,17 +64,17 @@ void main() {
 
     test("Two LET statements", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         LetKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         EndOfLineToken(),
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         LetKeywordToken(),
         IdentifierToken("B"),
         EqualsToken(),
-        NumberLiteralToken(10),
+        FloatingPointLiteralToken(10.5),
         EndOfLineToken(),
       ];
 
@@ -88,7 +88,7 @@ void main() {
             .having(
               (p) => p.expression,
               "expression",
-              isA<NumberLiteralExpression>(),
+              isA<IntegerLiteralExpression>(),
             ),
       );
       expect(
@@ -98,7 +98,7 @@ void main() {
             .having(
               (p) => p.expression,
               "expression",
-              isA<NumberLiteralExpression>(),
+              isA<FloatingPointLiteralExpression>(),
             ),
       );
     });
@@ -107,7 +107,7 @@ void main() {
   group("PRINT statements", () {
     test("Parse PRINT statement", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         PrintKeywordToken(),
         IdentifierToken("A"),
         CommaToken(),
@@ -128,9 +128,9 @@ void main() {
       );
     });
 
-    test("Invalid if - two consecutive commas", () {
+    test("Invalid PRINT - two consecutive commas", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         PrintKeywordToken(),
         IdentifierToken("A"),
         CommaToken(),
@@ -144,11 +144,11 @@ void main() {
 
     test("Two PRINT statements", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         PrintKeywordToken(),
         IdentifierToken("A"),
         EndOfLineToken(),
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         PrintKeywordToken(),
         StringLiteralToken("Hello, BASIC!"),
         EndOfLineToken(),
@@ -183,9 +183,9 @@ void main() {
   group("GOTO statements", () {
     test("Parse GOTO statement", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         GotoKeywordToken(),
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         EndOfLineToken(),
       ];
 
@@ -202,13 +202,13 @@ void main() {
   group("IF THEN statements", () {
     test("If with equals comparison operator", () {
       final tokens = [
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         IfKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         ThenKeywordToken(),
-        NumberLiteralToken(40),
+        IntegerLiteralToken(40),
         EndOfLineToken(),
       ];
 
@@ -234,7 +234,7 @@ void main() {
               .having(
                 (p) => p.rhs,
                 "rhs",
-                isA<NumberLiteralExpression>().having(
+                isA<IntegerLiteralExpression>().having(
                   (p) => p.value,
                   "value",
                   5,
@@ -246,13 +246,13 @@ void main() {
 
     test("If with greater than comparison operator", () {
       final tokens = [
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         IfKeywordToken(),
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         GreaterThanToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         ThenKeywordToken(),
-        NumberLiteralToken(40),
+        IntegerLiteralToken(40),
         EndOfLineToken(),
       ];
 
@@ -268,7 +268,7 @@ void main() {
               .having(
                 (p) => p.lhs,
                 "lhs",
-                isA<NumberLiteralExpression>().having(
+                isA<IntegerLiteralExpression>().having(
                   (p) => p.value,
                   "value",
                   10,
@@ -278,7 +278,7 @@ void main() {
               .having(
                 (p) => p.rhs,
                 "rhs",
-                isA<NumberLiteralExpression>().having(
+                isA<IntegerLiteralExpression>().having(
                   (p) => p.value,
                   "value",
                   5,
@@ -290,13 +290,13 @@ void main() {
 
     test("If with less than comparison operator", () {
       final tokens = [
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         IfKeywordToken(),
         IdentifierToken("A"),
         LessThanToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         ThenKeywordToken(),
-        NumberLiteralToken(40),
+        IntegerLiteralToken(40),
         EndOfLineToken(),
       ];
 
@@ -322,7 +322,7 @@ void main() {
               .having(
                 (p) => p.rhs,
                 "rhs",
-                isA<NumberLiteralExpression>().having(
+                isA<IntegerLiteralExpression>().having(
                   (p) => p.value,
                   "value",
                   5,
@@ -334,13 +334,13 @@ void main() {
 
     test("If with greater than or equal comparison operator", () {
       final tokens = [
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         IfKeywordToken(),
         IdentifierToken("A"),
         GreaterThanOrEqualToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         ThenKeywordToken(),
-        NumberLiteralToken(40),
+        IntegerLiteralToken(40),
         EndOfLineToken(),
       ];
 
@@ -366,7 +366,7 @@ void main() {
               .having(
                 (p) => p.rhs,
                 "rhs",
-                isA<NumberLiteralExpression>().having(
+                isA<IntegerLiteralExpression>().having(
                   (p) => p.value,
                   "value",
                   5,
@@ -378,13 +378,13 @@ void main() {
 
     test("If with less than or equal comparison operator", () {
       final tokens = [
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         IfKeywordToken(),
         IdentifierToken("A"),
         LessThanOrEqualToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         ThenKeywordToken(),
-        NumberLiteralToken(40),
+        IntegerLiteralToken(40),
         EndOfLineToken(),
       ];
 
@@ -410,7 +410,7 @@ void main() {
               .having(
                 (p) => p.rhs,
                 "rhs",
-                isA<NumberLiteralExpression>().having(
+                isA<IntegerLiteralExpression>().having(
                   (p) => p.value,
                   "value",
                   5,
@@ -422,13 +422,13 @@ void main() {
 
     test("If with not equal comparison operator", () {
       final tokens = [
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         IfKeywordToken(),
         IdentifierToken("A"),
         NotEqualToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         ThenKeywordToken(),
-        NumberLiteralToken(40),
+        IntegerLiteralToken(40),
         EndOfLineToken(),
       ];
 
@@ -454,7 +454,7 @@ void main() {
               .having(
                 (p) => p.rhs,
                 "rhs",
-                isA<NumberLiteralExpression>().having(
+                isA<IntegerLiteralExpression>().having(
                   (p) => p.value,
                   "value",
                   5,
@@ -468,7 +468,7 @@ void main() {
   group("END statements", () {
     test("Parse END statement", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         EndKeywordToken(),
         EndOfLineToken(),
       ];
@@ -483,7 +483,7 @@ void main() {
   group("REMARK statements", () {
     test("Parse REM statement", () {
       final tokens = [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         RemKeywordToken(),
         IdentifierToken("This"),
         IdentifierToken("is"),

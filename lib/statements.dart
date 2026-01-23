@@ -1,11 +1,12 @@
 import "expressions.dart";
+import "context.dart";
 
 /// An executable statement in the BASIC language.
 sealed class Statement<T> {
   /// Executes the statement and returns a result.
   ///
   /// [variables] is a map of variable names to their numeric values.
-  T execute(Map<String, num> variables);
+  T execute(Context context);
 }
 
 /// A statement, which assigns the result of an expression to a variable.
@@ -22,8 +23,8 @@ class LetStatement extends Statement<void> {
   LetStatement(this.identifier, this.expression);
 
   @override
-  void execute(Map<String, num> variables) {
-    variables[identifier] = expression.evaluate(variables);
+  void execute(Context context) {
+    context.variables[identifier] = expression.evaluate(context);
   }
 }
 
@@ -38,8 +39,8 @@ class PrintStatement extends Statement<String> {
   PrintStatement(this.arguments);
 
   @override
-  String execute(Map<String, num> variables) {
-    return arguments.map((expr) => expr.evaluate(variables)).join("\t");
+  String execute(Context context) {
+    return arguments.map((expr) => expr.evaluate(context)).join("\t");
   }
 }
 
@@ -54,7 +55,7 @@ class GotoStatement extends Statement<int> {
   GotoStatement(this.lineNumber);
 
   @override
-  int execute(Map<String, num> variables) {
+  int execute(Context context) {
     return lineNumber;
   }
 }
@@ -73,8 +74,8 @@ class IfStatement extends Statement<int?> {
   IfStatement(this.condition, this.lineNumber);
 
   @override
-  int? execute(Map<String, num> variables) {
-    return condition.evaluate(variables) ? lineNumber : null;
+  int? execute(Context context) {
+    return condition.evaluate(context) ? lineNumber : null;
   }
 }
 
@@ -84,7 +85,7 @@ class EndStatement extends Statement<void> {
   EndStatement();
 
   @override
-  void execute(Map<String, num> variables) {
+  void execute(Context context) {
     throw Exception("END statement reached!");
   }
 }
@@ -95,7 +96,7 @@ class RemarkStatement extends Statement<void> {
   RemarkStatement();
 
   @override
-  void execute(Map<String, num> variables) {
+  void execute(Context context) {
     // Do nothing.
   }
 }

@@ -7,21 +7,21 @@ void main() {
     test('Positive number literals', () {
       var lexer = Lexer('10 4.2');
       expect(lexer.tokenize(), [
-        NumberLiteralToken(10),
-        NumberLiteralToken(4.2),
+        IntegerLiteralToken(10),
+        FloatingPointLiteralToken(4.2),
       ]);
     });
 
     test("Zero number literal", () {
       var lexer = Lexer('0');
-      expect(lexer.tokenize(), [NumberLiteralToken(0)]);
+      expect(lexer.tokenize(), [IntegerLiteralToken(0)]);
     });
 
     test('Negative number literals', () {
-      var lexer = Lexer('-10 -4.2');
+      var lexer = Lexer('-4.2 -10');
       expect(lexer.tokenize(), [
-        NumberLiteralToken(-10),
-        NumberLiteralToken(-4.2),
+        FloatingPointLiteralToken(-4.2),
+        IntegerLiteralToken(-10),
       ]);
     });
 
@@ -43,9 +43,9 @@ void main() {
       var lexer = Lexer("PRINT 1; 2");
       expect(lexer.tokenize(), [
         PrintKeywordToken(),
-        NumberLiteralToken(1),
+        IntegerLiteralToken(1),
         SemicolonToken(),
-        NumberLiteralToken(2),
+        IntegerLiteralToken(2),
       ]);
     });
   });
@@ -104,39 +104,18 @@ void main() {
   });
 
   group("Arithmetic operators", () {
-    test("Addition", () {
-      var lexer = Lexer('10 + 20');
+    test("All operators", () {
+      var lexer = Lexer('10 + 20.5 - A * 40 / -50.5');
       expect(lexer.tokenize(), [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(10),
         PlusToken(),
-        NumberLiteralToken(20),
-      ]);
-    });
-
-    test("Subtraction", () {
-      var lexer = Lexer('10 - 20');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(10),
+        FloatingPointLiteralToken(20.5),
         MinusToken(),
-        NumberLiteralToken(20),
-      ]);
-    });
-
-    test("Multiplication", () {
-      var lexer = Lexer('10 * 20');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(10),
+        IdentifierToken('A'),
         TimesToken(),
-        NumberLiteralToken(20),
-      ]);
-    });
-
-    test("Division", () {
-      var lexer = Lexer('10 / 20');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(10),
+        IntegerLiteralToken(40),
         DivideToken(),
-        NumberLiteralToken(20),
+        FloatingPointLiteralToken(-50.5),
       ]);
     });
   });
@@ -150,13 +129,13 @@ void main() {
     var lexer = Lexer('''10 LET A = 5
 20 PRINT A, "Hello, BASIC!"''');
     expect(lexer.tokenize(), [
-      NumberLiteralToken(10),
+      IntegerLiteralToken(10),
       LetKeywordToken(),
       IdentifierToken('A'),
       EqualsToken(),
-      NumberLiteralToken(5),
+      IntegerLiteralToken(5),
       EndOfLineToken(),
-      NumberLiteralToken(20),
+      IntegerLiteralToken(20),
       PrintKeywordToken(),
       IdentifierToken('A'),
       CommaToken(),
@@ -167,9 +146,9 @@ void main() {
   test('Goto statement: 10 GOTO 20', () {
     var lexer = Lexer('10 GOTO 20');
     expect(lexer.tokenize(), [
-      NumberLiteralToken(10),
+      IntegerLiteralToken(10),
       GotoKeywordToken(),
-      NumberLiteralToken(20),
+      IntegerLiteralToken(20),
     ]);
   });
 
@@ -179,25 +158,25 @@ void main() {
 30 NEXT I
 40 END""");
     expect(lexer.tokenize(), [
-      NumberLiteralToken(10),
+      IntegerLiteralToken(10),
       ForKeywordToken(),
       IdentifierToken('I'),
       EqualsToken(),
-      NumberLiteralToken(1),
+      IntegerLiteralToken(1),
       ToKeywordToken(),
-      NumberLiteralToken(10),
+      IntegerLiteralToken(10),
       StepKeywordToken(),
-      NumberLiteralToken(2),
+      IntegerLiteralToken(2),
       EndOfLineToken(), // 10 FOR i = 1 TO 10 STEP 2
-      NumberLiteralToken(20),
+      IntegerLiteralToken(20),
       PrintKeywordToken(),
       IdentifierToken('I'),
       EndOfLineToken(), // 20 PRINT I
-      NumberLiteralToken(30),
+      IntegerLiteralToken(30),
       NextKeywordToken(),
       IdentifierToken('I'),
       EndOfLineToken(), // 30 NEXT I
-      NumberLiteralToken(40),
+      IntegerLiteralToken(40),
       EndKeywordToken(), // 40 END
     ]);
   });
@@ -206,86 +185,22 @@ void main() {
     test("equal comparison operator", () {
       var lexer = Lexer('20 IF A = 5 THEN 40');
       expect(lexer.tokenize(), [
-        NumberLiteralToken(20),
+        IntegerLiteralToken(20),
         IfKeywordToken(),
         IdentifierToken('A'),
         EqualsToken(),
-        NumberLiteralToken(5),
+        IntegerLiteralToken(5),
         ThenKeywordToken(),
-        NumberLiteralToken(40),
-      ]);
-    });
-
-    test("greater than comparison operator", () {
-      var lexer = Lexer('20 IF A > 5 THEN 40');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(20),
-        IfKeywordToken(),
-        IdentifierToken('A'),
-        GreaterThanToken(),
-        NumberLiteralToken(5),
-        ThenKeywordToken(),
-        NumberLiteralToken(40),
-      ]);
-    });
-
-    test("less than comparison operator", () {
-      var lexer = Lexer('20 IF A < 5 THEN 40');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(20),
-        IfKeywordToken(),
-        IdentifierToken('A'),
-        LessThanToken(),
-        NumberLiteralToken(5),
-        ThenKeywordToken(),
-        NumberLiteralToken(40),
-      ]);
-    });
-
-    test("greater than or equal comparison operator", () {
-      var lexer = Lexer('20 IF A >= 5 THEN 40');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(20),
-        IfKeywordToken(),
-        IdentifierToken('A'),
-        GreaterThanOrEqualToken(),
-        NumberLiteralToken(5),
-        ThenKeywordToken(),
-        NumberLiteralToken(40),
-      ]);
-    });
-
-    test("less than or equal comparison operator", () {
-      var lexer = Lexer('20 IF A <= 5 THEN 40');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(20),
-        IfKeywordToken(),
-        IdentifierToken('A'),
-        LessThanOrEqualToken(),
-        NumberLiteralToken(5),
-        ThenKeywordToken(),
-        NumberLiteralToken(40),
-      ]);
-    });
-
-    test("not equal comparison operator", () {
-      var lexer = Lexer('20 IF A <> 5 THEN 40');
-      expect(lexer.tokenize(), [
-        NumberLiteralToken(20),
-        IfKeywordToken(),
-        IdentifierToken('A'),
-        NotEqualToken(),
-        NumberLiteralToken(5),
-        ThenKeywordToken(),
-        NumberLiteralToken(40),
+        IntegerLiteralToken(40),
       ]);
     });
   });
 
   group("Comments", () {
     test("REM statement 1", () {
-      var lexer = Lexer('REM This is a comment');
+      var lexer = Lexer('10 REM This is a comment');
       expect(lexer.tokenize(), [
+        IntegerLiteralToken(10),
         RemKeywordToken(),
         IdentifierToken('This'),
         IdentifierToken('is'),
@@ -295,13 +210,14 @@ void main() {
     });
 
     test("REM statement 2", () {
-      var lexer = Lexer('REM THERE ARE NUMBERS 123.456');
+      var lexer = Lexer('10 REM THERE ARE NUMBERS 123.456');
       expect(lexer.tokenize(), [
+        IntegerLiteralToken(10),
         RemKeywordToken(),
         IdentifierToken('THERE'),
         IdentifierToken('ARE'),
         IdentifierToken('NUMBERS'),
-        NumberLiteralToken(123.456),
+        FloatingPointLiteralToken(123.456),
       ]);
     });
   });

@@ -26,7 +26,7 @@ class Parser {
     SplayTreeMap<int, Statement> program = SplayTreeMap();
 
     while (position < tokens.length) {
-      final lineNumberToken = parseNumberLiteral();
+      final lineNumberToken = parseIntegerLiteral();
       final keywordToken = peekToken();
       final statement = switch (keywordToken) {
         LetKeywordToken() => parseLetStatement(),
@@ -48,7 +48,7 @@ class Parser {
           ]),
         ),
       };
-      final lineNumber = lineNumberToken.value.toInt();
+      final lineNumber = lineNumberToken.value;
       program[lineNumber] = statement;
     }
 
@@ -63,10 +63,9 @@ class Parser {
     expectToken(TokenType.letKeyword);
     final identifierToken = parseIdentifier();
     expectToken(TokenType.equals);
-    final numberLiteralToken = parseNumberLiteral();
+    final numberExpression = parseNumExpression();
     expectToken(TokenType.endOfLine);
-    final expression = NumberLiteralExpression(numberLiteralToken.value);
-    return LetStatement(identifierToken.value, expression);
+    return LetStatement(identifierToken.value, numberExpression);
   }
 
   /// Parses a PRINT statement.
@@ -102,9 +101,9 @@ class Parser {
   /// Returns a [GotoStatement] representing the parsed statement.
   Statement parseGotoStatement() {
     expectToken(TokenType.gotoKeyword);
-    final lineNumberToken = parseNumberLiteral();
+    final lineNumberToken = parseIntegerLiteral();
     expectToken(TokenType.endOfLine);
-    final lineNumber = lineNumberToken.value.toInt();
+    final lineNumber = lineNumberToken.value;
     return GotoStatement(lineNumber);
   }
 
@@ -118,9 +117,9 @@ class Parser {
     final comparisonOperator = parseComparisonOperator();
     final Expression<num> rhs = parseNumExpression();
     expectToken(TokenType.thenKeyword);
-    final numberLiteralToken = parseNumberLiteral();
+    final numberLiteralToken = parseIntegerLiteral();
     expectToken(TokenType.endOfLine);
-    final lineNumber = numberLiteralToken.value.toInt();
+    final lineNumber = numberLiteralToken.value;
     final condition = ComparisonExpression(lhs, rhs, comparisonOperator);
     return IfStatement(condition, lineNumber);
   }
@@ -154,14 +153,17 @@ class Parser {
   Expression<num> parseNumExpression() {
     final token = consumeToken();
     return switch (token) {
-      NumberLiteralToken(value: var v) => NumberLiteralExpression(v),
+      IntegerLiteralToken(value: var v) => IntegerLiteralExpression(v),
+      FloatingPointLiteralToken(value: var v) => FloatingPointLiteralExpression(
+        v,
+      ),
       IdentifierToken(value: var i) => IdentifierExpression(i),
       _ => throw UnexpectedTokenError(
         position,
         token.kind(),
         TokenTypeOptionMany([
-          TokenType.numberLiteral,
-          TokenType.stringLiteral,
+          TokenType.integerLiteral,
+          TokenType.floatingPointLiteral,
           TokenType.identifier,
         ]),
       ),
@@ -174,14 +176,18 @@ class Parser {
   Expression parseExpression() {
     final token = consumeToken();
     return switch (token) {
-      NumberLiteralToken(value: var v) => NumberLiteralExpression(v),
+      IntegerLiteralToken(value: var v) => IntegerLiteralExpression(v),
+      FloatingPointLiteralToken(value: var v) => FloatingPointLiteralExpression(
+        v,
+      ),
       StringLiteralToken(value: var s) => StringLiteralExpression(s),
       IdentifierToken(value: var i) => IdentifierExpression(i),
       _ => throw UnexpectedTokenError(
         position,
         token.kind(),
         TokenTypeOptionMany([
-          TokenType.numberLiteral,
+          TokenType.integerLiteral,
+          TokenType.floatingPointLiteral,
           TokenType.stringLiteral,
           TokenType.identifier,
         ]),
@@ -189,17 +195,17 @@ class Parser {
     };
   }
 
-  /// Parses a number literal token.
+  /// Parses an integer literal token.
   ///
-  /// Expects a number literal token and returns a [NumberLiteralToken] representing the parsed token.
-  NumberLiteralToken parseNumberLiteral() {
-    final expectedNumberLiteralToken = expectToken(TokenType.numberLiteral);
+  /// Expects an integer literal token and returns a [IntegerLiteralToken] representing the parsed token.
+  IntegerLiteralToken parseIntegerLiteral() {
+    final expectedNumberLiteralToken = expectToken(TokenType.integerLiteral);
     return switch (expectedNumberLiteralToken) {
-      NumberLiteralToken(value: var v) => NumberLiteralToken(v),
+      IntegerLiteralToken(value: var v) => IntegerLiteralToken(v),
       _ => throw UnexpectedTokenError(
         position,
         expectedNumberLiteralToken.kind(),
-        TokenTypeOptionOne(TokenType.numberLiteral),
+        TokenTypeOptionOne(TokenType.integerLiteral),
       ),
     };
   }

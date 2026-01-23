@@ -24,7 +24,8 @@ class Lexer {
     final whitespaceParser = createWhitespaceParser();
 
     final parsers = [
-      createNumberLiteralParser(),
+      createFloatingPointLiteralParser(),
+      createIntegerLiteralParser(),
       createStringLiteralParser(),
       createKeywordOrIdentifierParser(),
       createRegexParser(RegExp(r'^>='), GreaterThanOrEqualToken()),
@@ -77,9 +78,9 @@ class Lexer {
     };
   }
 
-  LexerParser<(String, Token)> createNumberLiteralParser() {
+  LexerParser<(String, Token)> createIntegerLiteralParser() {
     return (String source) {
-      final pattern = RegExp(r'^(-?\d+(\.\d+)?)');
+      final pattern = RegExp(r'^(-?\d+)');
       final match = pattern.matchAsPrefix(source);
       if (match == null) {
         throw MissingRegexMatchError(_position, source, pattern);
@@ -91,7 +92,26 @@ class Lexer {
       _position += matchedStr.length;
       return (
         source.substring(match.end),
-        NumberLiteralToken(num.parse(matchedStr)),
+        IntegerLiteralToken(int.parse(matchedStr)),
+      );
+    };
+  }
+
+  LexerParser<(String, Token)> createFloatingPointLiteralParser() {
+    return (String source) {
+      final pattern = RegExp(r'^(-?\d+\.\d+)');
+      final match = pattern.matchAsPrefix(source);
+      if (match == null) {
+        throw MissingRegexMatchError(_position, source, pattern);
+      }
+      final matchedStr = match.group(0);
+      if (matchedStr == null) {
+        throw MissingRegexGroupError(_position, source, pattern);
+      }
+      _position += matchedStr.length;
+      return (
+        source.substring(match.end),
+        FloatingPointLiteralToken(double.parse(matchedStr)),
       );
     };
   }

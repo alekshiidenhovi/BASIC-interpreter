@@ -1,5 +1,6 @@
 import "operators.dart";
 import "errors.dart";
+import "context.dart";
 
 /// Represents an abstract expression that can be evaluated given a set of variables.
 ///
@@ -9,23 +10,33 @@ sealed class Expression<T> {
 
   /// Evaluates the expression using the provided [variables].
   ///
-  /// The [variables] map should contain mappings from variable names (Strings) to their
+  /// The [context] object should contain mappings from variable names (Strings) to their
   /// numerical values (num).
-  T evaluate(Map<String, num> variables);
+  T evaluate(Context context);
 }
 
-/// Represents a literal number within an expression.
-///
-/// This expression always evaluates to its constant [value].
-class NumberLiteralExpression extends Expression<num> {
-  /// The numerical value of this literal.
-  final num value;
+/// Represents an integer literal expression.
+class IntegerLiteralExpression extends Expression<int> {
+  /// The integer value of this literal.
+  final int value;
 
-  /// Creates a new [NumberLiteralExpression] with the given [value].
-  const NumberLiteralExpression(this.value);
+  /// Creates a new [IntegerLiteralExpression] with the given [value].
+  const IntegerLiteralExpression(this.value);
 
   @override
-  num evaluate(Map<String, num> variables) {
+  int evaluate(Context context) => value;
+}
+
+/// Represents a floating point literal expression.
+class FloatingPointLiteralExpression extends Expression<double> {
+  /// The floating point value of this literal.
+  final double value;
+
+  /// Creates a new [FloatingPointLiteralExpression] with the given [value].
+  const FloatingPointLiteralExpression(this.value);
+
+  @override
+  double evaluate(Context context) {
     return value;
   }
 }
@@ -41,7 +52,7 @@ class StringLiteralExpression extends Expression<String> {
   const StringLiteralExpression(this.value);
 
   @override
-  String evaluate(Map<String, num> variables) {
+  String evaluate(Context context) {
     return value;
   }
 }
@@ -58,8 +69,8 @@ class IdentifierExpression extends Expression<num> {
   const IdentifierExpression(this.identifier);
 
   @override
-  num evaluate(Map<String, num> variables) {
-    final value = variables[identifier];
+  num evaluate(Context context) {
+    final value = context.variables[identifier];
     if (value == null) {
       throw MissingIdentifierError(this, identifier);
     }
@@ -85,9 +96,9 @@ class ComparisonExpression extends Expression<bool> {
   const ComparisonExpression(this.lhs, this.rhs, this.operator);
 
   @override
-  bool evaluate(Map<String, num> variables) {
-    final num leftValue = lhs.evaluate(variables);
-    final num rightValue = rhs.evaluate(variables);
+  bool evaluate(Context context) {
+    final num leftValue = lhs.evaluate(context);
+    final num rightValue = rhs.evaluate(context);
 
     return switch (operator) {
       ComparisonOperator.eq => leftValue == rightValue,
@@ -118,9 +129,9 @@ class ArithmeticExpression extends Expression<num> {
   const ArithmeticExpression(this.lhs, this.rhs, this.operator);
 
   @override
-  num evaluate(Map<String, num> variables) {
-    final num leftValue = lhs.evaluate(variables);
-    final num rightValue = rhs.evaluate(variables);
+  num evaluate(Context context) {
+    final num leftValue = lhs.evaluate(context);
+    final num rightValue = rhs.evaluate(context);
 
     return switch (operator) {
       ArithmeticOperator.add => leftValue + rightValue,
