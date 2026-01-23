@@ -54,12 +54,14 @@ class Interpreter {
         break;
       }
 
-      // These statements increment line number regularly
+      // These statements increment line number in a normal way
       if (statement is PrintStatement) {
         String output = statement.execute(variables);
         outputLines.add(output);
       } else if (statement is LetStatement) {
         statement.execute(variables);
+      } else if (statement is RemarkStatement) {
+        // Do nothing
       } else {
         throw Exception("Unsupported statement type: $statement");
       }

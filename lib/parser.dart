@@ -34,6 +34,7 @@ class Parser {
         GotoKeywordToken() => parseGotoStatement(),
         IfKeywordToken() => parseIfStatement(),
         EndKeywordToken() => parseEndStatement(),
+        RemKeywordToken() => parseRemarkStatement(),
         _ => throw UnexpectedTokenError(
           position,
           keywordToken.kind(),
@@ -43,6 +44,7 @@ class Parser {
             TokenType.gotoKeyword,
             TokenType.ifKeyword,
             TokenType.endKeyword,
+            TokenType.remKeyword,
           ]),
         ),
       };
@@ -131,6 +133,19 @@ class Parser {
     expectToken(TokenType.endKeyword);
     expectToken(TokenType.endOfLine);
     return EndStatement();
+  }
+
+  /// Parses a REM statement.
+  ///
+  /// Expects a REM keyword followed by an end of line.
+  /// Returns a [RemarkStatement] representing the parsed statement.
+  Statement parseRemarkStatement() {
+    expectToken(TokenType.remKeyword);
+    while (peekToken().kind() != TokenType.endOfLine) {
+      consumeToken();
+    }
+    expectToken(TokenType.endOfLine);
+    return RemarkStatement();
   }
 
   /// Parses an expression that evaluates to a number.

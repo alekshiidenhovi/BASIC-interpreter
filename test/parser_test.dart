@@ -479,4 +479,23 @@ void main() {
       expect(program[10], isA<EndStatement>());
     });
   });
+
+  group("REMARK statements", () {
+    test("Parse REM statement", () {
+      final tokens = [
+        NumberLiteralToken(10),
+        RemKeywordToken(),
+        IdentifierToken("This"),
+        IdentifierToken("is"),
+        IdentifierToken("a"),
+        IdentifierToken("comment"),
+        EndOfLineToken(),
+      ];
+
+      final parser = Parser(tokens);
+      final program = parser.parse();
+
+      expect(program[10], isA<RemarkStatement>());
+    });
+  });
 }

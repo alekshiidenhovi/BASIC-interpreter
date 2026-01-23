@@ -88,3 +88,14 @@ class EndStatement extends Statement<void> {
     throw Exception("END statement reached!");
   }
 }
+
+/// A statement, which represents a user comment.
+class RemarkStatement extends Statement<void> {
+  /// Creates a new [RemarkStatement].
+  RemarkStatement();
+
+  @override
+  void execute(Map<String, num> variables) {
+    // Do nothing.
+  }
+}

@@ -137,6 +137,7 @@ class Lexer {
         "TO" => ToKeywordToken(),
         "STEP" => StepKeywordToken(),
         "NEXT" => NextKeywordToken(),
+        "REM" => RemKeywordToken(),
         _ => IdentifierToken(matchedStr),
       };
       _position += uppercaseStr.length;

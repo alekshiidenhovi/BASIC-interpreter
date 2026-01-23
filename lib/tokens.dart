@@ -26,6 +26,7 @@ enum TokenType {
   stepKeyword,
   nextKeyword,
   endKeyword,
+  remKeyword,
 }
 
 /// Represents a token recognized during the lexing process.
@@ -59,6 +60,7 @@ sealed class Token {
     StepKeywordToken() => "StepKeywordToken",
     NextKeywordToken() => "NextKeywordToken",
     EndKeywordToken() => "EndKeywordToken",
+    RemKeywordToken() => "RemKeywordToken",
   };
 
   /// Returns the type of the token.
@@ -89,6 +91,7 @@ sealed class Token {
     StepKeywordToken() => TokenType.stepKeyword,
     NextKeywordToken() => TokenType.nextKeyword,
     EndKeywordToken() => TokenType.endKeyword,
+    RemKeywordToken() => TokenType.remKeyword,
   };
 
   @override
@@ -192,3 +195,6 @@ final class ThenKeywordToken extends Token {}
 
 /// Represents an end keyword token.
 final class EndKeywordToken extends Token {}
+
+/// Represents a remark keyword token.
+final class RemKeywordToken extends Token {}

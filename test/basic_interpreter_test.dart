@@ -83,4 +83,10 @@ void main() {
       );
     });
   });
+
+  group("REM statements", () {
+    test("REM statement", () {
+      expect(interpreter.interpret("10 REM This is a comment\n"), []);
+    });
+  });
 }

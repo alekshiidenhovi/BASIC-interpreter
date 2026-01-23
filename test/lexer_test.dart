@@ -281,4 +281,28 @@ void main() {
       ]);
     });
   });
+
+  group("Comments", () {
+    test("REM statement 1", () {
+      var lexer = Lexer('REM This is a comment');
+      expect(lexer.tokenize(), [
+        RemKeywordToken(),
+        IdentifierToken('This'),
+        IdentifierToken('is'),
+        IdentifierToken('a'),
+        IdentifierToken('comment'),
+      ]);
+    });
+
+    test("REM statement 2", () {
+      var lexer = Lexer('REM THERE ARE NUMBERS 123.456');
+      expect(lexer.tokenize(), [
+        RemKeywordToken(),
+        IdentifierToken('THERE'),
+        IdentifierToken('ARE'),
+        IdentifierToken('NUMBERS'),
+        NumberLiteralToken(123.456),
+      ]);
+    });
+  });
 }
