@@ -10,8 +10,7 @@ sealed class Expression<T> {
 
   /// Evaluates the expression using the provided [variables].
   ///
-  /// The [context] object should contain mappings from variable names (Strings) to their
-  /// numerical values (num).
+  /// The [context] object should contain mappings from variable names [String] to numerical values [num].
   T evaluate(Context context);
 }
 
