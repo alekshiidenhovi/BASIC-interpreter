@@ -24,5 +24,7 @@
   --slate-950: oklch(12.9% 0.042 264.695);
   
   --line-height: 3px;
+
+  font-family: "Share Tech Mono", monospace;
 }
 
