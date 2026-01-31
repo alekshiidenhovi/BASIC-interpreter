@@ -30,28 +30,44 @@ body, html {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  height: 100%;
   overflow: hidden;
 }
 
 .terminal-screen {
   background-color: var(--slate-950);
-  min-height: 100dvh;
+  height: 100dvh;
+  width: 100dvw;
   position: relative;
 }
 
+/* 1. The Tiles Layer */
 .terminal-screen::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 10;
   pointer-events: none;
   
-  /* Use the variables to create the alternating block effect */
   background: repeating-linear-gradient(
     to bottom,
     var(--slate-900) 0px,
     var(--slate-900) var(--line-height),
     transparent var(--line-height),
     transparent calc(var(--line-height) * 2)
+  );
+}
+
+/* 2. The Radial Glow Layer */
+.terminal-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 20; 
+  pointer-events: none;
+  
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--sky-600), transparent 80%) 0%,
+    color-mix(in srgb, var(--slate-800), transparent 80%) 100%
   );
 }
