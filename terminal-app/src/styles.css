@@ -34,3 +34,24 @@ body, html {
   overflow: hidden;
 }
 
+.terminal-screen {
+  background-color: var(--slate-950);
+  min-height: 100dvh;
+  position: relative;
+}
+
+.terminal-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  
+  /* Use the variables to create the alternating block effect */
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--slate-900) 0px,
+    var(--slate-900) var(--line-height),
+    transparent var(--line-height),
+    transparent calc(var(--line-height) * 2)
+  );
+}
