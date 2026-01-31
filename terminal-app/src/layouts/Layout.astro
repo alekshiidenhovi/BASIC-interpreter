@@ -61,4 +61,41 @@ const { title } = Astro.props;
     box-shadow: 0 0 4px var(--sky-500);
     margin-block: 1rem;
   }
+
+  .terminal-screen {
+    background-color: var(--slate-950);
+    position: relative;
+  }
+
+  /* 1. The Tiles Layer */
+  .terminal-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -20;
+    pointer-events: none;
+    
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--slate-900) 0px,
+      var(--slate-900) var(--line-height),
+      transparent var(--line-height),
+      transparent calc(var(--line-height) * 2)
+    );
+  }
+
+  /* 2. The Radial Glow Layer */
+  .terminal-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -10; 
+    pointer-events: none;
+    
+    background: radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--sky-600), transparent 80%) 0%,
+      color-mix(in srgb, var(--slate-800), transparent 80%) 100%
+    );
+  }
 </style>
