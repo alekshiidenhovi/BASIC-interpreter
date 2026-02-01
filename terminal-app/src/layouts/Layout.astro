@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const path = Astro.url.pathname;
 
 import "@/styles.css"
 ---
@@ -18,7 +19,7 @@ import "@/styles.css"
 	</head>
   <body class="terminal-screen">
     <header>
-      <span>/</span>
+      <span>{path}</span>
       <hr />
     </header>
     <main>
