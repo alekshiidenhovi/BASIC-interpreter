@@ -20,31 +20,36 @@ import "@/styles.css"
   <body class="terminal-screen">
     <header>
       <span>{path}</span>
-      <hr />
     </header>
+    <hr />
     <slot />
+    <hr />
     <footer>
-      <hr />
       <span>mode: production</span>
     </footer>
 	</body>
 </html>
 
 <style>
-  body, html {
+  html {
+    overflow: hidden;
+  }
+
+  body {
+    padding: 1.5rem;
     height: 100dvh;
     width: 100dvw;
-    overflow: hidden;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto 1fr auto auto;
   }
 
   header, footer {
-    padding: 1.5rem;
     color: var(--sky-500);
     letter-spacing: 1px;
     font-size: 1rem;
     text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
   }
 
   hr {
