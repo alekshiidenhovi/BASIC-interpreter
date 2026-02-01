@@ -27,7 +27,7 @@ import TimeCounter from "@components/TimeCounter.vue"
     <slot />
     <hr />
     <footer>
-      <span>mode: production</span>
+      <span>mode: {import.meta.env.MODE}</span>
     </footer>
 	</body>
 </html>
