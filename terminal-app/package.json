@@ -9,9 +9,11 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "0.9.6",
     "@astrojs/ts-plugin": "1.10.6",
     "@astrojs/vue": "5.1.4",
     "astro": "5.17.1",
+    "typescript": "5.9.3",
     "vue": "3.5.27"
   }
 }
