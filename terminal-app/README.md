@@ -1,4 +1,6 @@
-# Terminal App - BASIC Interpreter
+# Retro Terminal
+
+A retro-terminal themed browser editor for the BASIC programming language.
 
 ## Setup
 
