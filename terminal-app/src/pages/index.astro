@@ -4,16 +4,25 @@ import MenuButton from "@components/MenuButton.vue"
 ---
 
 <Layout title="Terminal - Typical BASIC">
-  <div class="menu-container">
-    <h1>TYPICAL BASIC</h1>
-    <div class="menu-button-container">
-      <MenuButton buttonText="Tutorial" href="/tutorial/1" />
-      <MenuButton buttonText="Github" href="https://github.com/alekshiidenhovi/BASIC-interpreter" />
+  <main>
+    <div class="menu-container">
+      <h1>TYPICAL BASIC</h1>
+      <div class="menu-button-container">
+        <MenuButton buttonText="Tutorial" href="/tutorial/1" />
+        <MenuButton buttonText="Github" href="https://github.com/alekshiidenhovi/BASIC-interpreter" />
+      </div>
     </div>
-  </div>
+  </main>
 </Layout>
 
 <style>
+  main {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
   .menu-container {
     display: flex;
     flex-direction: column;
