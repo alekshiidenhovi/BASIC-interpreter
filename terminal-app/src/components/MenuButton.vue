@@ -15,7 +15,7 @@ const props = defineProps<Props>();
 <style>
 a {
   text-decoration: none;
-  border: 2px solid var(--sky-500);
+  border: 2px solid color-mix(in srgb, var(--sky-500), transparent 50%);
   display: flex;
   align-items: center;
   justify-content: center;
