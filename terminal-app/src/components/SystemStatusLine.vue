@@ -64,6 +64,7 @@ onMounted(async () => {
 .system-status-line {
   display: flex;
   gap: 1.5rem;
+  align-items: center;
 }
 
 .status-container {
