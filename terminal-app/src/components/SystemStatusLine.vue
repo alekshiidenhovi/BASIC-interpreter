@@ -16,7 +16,10 @@ const updateBatteryStatus = (battery: BatteryManager) => {
   }
 }
 
-const selectBatteryIcon = (systemBatteryStatus: SystemBatteryStatus) => {
+const selectBatteryIcon = (systemBatteryStatus: SystemBatteryStatus | null) => {
+  if (systemBatteryStatus === null) {
+    return "lucide:battery-warning";
+  }
   if (systemBatteryStatus.isCharging) {
     return "lucide:battery-charging";
   } else {
@@ -49,9 +52,10 @@ onMounted(async () => {
 
 <template>
   <div class="system-status-line">
-    <div class="status-container" v-if="systemBatteryStatus">
+    <div class="status-container">
       <Icon :icon="selectBatteryIcon(systemBatteryStatus)" class="icon" />
-      <span>{{ systemBatteryStatus.level }}%</span>
+      <span v-if="systemBatteryStatus">{{ systemBatteryStatus.level }}%</span>
+      <span v-else>BATTERY API UNAVAILABLE</span>
     </div>
   </div>
 </template>
