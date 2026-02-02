@@ -8,6 +8,7 @@ const path = Astro.url.pathname;
 
 import "@/styles.css"
 import TimeCounter from "@components/TimeCounter.vue"
+import SystemStatusLine from "@components/SystemStatusLine.vue"
 ---
 
 <!doctype html>
@@ -28,6 +29,7 @@ import TimeCounter from "@components/TimeCounter.vue"
     <hr />
     <footer>
       <span>mode: {import.meta.env.MODE}</span>
+      <SystemStatusLine client:only />
     </footer>
 	</body>
 </html>
@@ -46,12 +48,14 @@ import TimeCounter from "@components/TimeCounter.vue"
   }
 
   header, footer {
+    height: 1.5rem;
     color: var(--sky-500);
     letter-spacing: 1px;
     font-size: 1rem;
     text-transform: uppercase;
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
 
   hr {
