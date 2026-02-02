@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Icon } from "@iconify/vue";
+import { Icon, loadIcons } from "@iconify/vue";
 import { assertNever } from "@/utils";
 
 interface SystemBatteryStatus {
@@ -70,6 +70,15 @@ const selectNetworkIcon = (systemNetworkStatus: SystemNetworkStatus | null) => {
 }
 
 onMounted(async () => {
+  loadIcons([
+    "lucide:battery-charging",
+    "lucide:battery-medium",
+    "lucide:battery-full",
+    "lucide:battery-low",
+    "lucide:wifi",
+    "lucide:wifi-off",
+  ]);
+
   if ("getBattery" in navigator) {
     const battery = await navigator.getBattery();
     updateBatteryStatus(battery);
