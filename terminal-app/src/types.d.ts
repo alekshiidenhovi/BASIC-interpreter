@@ -12,7 +12,22 @@ declare global {
     onlevelchange: ((this: BatteryManager, ev: Event) => any) | null;
   }
 
+  type NetworkType = "bluetooth" | "cellular" | "ethernet" | "none" | "wifi" | "wimax" | "other" | "unknown";
+  type ConnectionType = "slow-2g" | "2g" | "3g" | "4g";
+
+  interface NetworkInformation extends EventTarget {
+    downLink: number;
+    downlinkMax: number;
+    downlinkMax: number;
+    effectiveType: ConnectionType;
+    rtt: number;
+    saveData: boolean;
+    type: NetworkType;
+    onchange: ((this: NetworkInformation, ev: Event) => any) | null;
+  }
+
   interface Navigator {
     getBattery?: () => Promise<BatteryManager>;
+    connection?: NetworkInformation;
   }
 }
