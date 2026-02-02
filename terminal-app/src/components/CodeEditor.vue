@@ -66,6 +66,12 @@ const printLines = ref<string[]>(["my variable value: hello basic", "my expressi
   cursor: pointer;
   text-transform: uppercase;
   border: none;
+  letter-spacing: 3px;
+}
+
+.selected-mode {
+  color: var(--sky-500);
+  font-weight: 700;
 }
 
 .editor-mode-button:nth-child(1) {
@@ -90,10 +96,5 @@ const printLines = ref<string[]>(["my variable value: hello basic", "my expressi
   font-size: 1rem;
   text-transform: uppercase;
   padding: 0.25rem 0.75rem;
-}
-
-.selected-mode {
-  color: var(--sky-500);
-  text-decoration: underline;
 }
 </style>
