@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 
 type Mode = 'editor' | 'repl';
 type Statement = {
@@ -24,6 +24,81 @@ const statements = ref<Statement[]>([{
 }]);
 const printLines = ref<string[]>([]);
 
+// Track the desired cursor column across vertical movements
+const desiredColumn = ref<number | null>(null);
+
+const sortStatements = () => {
+  statements.value.sort((a, b) => a.lineNumber - b.lineNumber);
+};
+
+const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
+  const input = event.target as HTMLInputElement;
+  const cursorPos = input.selectionStart ?? 0;
+  const textLength = input.value.length;
+
+  if (event.key === 'ArrowUp' && index > 0) {
+    event.preventDefault();
+    if (desiredColumn.value === null) {
+      desiredColumn.value = cursorPos;
+    }
+    focusStatement(index - 1, desiredColumn.value);
+  }
+
+  else if (event.key === 'ArrowDown' && index < statements.value.length - 1) {
+    event.preventDefault();
+    if (desiredColumn.value === null) {
+      desiredColumn.value = cursorPos;
+    }
+    focusStatement(index + 1, desiredColumn.value);
+  }
+
+  else if (event.key === 'ArrowLeft' && cursorPos === 0 && index > 0) {
+    event.preventDefault();
+    const prevStatement = statements.value[index - 1];
+    if (!prevStatement) {
+      console.warn('No previous statement found on left key press');
+      return;
+    }
+    focusStatement(index - 1, prevStatement.statement.length);
+    desiredColumn.value = null;
+  }
+
+  else if (event.key === 'ArrowRight' && cursorPos === textLength && index < statements.value.length - 1) {
+    event.preventDefault();
+    focusStatement(index + 1, 0);
+    desiredColumn.value = null;
+  }
+
+  else if (event.key === 'Enter') {
+    event.preventDefault();
+    const newLineNumber = (statements.value[statements.value.length - 1]?.lineNumber || 0) + 10;
+    statements.value.push({ lineNumber: newLineNumber, statement: '' });
+    nextTick(() => {
+      focusStatement(statements.value.length - 1, 0);
+      desiredColumn.value = null;
+    });
+  }
+
+  else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+    desiredColumn.value = null;
+  }
+
+  else if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') {
+    desiredColumn.value = null;
+  }
+};
+
+const focusStatement = (index: number, column: number) => {
+  nextTick(() => {
+    const input = document.querySelector(`.statement-input-${index}`) as HTMLInputElement;
+    if (input) {
+      input.focus();
+      const maxColumn = input.value.length;
+      const targetColumn = Math.min(column, maxColumn);
+      input.setSelectionRange(targetColumn, targetColumn);
+    }
+  });
+};
 </script>
 
 <template>
@@ -37,8 +112,8 @@ const printLines = ref<string[]>([]);
     <div class="editor-content">
       <div class="editor-statement" v-for="(statement, index) in statements" :key="index">
         <input v-model.number="statement.lineNumber" class="line-number-input" type="number" />
-        <input v-model="statement.statement" class="statement-input"
-          @keydown.enter="statements.push({ lineNumber: (statements[statements.length - 1]?.lineNumber || 0) + 10, statement: '' })" />
+        <input v-model="statement.statement" :class="['statement-input', `statement-input-${index}`]"
+          @keydown="handleStatementKeydown($event, index)" />
       </div>
     </div>
     <div class="editor-print-container">
