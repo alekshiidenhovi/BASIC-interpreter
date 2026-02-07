@@ -90,7 +90,7 @@ class UnexpectedEndOfInputError extends ParserError {
   UnexpectedEndOfInputError(int tokenNumber)
     : super(
         tokenNumber,
-        "unexpected end of input at token number $tokenNumber",
+        "more tokens expected",
         "Unexpected end of input error",
       );
 }
