@@ -136,7 +136,7 @@ class Lexer {
 
   LexerParser<(String, Token)> createKeywordOrIdentifierParser() {
     return (String source) {
-      final pattern = RegExp(r'^[A-Za-z][A-Za-z0-9]*');
+      final pattern = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*');
       final match = pattern.matchAsPrefix(source);
       if (match == null) {
         throw MissingRegexMatchError(_position, source, pattern);
