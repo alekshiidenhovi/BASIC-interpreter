@@ -21,9 +21,9 @@ const {title} = Astro.props;
     <div class="grid-container">
       <div class="exercise-container">
         <p>Storing variables is done with LET statements. The syntax for LET statements is the following:</p>
-        <CodeBlock code="<line-number> LET <variable-name> = <numeric-value>" />
+        <CodeBlock client:load code="<line-number> LET <variable-name> = <numeric-value>" />
               <p>More concretely, a simple LET statement could look like the following:</p>
-              <CodeBlock code="10 LET HELLO_VARIABLE = 10" />
+              <CodeBlock client:load code="LET HELLO_VARIABLE = 10" />
       </div>
       <CodeEditor client:load />
     </div>
