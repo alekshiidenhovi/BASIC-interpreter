@@ -79,6 +79,19 @@ const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
     });
   }
 
+  else if (event.key === 'Backspace' && cursorPos === 0 && textLength === 0 && statements.value.length > 1) {
+    event.preventDefault();
+    const prevIndex = index - 1;
+    statements.value.splice(index, 1);
+    if (prevIndex >= 0) {
+      nextTick(() => {
+        const prevStatement = statements.value[prevIndex];
+        focusStatement(prevIndex, prevStatement.statement.length);
+        desiredColumn.value = null;
+      });
+    }
+  }
+
   else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
     desiredColumn.value = null;
   }
