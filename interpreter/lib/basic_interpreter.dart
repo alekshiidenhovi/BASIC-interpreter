@@ -39,12 +39,12 @@ class Interpreter {
       print("$currentLine: $statement");
 
       if (statement is GotoStatement) {
-        currentLine = statement.execute(context);
+        currentLine = statement.execute(context, currentLine);
         continue;
       }
 
       if (statement is IfStatement) {
-        int? jumpLine = statement.execute(context);
+        int? jumpLine = statement.execute(context, currentLine);
         if (jumpLine != null) {
           currentLine = jumpLine;
         }
@@ -57,10 +57,10 @@ class Interpreter {
 
       // These statements increment line number in a normal way
       if (statement is PrintStatement) {
-        String output = statement.execute(context);
+        String output = statement.execute(context, currentLine);
         outputLines.add(output);
       } else if (statement is LetStatement) {
-        statement.execute(context);
+        statement.execute(context, currentLine);
       } else if (statement is RemarkStatement) {
         // Do nothing
       } else {

@@ -1,30 +1,35 @@
 import "tokens.dart";
 import "expressions.dart";
 
+sealed class BASICInterpreterError extends Error {
+  final String interpreterStepErrorName;
+
+  final String detailedErrorName;
+
+  final String message;
+
+  BASICInterpreterError(
+    this.interpreterStepErrorName,
+    this.detailedErrorName,
+    this.message,
+  );
+}
+
 /// Generic error that occurs during parsing.
 ///
 /// This class serves as a base for all specific parser errors, providing common
 /// properties like the token number, a descriptive message, and an error name.
-sealed class ParserError extends Error {
+sealed class ParserError extends BASICInterpreterError {
   /// The number of the token where the error occurred.
   final int tokenNumber;
 
-  /// A message describing the error.
-  final String message;
-
-  /// The name of the error.
-  final String errorName;
-
   /// Creates a new [ParserError].
-  ParserError(
-    this.tokenNumber,
-    this.message, [
-    this.errorName = "Parser error",
-  ]);
+  ParserError(String detailedErrorName, String message, this.tokenNumber)
+    : super("Parser error", detailedErrorName, message);
 
   @override
   String toString() {
-    return "$errorName at token number $tokenNumber: $message";
+    return "$detailedErrorName at token number $tokenNumber: $message";
   }
 }
 
@@ -56,16 +61,16 @@ class UnexpectedTokenError extends ParserError {
   final TokenType actualToken;
 
   /// The token that was expected.
-  final TokenTypeOption expected;
+  final TokenTypeOption expectedToken;
 
   /// Creates a new [UnexpectedTokenError].
-  UnexpectedTokenError(int tokenNumber, this.actualToken, this.expected)
-    : super(tokenNumber, switch (expected) {
+  UnexpectedTokenError(int tokenNumber, this.actualToken, this.expectedToken)
+    : super("Unexpected token error", switch (expectedToken) {
         TokenTypeOptionOne(tokenType: var t) =>
           "expected $t, got $actualToken!",
         TokenTypeOptionMany(tokenTypes: var ts) =>
           "expected one of ${ts.join(", ")}, got $actualToken!",
-      }, "Unexpected token error");
+      }, tokenNumber);
 }
 
 /// Represents an error when an invalid token is encountered during parsing.
@@ -78,7 +83,7 @@ class InvalidTokenError extends ParserError {
 
   /// Creates a new [InvalidTokenError].
   InvalidTokenError(int tokenNumber, this.actualToken)
-    : super(tokenNumber, "got $actualToken!", "Invalid token error");
+    : super("Invalid token error", "got $actualToken!", tokenNumber);
 }
 
 /// Represents an error when the end of the input is encountered during parsing.
@@ -89,9 +94,9 @@ class UnexpectedEndOfInputError extends ParserError {
   /// Creates a new [UnexpectedEndOfInputError].
   UnexpectedEndOfInputError(int tokenNumber)
     : super(
-        tokenNumber,
-        "more tokens expected",
         "Unexpected end of input error",
+        "more tokens expected",
+        tokenNumber,
       );
 }
 
@@ -99,26 +104,17 @@ class UnexpectedEndOfInputError extends ParserError {
 ///
 /// This class serves as a base for all specific lexer errors, providing common
 /// properties like the character number, a descriptive message, and an error name.
-sealed class LexerError extends Error {
+sealed class LexerError extends BASICInterpreterError {
   /// The number of the character where the error occurred.
   final int characterNumber;
 
-  /// A message describing the error.
-  final String message;
-
-  /// The name of the error.
-  final String errorName;
-
   /// Creates a new [LexerError].
-  LexerError(
-    this.characterNumber,
-    this.message, [
-    this.errorName = "Lexer error",
-  ]);
+  LexerError(String detailedErrorName, String message, this.characterNumber)
+    : super("Lexer error", detailedErrorName, message);
 
   @override
   String toString() {
-    return "$errorName at character number $characterNumber: $message";
+    return "$detailedErrorName at character number $characterNumber: $message";
   }
 }
 
@@ -133,9 +129,9 @@ class MissingRegexMatchError extends LexerError {
   /// Creates a new [MissingRegexMatchError].
   MissingRegexMatchError(int characterNumber, this.source, this.pattern)
     : super(
-        characterNumber,
-        "missing regex match, expected pattern '$pattern' to match '$source'",
         "Missing regex match error",
+        "missing regex match, expected pattern '$pattern' to match '$source'",
+        characterNumber,
       );
 }
 
@@ -150,9 +146,9 @@ class MissingRegexGroupError extends LexerError {
   /// Creates a new [MissingRegexGroupError].
   MissingRegexGroupError(int characterNumber, this.source, this.pattern)
     : super(
-        characterNumber,
-        "missing regex group",
         "Missing regex group error",
+        "missing regex group",
+        characterNumber,
       );
 }
 
@@ -164,9 +160,9 @@ class UnmatchedStringError extends LexerError {
   /// Creates a new [NonmatchingParserError].
   UnmatchedStringError(int characterNumber, this.source)
     : super(
-        characterNumber,
-        "unmatched string '$source'",
         "Nonmatching parser error",
+        "unmatched string '$source'",
+        characterNumber,
       );
 }
 
@@ -174,68 +170,53 @@ class UnmatchedStringError extends LexerError {
 ///
 /// This class serves as a base for all specific interpreter errors, providing
 /// common properties like a descriptive message and an error name.
-sealed class InterpreterError extends Error {
-  /// A message describing the error.
-  final String message;
+sealed class InterpretationError extends BASICInterpreterError {
+  /// The line number where the error occurred.
+  final int lineNumber;
 
-  /// The name of the error.
-  final String errorName;
-
-  /// Creates a new [InterpreterError].
-  InterpreterError(this.message, [this.errorName = "Interpreter error"]);
+  /// Creates a new [InterpretationError].
+  InterpretationError(String detailedErrorName, String message, this.lineNumber)
+    : super("Interpretation error", detailedErrorName, message);
 
   @override
   String toString() {
-    return "$errorName: $message";
-  }
-}
-
-/// Represents an error during expression evaluation.
-///
-/// This error is raised when an expression cannot be evaluated due to various
-/// reasons, such as missing identifiers or division by zero.
-class ExpressionEvaluationError extends InterpreterError {
-  /// The expression that could not be evaluated.
-  final Expression expression;
-
-  /// Creates a new [ExpressionEvaluationError].
-  ExpressionEvaluationError(this.expression, String message, String errorName)
-    : super(message, errorName);
-
-  @override
-  String toString() {
-    return "Expression evaluation error: $expression - $message";
+    return "$detailedErrorName at line number $lineNumber: $message";
   }
 }
 
 /// Represents an error that occurs during the runtime execution of a program.
-class RuntimeError extends InterpreterError {
+class RuntimeError extends InterpretationError {
   /// Creates a new [RuntimeError].
-  RuntimeError(super.message, [super.errorName = "Runtime error"]);
+  RuntimeError(int lineNumber, String message): super("Runtime error", message, lineNumber);
 }
 
 /// Represents an error when a required identifier is missing during expression evaluation.
 ///
 /// This error is raised when an expression references an identifier that has not
 /// been defined in the current scope.
-class MissingIdentifierError extends ExpressionEvaluationError {
+class MissingIdentifierError extends InterpretationError {
+  /// The expression that could not be evaluated.
+  final Expression expression;
   /// The identifier that was expected but not found.
   final String identifier;
 
   /// Creates a new [MissingIdentifierError].
-  MissingIdentifierError(Expression expression, this.identifier)
+  MissingIdentifierError(int lineNumber, this.expression, this.identifier)
     : super(
-        expression,
-        "missing identifier '$identifier'",
         "Missing identifier error",
+        "missing identifier '$identifier' for expression $expression",
+        lineNumber,
       );
 }
 
 /// Represents an error when division by zero occurs during expression evaluation.
 ///
 /// This error is raised when an attempt is made to divide a number by zero.
-class DivisionByZeroError extends ExpressionEvaluationError {
+class DivisionByZeroError extends InterpretationError {
+  /// The expression that could not be evaluated.
+  final Expression<num> expression;
+
   /// Creates a new [DivisionByZeroError].
-  DivisionByZeroError(Expression expression)
-    : super(expression, "division by zero", "Division by zero");
+  DivisionByZeroError(int lineNumber, this.expression)
+    : super("Division by zero", "division by zero occurred for expression $expression", lineNumber);
 }

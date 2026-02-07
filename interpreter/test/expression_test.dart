@@ -123,7 +123,7 @@ void runSuite<T>(List<BaseTestCase<T>> cases) {
   for (var tc in cases) {
     test(tc.description, () {
       final expression = tc.buildExpression();
-      expect(expression.evaluate(tc.context), tc.expected);
+      expect(expression.evaluate(tc.context, 10), tc.expected);
     });
   }
 }

@@ -6,7 +6,7 @@ sealed class Statement<T> {
   /// Executes the statement and returns a result.
   ///
   /// [variables] is a map of variable names to their numeric values.
-  T execute(Context context);
+  T execute(Context context, int currentLine);
 }
 
 /// A statement, which assigns the result of an expression to a variable.
@@ -23,8 +23,8 @@ class LetStatement extends Statement<void> {
   LetStatement(this.identifier, this.expression);
 
   @override
-  void execute(Context context) {
-    context.variables[identifier] = expression.evaluate(context);
+  void execute(Context context, int currentLine) {
+    context.variables[identifier] = expression.evaluate(context, currentLine);
   }
 }
 
@@ -39,8 +39,10 @@ class PrintStatement extends Statement<String> {
   PrintStatement(this.arguments);
 
   @override
-  String execute(Context context) {
-    return arguments.map((expr) => expr.evaluate(context)).join("\t");
+  String execute(Context context, int currentLine) {
+    return arguments
+        .map((expr) => expr.evaluate(context, currentLine))
+        .join("\t");
   }
 }
 
@@ -55,7 +57,7 @@ class GotoStatement extends Statement<int> {
   GotoStatement(this.lineNumber);
 
   @override
-  int execute(Context context) {
+  int execute(Context context, int currentLine) {
     return lineNumber;
   }
 }
@@ -74,8 +76,8 @@ class IfStatement extends Statement<int?> {
   IfStatement(this.condition, this.lineNumber);
 
   @override
-  int? execute(Context context) {
-    return condition.evaluate(context) ? lineNumber : null;
+  int? execute(Context context, currentLine) {
+    return condition.evaluate(context, currentLine) ? lineNumber : null;
   }
 }
 
@@ -85,7 +87,7 @@ class EndStatement extends Statement<void> {
   EndStatement();
 
   @override
-  void execute(Context context) {
+  void execute(Context context, currentLine) {
     throw Exception("END statement reached!");
   }
 }
@@ -96,7 +98,7 @@ class RemarkStatement extends Statement<void> {
   RemarkStatement();
 
   @override
-  void execute(Context context) {
+  void execute(Context context, currentLine) {
     // Do nothing.
   }
 }
