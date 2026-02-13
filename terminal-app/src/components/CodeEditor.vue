@@ -177,8 +177,10 @@ button:focus-visible {
 
 .editor-container {
   display: grid;
-  grid-template-rows: auto 1fr auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 1fr);
   border: 2px solid var(--sky-900);
+  height: 100%;
+  min-height: 0;
 }
 
 .editor-container>*+* {
@@ -252,6 +254,7 @@ button:focus-visible {
 .editor-content,
 .editor-print-container {
   padding: 0.5rem 0;
+  overflow-y: auto;
 }
 
 .editor-statement {

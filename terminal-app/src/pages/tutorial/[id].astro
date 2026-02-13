@@ -36,6 +36,8 @@ const {title} = Astro.props;
     grid-template-rows: auto 3fr;
     gap: 1.5rem;
     padding: 4rem 0;
+    height: 100%;
+    min-height: 0;
   }
 
   h1 {
@@ -54,12 +56,16 @@ const {title} = Astro.props;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
+    height: 100%;
+    min-height: 0;
   }
 
   .exercise-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-height: 0;
+    height: 100%;
   }
 
   p {
