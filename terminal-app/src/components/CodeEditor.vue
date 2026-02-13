@@ -46,7 +46,7 @@ const runCode = (outputMode: OutputMode) => {
   }
   const code = statements.value.map((statement) => `${statement.lineNumber} ${statement.statement}`).join("\n");
   const output = window.interpretBASIC(code, outputMode);
-  printLines.value.push(...output);
+  printLines.value = output;
 }
 
 // Track the desired cursor column across vertical movements
