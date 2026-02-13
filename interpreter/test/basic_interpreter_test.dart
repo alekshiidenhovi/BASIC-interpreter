@@ -1,92 +1,142 @@
 import 'package:basic_interpreter/basic_interpreter.dart';
+import 'package:basic_interpreter/expressions.dart';
+import 'package:basic_interpreter/operators.dart';
+import 'package:basic_interpreter/statements.dart';
 import 'package:test/test.dart';
+import "dart:collection";
 
 void main() {
-  late Interpreter interpreter;
-
-  setUp(() {
-    interpreter = Interpreter();
-  });
-
   group("Printing", () {
     test('10 PRINT "HELLO, WORLD!"', () {
-      expect(interpreter.interpret('10 PRINT "HELLO, WORLD!"\n'), [
-        "HELLO, WORLD!",
-      ]);
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
+        20: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["HELLO, WORLD!"]);
     });
 
     test('Two print statements', () {
-      expect(
-        interpreter.interpret(
-          '10 PRINT "HELLO, WORLD!"\n20 PRINT "HELLO, BASIC!"\n',
-        ),
-        ["HELLO, WORLD!", "HELLO, BASIC!"],
-      );
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
+        20: PrintStatement([StringLiteralExpression("HELLO, BASIC!")]),
+        30: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["HELLO, WORLD!", "HELLO, BASIC!"]);
     });
 
     test('10 PRINT "HELLO, WORLD!", "HELLO, BASIC!"', () {
-      expect(
-        interpreter.interpret('10 PRINT "HELLO, WORLD!", "HELLO, BASIC!"\n'),
-        ["HELLO, WORLD!\tHELLO, BASIC!"],
-      );
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: PrintStatement([
+          StringLiteralExpression("HELLO, WORLD!"),
+          StringLiteralExpression("HELLO, BASIC!"),
+        ]),
+        20: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["HELLO, WORLD!\tHELLO, BASIC!"]);
     });
   });
 
   group("Variables", () {
     test('10 LET A = 5\n20 PRINT A', () {
-      expect(interpreter.interpret('10 LET A = 5\n20 PRINT A\n'), ["5"]);
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: LetStatement("A", IntegerLiteralExpression(5)),
+        20: PrintStatement([IdentifierExpression("A")]),
+        30: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["5"]);
     });
 
     test('10 LET A = 5.2\n20 PRINT A', () {
-      expect(interpreter.interpret('10 LET A = 5.2\n20 PRINT A\n'), ["5.2"]);
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: LetStatement("A", FloatingPointLiteralExpression(5.2)),
+        20: PrintStatement([IdentifierExpression("A")]),
+        30: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["5.2"]);
     });
 
     test('10 LET A = 42\n20 PRINT "A IS", A', () {
-      expect(interpreter.interpret('10 LET A = 42\n20 PRINT "A IS", A\n'), [
-        "A IS\t42",
-      ]);
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: LetStatement("A", IntegerLiteralExpression(42)),
+        20: PrintStatement([
+          StringLiteralExpression("A IS"),
+          IdentifierExpression("A"),
+        ]),
+        30: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["A IS\t42"]);
     });
   });
 
   group("Goto statements", () {
     test("Goto statement skipping a line", () {
-      expect(
-        interpreter.interpret('10 GOTO 30\n20 PRINT "SKIP"\n30 PRINT "END"\n'),
-        ["END"],
-      );
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: GotoStatement(30),
+        20: PrintStatement([StringLiteralExpression("SKIP")]),
+        30: PrintStatement([StringLiteralExpression("END")]),
+        40: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["END"]);
     });
   });
 
   group("If-then statements", () {
     test("If statement", () {
-      expect(
-        interpreter.interpret('''10 LET A = 5
-20 IF A = 5 THEN 40
-30 PRINT "This is skipped"
-40 PRINT "Thanks, BASIC!"
-'''),
-        ["Thanks, BASIC!"],
-      );
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: LetStatement("A", IntegerLiteralExpression(5)),
+        20: IfStatement(
+          ComparisonExpression(
+            IdentifierExpression("A"),
+            IntegerLiteralExpression(5),
+            ComparisonOperator.eq,
+          ),
+          40,
+        ),
+        30: PrintStatement([StringLiteralExpression("This is skipped")]),
+        40: PrintStatement([StringLiteralExpression("Thanks, BASIC!")]),
+        50: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), ["Thanks, BASIC!"]);
     });
   });
 
   group("END statements", () {
     test("END statement", () {
-      expect(
-        interpreter.interpret('''10 LET A = 5
-20 IF A = 5 THEN 40
-30 PRINT "This is skipped"
-40 END
-50 PRINT "This is not executed"
-'''),
-        [],
-      );
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: LetStatement("A", IntegerLiteralExpression(5)),
+        20: IfStatement(
+          ComparisonExpression(
+            IdentifierExpression("A"),
+            IntegerLiteralExpression(5),
+            ComparisonOperator.eq,
+          ),
+          40,
+        ),
+        30: PrintStatement([StringLiteralExpression("This is skipped")]),
+        40: EndStatement(),
+        50: PrintStatement([StringLiteralExpression("This is not executed")]),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), []);
     });
   });
 
   group("REM statements", () {
     test("REM statement", () {
-      expect(interpreter.interpret("10 REM This is a comment\n"), []);
+      final statements = SplayTreeMap<int, Statement>.from({
+        10: RemarkStatement(),
+        20: EndStatement(),
+      });
+      final interpreter = Interpreter(statements);
+      expect(interpreter.interpret(), []);
     });
   });
 }
