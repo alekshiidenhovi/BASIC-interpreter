@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
+import { assertNever } from "@/utils";
+import { Icon } from "@iconify/vue";
 
 type Mode = 'editor' | 'repl';
+type OutputMode = 'lexer' | 'parser' | 'interpreter';
 type Statement = {
   lineNumber: number;
   statement: string;
@@ -23,6 +26,28 @@ const statements = ref<Statement[]>([{
   statement: "END"
 }]);
 const printLines = ref<string[]>([]);
+const outputMode = ref<OutputMode>("interpreter");
+
+const toggleOutputMode = () => {
+  if (outputMode.value === "lexer") {
+    outputMode.value = "parser";
+  } else if (outputMode.value === "parser") {
+    outputMode.value = "interpreter";
+  } else if (outputMode.value === "interpreter") {
+    outputMode.value = "lexer";
+  } else {
+    assertNever(outputMode.value);
+  }
+}
+
+const runCode = (outputMode: OutputMode) => {
+  if (!window.interpretBASIC) {
+    throw new Error("Interpreter not loaded");
+  }
+  const code = statements.value.map((statement) => `${statement.lineNumber} ${statement.statement}`).join("\n");
+  const output = window.interpretBASIC(code, outputMode);
+  printLines.value.push(...output);
+}
 
 // Track the desired cursor column across vertical movements
 const desiredColumn = ref<number | null>(null);
@@ -129,6 +154,15 @@ const focusStatement = (index: number, column: number) => {
           @keydown="handleStatementKeydown($event, index)" />
       </div>
     </div>
+    <div class="editor-run-container">
+      <button class="editor-run-button" @click="runCode(outputMode)">
+        <Icon class="icon" :icon="'lucide:play'" />
+      </button>
+      <button class="editor-output-mode-button" @click="toggleOutputMode">
+        <span>Output Mode: </span>
+        <span>{{ outputMode }}</span>
+      </button>
+    </div>
     <div class="editor-print-container">
       <p class="editor-print-line" v-for="(line, index) in printLines" :key="index">{{ line }}</p>
     </div>
@@ -136,9 +170,14 @@ const focusStatement = (index: number, column: number) => {
 </template>
 
 <style scoped>
+button:focus,
+button:focus-visible {
+  outline: none;
+}
+
 .editor-container {
   display: grid;
-  grid-template-rows: auto 1fr 1fr;
+  grid-template-rows: auto 1fr auto 1fr;
   border: 2px solid var(--sky-900);
 }
 
@@ -151,8 +190,19 @@ const focusStatement = (index: number, column: number) => {
   grid-template-columns: 1fr 1fr;
 }
 
+.editor-run-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
 .editor-mode-container>*+* {
   border-left: 2px solid var(--sky-900);
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--sky-700);
 }
 
 .editor-mode-button {
@@ -166,8 +216,32 @@ const focusStatement = (index: number, column: number) => {
   letter-spacing: 3px;
 }
 
-.editor-mode-button:nth-child(1) {
+.editor-mode-button:nth-child(1),
+.editor-run-button:nth-child(1) {
   border-right: 2px solid var(--sky-900);
+}
+
+.editor-run-button {
+  background-color: transparent;
+  color: var(--sky-700);
+  padding: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  border: none;
+  letter-spacing: 2px;
+}
+
+.editor-output-mode-button {
+  background-color: transparent;
+  color: var(--sky-600);
+  padding: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  border: none;
+  letter-spacing: 2px;
+  text-align: left;
 }
 
 .selected-mode {
