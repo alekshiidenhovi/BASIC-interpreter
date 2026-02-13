@@ -50,6 +50,9 @@ class Parser {
       };
       final lineNumber = lineNumberToken.value;
       program[lineNumber] = statement;
+      if (statement is EndStatement) {
+        break;
+      }
     }
 
     return program;
@@ -130,7 +133,6 @@ class Parser {
   /// Returns an [EndStatement] representing the parsed statement.
   Statement parseEndStatement() {
     expectToken(TokenType.endKeyword);
-    expectToken(TokenType.endOfLine);
     return EndStatement();
   }
 
