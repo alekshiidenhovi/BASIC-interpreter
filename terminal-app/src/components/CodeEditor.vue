@@ -2,9 +2,9 @@
 import { ref, nextTick } from "vue";
 import { assertNever } from "@/utils";
 import { Icon } from "@iconify/vue";
+import type { OutputMode } from "@/types";
 
 type Mode = 'editor' | 'repl';
-type OutputMode = 'lexer' | 'parser' | 'interpreter';
 type Statement = {
   lineNumber: number;
   statement: string;

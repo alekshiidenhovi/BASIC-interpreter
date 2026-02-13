@@ -1,3 +1,5 @@
+import type { OutputMode } from "./types";
+
 export { };
 
 declare global {
@@ -18,7 +20,6 @@ declare global {
   interface NetworkInformation extends EventTarget {
     downLink: number;
     downlinkMax: number;
-    downlinkMax: number;
     effectiveType: ConnectionType;
     rtt: number;
     saveData: boolean;
@@ -30,4 +31,6 @@ declare global {
     getBattery?: () => Promise<BatteryManager>;
     connection?: NetworkInformation;
   }
+
+  function interpretBASIC(code: string, mode: OutputMode): string[];
 }
