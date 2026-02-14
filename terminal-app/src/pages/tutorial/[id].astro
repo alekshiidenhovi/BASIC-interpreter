@@ -16,8 +16,8 @@ export const getStaticPaths = () => {
       params: { id: page.id },
       props: {
         title: page.title,
-        prevIndex: index > 0 ? pages[index - 1].id : null,
-        nextIndex: index < pages.length - 1 ? pages[index + 1].id : null,
+        prevIndex: index > 0 ? pages[index - 1]?.id as number : null,
+        nextIndex: index < pages.length - 1 ? pages[index + 1]?.id as number : null,
       },
     };
   });
