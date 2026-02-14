@@ -19,41 +19,55 @@ class Parser {
   /// The [tokens] argument is a list of tokens to parse.
   Parser(this.tokens);
 
+  /// The parsed program.
+  SplayTreeMap<int, Statement> program = SplayTreeMap();
+
   /// Parses the tokens into a program.
   ///
   /// Returns a [SplayTreeMap] where keys are line numbers and values are [Statement]s.
   SplayTreeMap<int, Statement> parse() {
-    SplayTreeMap<int, Statement> program = SplayTreeMap();
-
     while (position < tokens.length) {
       final lineNumberToken = parseIntegerLiteral();
-      final keywordToken = peekToken();
-      final statement = switch (keywordToken) {
-        LetKeywordToken() => parseLetStatement(),
-        PrintKeywordToken() => parsePrintStatement(),
-        IfKeywordToken() => parseIfStatement(),
-        EndKeywordToken() => parseEndStatement(),
-        RemKeywordToken() => parseRemarkStatement(),
-        _ => throw UnexpectedTokenError(
-          position,
-          keywordToken.kind(),
-          TokenTypeOptionMany([
-            TokenType.letKeyword,
-            TokenType.printKeyword,
-            TokenType.ifKeyword,
-            TokenType.endKeyword,
-            TokenType.remKeyword,
-          ]),
-        ),
-      };
-      final lineNumber = lineNumberToken.value;
-      program[lineNumber] = statement;
+      final statement = parseStatement();
+      expectToken(TokenType.endOfLine);
+      storeStatement(statement, lineNumberToken.value);
       if (statement is EndStatement) {
         break;
       }
     }
 
     return program;
+  }
+
+  /// Attempty to parse a statement.
+  ///
+  /// Returns a [Statement] representing the parsed statement.
+  Statement parseStatement() {
+    final keywordToken = peekToken();
+    final statement = switch (keywordToken) {
+      LetKeywordToken() => parseLetStatement(),
+      PrintKeywordToken() => parsePrintStatement(),
+      IfKeywordToken() => parseIfStatement(),
+      EndKeywordToken() => parseEndStatement(),
+      RemKeywordToken() => parseRemarkStatement(),
+      _ => throw UnexpectedTokenError(
+        position,
+        keywordToken.kind(),
+        TokenTypeOptionMany([
+          TokenType.letKeyword,
+          TokenType.printKeyword,
+          TokenType.ifKeyword,
+          TokenType.endKeyword,
+          TokenType.remKeyword,
+        ]),
+      ),
+    };
+    return statement;
+  }
+
+  /// Stores the statement in the program.
+  void storeStatement(Statement statement, int lineNumber) {
+    program[lineNumber] = statement;
   }
 
   /// Parses a LET statement.
@@ -65,7 +79,6 @@ class Parser {
     final identifierToken = parseIdentifier();
     expectToken(TokenType.equals);
     final numberExpression = parseNumExpression();
-    expectToken(TokenType.endOfLine);
     return LetStatement(identifierToken.value, numberExpression);
   }
 
@@ -92,7 +105,6 @@ class Parser {
       }
     }
 
-    expectToken(TokenType.endOfLine);
     return PrintStatement(arguments);
   }
 
@@ -106,11 +118,9 @@ class Parser {
     final comparisonOperator = parseComparisonOperator();
     final Expression<num> rhs = parseNumExpression();
     expectToken(TokenType.thenKeyword);
-    final numberLiteralToken = parseIntegerLiteral();
-    expectToken(TokenType.endOfLine);
-    final lineNumber = numberLiteralToken.value;
+    final thenStatement = parseStatement();
     final condition = ComparisonExpression(lhs, rhs, comparisonOperator);
-    return IfStatement(condition, lineNumber);
+    return IfStatement(condition, thenStatement);
   }
 
   /// Parses an END statement.
@@ -131,7 +141,6 @@ class Parser {
     while (peekToken().kind() != TokenType.endOfLine) {
       consumeToken();
     }
-    expectToken(TokenType.endOfLine);
     return RemarkStatement();
   }
 

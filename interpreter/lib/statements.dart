@@ -46,22 +46,22 @@ class PrintStatement extends Statement<String> {
   }
 }
 
-/// A statement, which conditionally jumps to a specified line number based on an expression's evaluation.
-class IfStatement extends Statement<int?> {
-  /// The comparison expression that determines whether to jump.
+/// A statement, which conditionally executed another statement based on an expression's evaluation.
+class IfStatement<T> extends Statement {
+  /// The comparison expression that determines whether to execute the [thenStatement].
   final ComparisonExpression condition;
 
-  /// The line number to jump to if the condition is true.
-  final int lineNumber;
+  /// The statement to execute if the condition is true.
+  final Statement<T> thenStatement;
 
   /// Creates a new [IfStatement].
   ///
-  /// Requires the [condition] to evaluate and the [lineNumber] to jump to if true.
-  IfStatement(this.condition, this.lineNumber);
+  /// Requires the [condition] to evaluate and the [thenStatement] to execute if true.
+  IfStatement(this.condition, this.thenStatement);
 
   @override
-  int? execute(Context context, currentLine) {
-    return condition.evaluate(context, currentLine) ? lineNumber : null;
+  Statement<T>? execute(Context context, currentLine) {
+    return condition.evaluate(context, currentLine) ? thenStatement : null;
   }
 }
 

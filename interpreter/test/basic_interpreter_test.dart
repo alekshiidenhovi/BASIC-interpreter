@@ -84,35 +84,24 @@ void main() {
             IntegerLiteralExpression(5),
             ComparisonOperator.eq,
           ),
-          40,
+          PrintStatement([IdentifierExpression("A")]),
         ),
-        30: PrintStatement([StringLiteralExpression("This is skipped")]),
-        40: PrintStatement([StringLiteralExpression("Thanks, BASIC!")]),
-        50: EndStatement(),
+        30: EndStatement(),
       });
       final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["Thanks, BASIC!"]);
+      expect(interpreter.interpret(), ["5"]);
     });
   });
 
   group("END statements", () {
     test("END statement", () {
       final statements = SplayTreeMap<int, Statement>.from({
-        10: LetStatement("A", IntegerLiteralExpression(5)),
-        20: IfStatement(
-          ComparisonExpression(
-            IdentifierExpression("A"),
-            IntegerLiteralExpression(5),
-            ComparisonOperator.eq,
-          ),
-          40,
-        ),
-        30: PrintStatement([StringLiteralExpression("This is skipped")]),
-        40: EndStatement(),
-        50: PrintStatement([StringLiteralExpression("This is not executed")]),
+        10: PrintStatement([StringLiteralExpression("This is printed")]),
+        20: EndStatement(),
+        30: PrintStatement([StringLiteralExpression("This is not executed")]),
       });
       final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), []);
+      expect(interpreter.interpret(), ["This is printed"]);
     });
   });
 
