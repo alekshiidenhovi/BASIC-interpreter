@@ -29,11 +29,11 @@ class Parser {
     while (position < tokens.length) {
       final lineNumberToken = parseIntegerLiteral();
       final statement = parseStatement();
-      expectToken(TokenType.endOfLine);
       storeStatement(statement, lineNumberToken.value);
       if (statement is EndStatement) {
         break;
       }
+      expectToken(TokenType.endOfLine);
     }
 
     return program;
