@@ -28,10 +28,7 @@ void main() {
               final programLines = parser.parse();
 
               if (outputMode.toDart == "parser") {
-                return programLines.values
-                    .map((p) => p.toString().toJS)
-                    .toList()
-                    .toJS;
+                return programLines.map((p) => p.toString().toJS).toList().toJS;
               }
 
               final interpreter = Interpreter(programLines);

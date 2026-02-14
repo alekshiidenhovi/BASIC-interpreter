@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import "expressions.dart";
 import "tokens.dart";
 import "statements.dart";
@@ -20,16 +18,15 @@ class Parser {
   Parser(this.tokens);
 
   /// The parsed program.
-  SplayTreeMap<int, Statement> program = SplayTreeMap();
+  List<Statement> program = [];
 
   /// Parses the tokens into a program.
   ///
-  /// Returns a [SplayTreeMap] where keys are line numbers and values are [Statement]s.
-  SplayTreeMap<int, Statement> parse() {
+  /// Returns a  list of [Statement]s.
+  List<Statement> parse() {
     while (position < tokens.length) {
-      final lineNumberToken = parseIntegerLiteral();
       final statement = parseStatement();
-      storeStatement(statement, lineNumberToken.value);
+      storeStatement(statement);
       if (statement is EndStatement) {
         break;
       }
@@ -66,8 +63,8 @@ class Parser {
   }
 
   /// Stores the statement in the program.
-  void storeStatement(Statement statement, int lineNumber) {
-    program[lineNumber] = statement;
+  void storeStatement(Statement statement) {
+    program.add(statement);
   }
 
   /// Parses a LET statement.

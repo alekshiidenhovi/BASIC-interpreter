@@ -3,72 +3,71 @@ import 'package:basic_interpreter/expressions.dart';
 import 'package:basic_interpreter/operators.dart';
 import 'package:basic_interpreter/statements.dart';
 import 'package:test/test.dart';
-import "dart:collection";
 
 void main() {
   group("Printing", () {
-    test('10 PRINT "HELLO, WORLD!"', () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
-        20: EndStatement(),
-      });
+    test('PRINT "HELLO, WORLD!"', () {
+      final List<Statement> statements = [
+        PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
+        EndStatement(),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["HELLO, WORLD!"]);
     });
 
     test('Two print statements', () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
-        20: PrintStatement([StringLiteralExpression("HELLO, BASIC!")]),
-        30: EndStatement(),
-      });
+      final List<Statement> statements = [
+        PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
+        PrintStatement([StringLiteralExpression("HELLO, BASIC!")]),
+        EndStatement(),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["HELLO, WORLD!", "HELLO, BASIC!"]);
     });
 
-    test('10 PRINT "HELLO, WORLD!", "HELLO, BASIC!"', () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: PrintStatement([
+    test('PRINT "HELLO, WORLD!", "HELLO, BASIC!"', () {
+      final List<Statement> statements = [
+        PrintStatement([
           StringLiteralExpression("HELLO, WORLD!"),
           StringLiteralExpression("HELLO, BASIC!"),
         ]),
-        20: EndStatement(),
-      });
+        EndStatement(),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["HELLO, WORLD!\tHELLO, BASIC!"]);
     });
   });
 
   group("Variables", () {
-    test('10 LET A = 5\n20 PRINT A', () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: LetStatement("A", IntegerLiteralExpression(5)),
-        20: PrintStatement([IdentifierExpression("A")]),
-        30: EndStatement(),
-      });
+    test('LET A = 5\nPRINT A', () {
+      final List<Statement> statements = [
+        LetStatement("A", IntegerLiteralExpression(5)),
+        PrintStatement([IdentifierExpression("A")]),
+        EndStatement(),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["5"]);
     });
 
-    test('10 LET A = 5.2\n20 PRINT A', () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: LetStatement("A", FloatingPointLiteralExpression(5.2)),
-        20: PrintStatement([IdentifierExpression("A")]),
-        30: EndStatement(),
-      });
+    test('LET A = 5.2\nPRINT A', () {
+      final List<Statement> statements = [
+        LetStatement("A", FloatingPointLiteralExpression(5.2)),
+        PrintStatement([IdentifierExpression("A")]),
+        EndStatement(),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["5.2"]);
     });
 
-    test('10 LET A = 42\n20 PRINT "A IS", A', () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: LetStatement("A", IntegerLiteralExpression(42)),
-        20: PrintStatement([
+    test('LET A = 42\nPRINT "A IS", A', () {
+      final List<Statement> statements = [
+        LetStatement("A", IntegerLiteralExpression(42)),
+        PrintStatement([
           StringLiteralExpression("A IS"),
           IdentifierExpression("A"),
         ]),
-        30: EndStatement(),
-      });
+        EndStatement(),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["A IS\t42"]);
     });
@@ -76,9 +75,9 @@ void main() {
 
   group("If-then statements", () {
     test("If statement", () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: LetStatement("A", IntegerLiteralExpression(5)),
-        20: IfStatement(
+      final List<Statement> statements = [
+        LetStatement("A", IntegerLiteralExpression(5)),
+        IfStatement(
           ComparisonExpression(
             IdentifierExpression("A"),
             IntegerLiteralExpression(5),
@@ -86,8 +85,8 @@ void main() {
           ),
           PrintStatement([IdentifierExpression("A")]),
         ),
-        30: EndStatement(),
-      });
+        EndStatement(),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["5"]);
     });
@@ -95,11 +94,11 @@ void main() {
 
   group("END statements", () {
     test("END statement", () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: PrintStatement([StringLiteralExpression("This is printed")]),
-        20: EndStatement(),
-        30: PrintStatement([StringLiteralExpression("This is not executed")]),
-      });
+      final List<Statement> statements = [
+        PrintStatement([StringLiteralExpression("This is printed")]),
+        EndStatement(),
+        PrintStatement([StringLiteralExpression("This is not executed")]),
+      ];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), ["This is printed"]);
     });
@@ -107,10 +106,7 @@ void main() {
 
   group("REM statements", () {
     test("REM statement", () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: RemarkStatement(),
-        20: EndStatement(),
-      });
+      final List<Statement> statements = [RemarkStatement(), EndStatement()];
       final interpreter = Interpreter(statements);
       expect(interpreter.interpret(), []);
     });

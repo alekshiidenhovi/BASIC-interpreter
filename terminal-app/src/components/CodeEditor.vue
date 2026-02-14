@@ -5,26 +5,14 @@ import { Icon } from "@iconify/vue";
 import type { OutputMode } from "@/types";
 
 type Mode = 'editor' | 'repl';
-type Statement = {
-  lineNumber: number;
-  statement: string;
-}
 
 const selectedMode = ref<Mode>('editor');
-const statements = ref<Statement[]>([{
-  lineNumber: 10,
-  statement: "PRINT \"HELLO WORLD\""
-}, {
-  lineNumber: 20,
-  statement: "LET HELLO_VARIABLE = 10"
-}, {
-  lineNumber: 30,
-  statement: "PRINT HELLO_VARIABLE"
-},
-{
-  lineNumber: 40,
-  statement: "END"
-}]);
+const statements = ref<string[]>([
+  "PRINT \"HELLO WORLD\"",
+  "LET HELLO_VARIABLE = 10",
+  "PRINT HELLO_VARIABLE",
+  "END"
+]);
 const printLines = ref<string[]>([]);
 const outputMode = ref<OutputMode>("interpreter");
 
@@ -44,17 +32,13 @@ const runCode = (outputMode: OutputMode) => {
   if (!window.interpretBASIC) {
     throw new Error("Interpreter not loaded");
   }
-  const code = statements.value.map((statement) => `${statement.lineNumber} ${statement.statement}`).join("\n");
+  const code = statements.value.join("\n");
   const output = window.interpretBASIC(code, outputMode);
   printLines.value = output;
 }
 
 // Track the desired cursor column across vertical movements
 const desiredColumn = ref<number | null>(null);
-
-const sortStatements = () => {
-  statements.value.sort((a, b) => a.lineNumber - b.lineNumber);
-};
 
 const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
   const input = event.target as HTMLInputElement;
@@ -84,7 +68,7 @@ const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
       console.warn('No previous statement found on left key press');
       return;
     }
-    focusStatement(index - 1, prevStatement.statement.length);
+    focusStatement(index - 1, prevStatement.length);
     desiredColumn.value = null;
   }
 
@@ -96,32 +80,30 @@ const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
 
   else if (event.key === 'Enter') {
     event.preventDefault();
-    const newLineNumber = (statements.value[statements.value.length - 1]?.lineNumber || 0) + 10;
-    statements.value.push({ lineNumber: newLineNumber, statement: '' });
+    statements.value.splice(index + 1, 0, '');
     nextTick(() => {
-      focusStatement(statements.value.length - 1, 0);
+      focusStatement(index + 1, 0);
       desiredColumn.value = null;
     });
   }
 
   else if (event.key === 'Backspace' && cursorPos === 0 && textLength === 0 && statements.value.length > 1) {
     event.preventDefault();
-    const prevIndex = index - 1;
     statements.value.splice(index, 1);
+    const prevIndex = index - 1;
     if (prevIndex >= 0) {
       nextTick(() => {
-        const prevStatement = statements.value[prevIndex];
-        focusStatement(prevIndex, prevStatement.statement.length);
+        focusStatement(prevIndex, statements.value[prevIndex]?.length);
         desiredColumn.value = null;
       });
     }
   }
 
-  else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+  else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'ArrowUp' || event.key === 'ArrowDown') {
     desiredColumn.value = null;
   }
 
-  else if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') {
+  else if (event.key.length === 1) {
     desiredColumn.value = null;
   }
 };
@@ -149,8 +131,8 @@ const focusStatement = (index: number, column: number) => {
     </div>
     <div class="editor-content">
       <div class="editor-statement" v-for="(statement, index) in statements" :key="index">
-        <input v-model.number="statement.lineNumber" class="line-number-input" type="number" />
-        <input v-model="statement.statement" :class="['statement-input', `statement-input-${index}`]"
+        <span class="line-number-display" type="number">{{ index + 1 }}</span>
+        <input v-model="statements[index]" :class="['statement-input', `statement-input-${index}`]"
           @keydown="handleStatementKeydown($event, index)" />
       </div>
     </div>
@@ -264,14 +246,12 @@ button:focus-visible {
   padding: 0.25rem 0.75rem;
 }
 
-.line-number-input {
-  background: transparent;
-  border: none;
+.line-number-display {
   color: var(--sky-600);
   width: 3rem;
   font-family: inherit;
   font-size: inherit;
-  outline: none;
+  user-select: none;
   -moz-appearance: textfield;
 }
 

@@ -9,7 +9,6 @@ void main() {
   group("LET statements", () {
     test("Parse LET statement", () {
       final tokens = [
-        IntegerLiteralToken(10),
         LetKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
@@ -21,7 +20,7 @@ void main() {
       final program = parser.parse();
 
       expect(
-        program[10],
+        program[0],
         isA<LetStatement>()
             .having((p) => p.identifier, "identifier", "A")
             .having(
@@ -34,7 +33,6 @@ void main() {
 
     test("Throw error if tokens are not in the correct order", () {
       final tokens = [
-        IntegerLiteralToken(10),
         LetKeywordToken(),
         EqualsToken(),
         IdentifierToken("A"),
@@ -49,7 +47,6 @@ void main() {
 
     test("Throw error if position is out of bounds", () {
       final tokens = [
-        IntegerLiteralToken(10),
         LetKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
@@ -63,13 +60,11 @@ void main() {
 
     test("Two LET statements", () {
       final tokens = [
-        IntegerLiteralToken(10),
         LetKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
         IntegerLiteralToken(5),
         EndOfLineToken(),
-        IntegerLiteralToken(20),
         LetKeywordToken(),
         IdentifierToken("B"),
         EqualsToken(),
@@ -81,7 +76,7 @@ void main() {
       final program = parser.parse();
 
       expect(
-        program[10],
+        program[0],
         isA<LetStatement>()
             .having((p) => p.identifier, "identifier", "A")
             .having(
@@ -91,7 +86,7 @@ void main() {
             ),
       );
       expect(
-        program[20],
+        program[1],
         isA<LetStatement>()
             .having((p) => p.identifier, "identifier", "B")
             .having(
@@ -106,7 +101,6 @@ void main() {
   group("PRINT statements", () {
     test("Parse PRINT statement", () {
       final tokens = [
-        IntegerLiteralToken(10),
         PrintKeywordToken(),
         IdentifierToken("A"),
         CommaToken(),
@@ -118,7 +112,7 @@ void main() {
       final program = parser.parse();
 
       expect(
-        program[10],
+        program[0],
         isA<PrintStatement>().having(
           (p) => p.arguments.length,
           "argument count",
@@ -129,7 +123,6 @@ void main() {
 
     test("Invalid PRINT - two consecutive commas", () {
       final tokens = [
-        IntegerLiteralToken(10),
         PrintKeywordToken(),
         IdentifierToken("A"),
         CommaToken(),
@@ -143,11 +136,9 @@ void main() {
 
     test("Two PRINT statements", () {
       final tokens = [
-        IntegerLiteralToken(10),
         PrintKeywordToken(),
         IdentifierToken("A"),
         EndOfLineToken(),
-        IntegerLiteralToken(20),
         PrintKeywordToken(),
         StringLiteralToken("Hello, BASIC!"),
         EndOfLineToken(),
@@ -157,7 +148,7 @@ void main() {
       final program = parser.parse();
 
       expect(
-        program[10],
+        program[0],
         isA<PrintStatement>().having((p) => p.arguments, "arguments", [
           isA<IdentifierExpression>().having(
             (p) => p.identifier,
@@ -167,7 +158,7 @@ void main() {
         ]),
       );
       expect(
-        program[20],
+        program[1],
         isA<PrintStatement>().having((p) => p.arguments, "arguments", [
           isA<StringLiteralExpression>().having(
             (p) => p.value,
@@ -182,7 +173,6 @@ void main() {
   group("IF THEN statements", () {
     test("If with equals comparison operator", () {
       final tokens = [
-        IntegerLiteralToken(20),
         IfKeywordToken(),
         IdentifierToken("A"),
         EqualsToken(),
@@ -197,7 +187,7 @@ void main() {
       final program = parser.parse();
 
       expect(
-        program[20],
+        program[0],
         isA<IfStatement>().having(
           (p) => p.thenStatement,
           "thenStatement",
@@ -209,23 +199,18 @@ void main() {
 
   group("END statements", () {
     test("Parse END statement", () {
-      final tokens = [
-        IntegerLiteralToken(10),
-        EndKeywordToken(),
-        EndOfLineToken(),
-      ];
+      final tokens = [EndKeywordToken(), EndOfLineToken()];
 
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[10], isA<EndStatement>());
+      expect(program[0], isA<EndStatement>());
     });
   });
 
   group("REMARK statements", () {
     test("Parse REM statement", () {
       final tokens = [
-        IntegerLiteralToken(10),
         RemKeywordToken(),
         IdentifierToken("This"),
         IdentifierToken("is"),
@@ -237,7 +222,7 @@ void main() {
       final parser = Parser(tokens);
       final program = parser.parse();
 
-      expect(program[10], isA<RemarkStatement>());
+      expect(program[0], isA<RemarkStatement>());
     });
   });
 }

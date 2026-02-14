@@ -11,7 +11,7 @@ sealed class Expression<T> {
   /// Evaluates the expression using the provided [variables].
   ///
   /// The [context] object should contain mappings from variable names [String] to numerical values [num].
-  T evaluate(Context context, int lineNumber);
+  T evaluate(Context context);
 }
 
 /// Represents an integer literal expression.
@@ -23,7 +23,7 @@ class IntegerLiteralExpression extends Expression<int> {
   const IntegerLiteralExpression(this.value);
 
   @override
-  int evaluate(Context context, int lineNumber) => value;
+  int evaluate(Context context) => value;
 }
 
 /// Represents a floating point literal expression.
@@ -35,7 +35,7 @@ class FloatingPointLiteralExpression extends Expression<double> {
   const FloatingPointLiteralExpression(this.value);
 
   @override
-  double evaluate(Context context, int lineNumber) {
+  double evaluate(Context context) {
     return value;
   }
 }
@@ -51,7 +51,7 @@ class StringLiteralExpression extends Expression<String> {
   const StringLiteralExpression(this.value);
 
   @override
-  String evaluate(Context context, int lineNumber) {
+  String evaluate(Context context) {
     return value;
   }
 }
@@ -68,10 +68,10 @@ class IdentifierExpression extends Expression<num> {
   const IdentifierExpression(this.identifier);
 
   @override
-  num evaluate(Context context, int lineNumber) {
+  num evaluate(Context context) {
     final value = context.variables[identifier];
     if (value == null) {
-      throw MissingIdentifierError(lineNumber, this, identifier);
+      throw MissingIdentifierError(context.statementIndex, this, identifier);
     }
     return value;
   }
@@ -95,9 +95,9 @@ class ComparisonExpression extends Expression<bool> {
   const ComparisonExpression(this.lhs, this.rhs, this.operator);
 
   @override
-  bool evaluate(Context context, int lineNumber) {
-    final num leftValue = lhs.evaluate(context, lineNumber);
-    final num rightValue = rhs.evaluate(context, lineNumber);
+  bool evaluate(Context context) {
+    final num leftValue = lhs.evaluate(context);
+    final num rightValue = rhs.evaluate(context);
 
     return switch (operator) {
       ComparisonOperator.eq => leftValue == rightValue,
@@ -128,9 +128,9 @@ class ArithmeticExpression extends Expression<num> {
   const ArithmeticExpression(this.lhs, this.rhs, this.operator);
 
   @override
-  num evaluate(Context context, int lineNumber) {
-    final num leftValue = lhs.evaluate(context, lineNumber);
-    final num rightValue = rhs.evaluate(context, lineNumber);
+  num evaluate(Context context) {
+    final num leftValue = lhs.evaluate(context);
+    final num rightValue = rhs.evaluate(context);
 
     return switch (operator) {
       ArithmeticOperator.add => leftValue + rightValue,
@@ -138,7 +138,7 @@ class ArithmeticExpression extends Expression<num> {
       ArithmeticOperator.mul => leftValue * rightValue,
       ArithmeticOperator.div =>
         rightValue == 0
-            ? throw DivisionByZeroError(lineNumber, this)
+            ? throw DivisionByZeroError(context.statementIndex, this)
             : leftValue / rightValue,
     };
   }
