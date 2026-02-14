@@ -79,11 +79,10 @@ void main() {
     });
 
     test("Uppercase keywords", () {
-      var lexer = Lexer('LET PRINT GOTO IF THEN END');
+      var lexer = Lexer('LET PRINT IF THEN END');
       expect(lexer.tokenize(), [
         LetKeywordToken(),
         PrintKeywordToken(),
-        GotoKeywordToken(),
         IfKeywordToken(),
         ThenKeywordToken(),
         EndKeywordToken(),
@@ -91,11 +90,10 @@ void main() {
     });
 
     test("Lowercase keywords", () {
-      var lexer = Lexer('let print goto if then end');
+      var lexer = Lexer('let print if then end');
       expect(lexer.tokenize(), [
         LetKeywordToken(),
         PrintKeywordToken(),
-        GotoKeywordToken(),
         IfKeywordToken(),
         ThenKeywordToken(),
         EndKeywordToken(),
@@ -140,15 +138,6 @@ void main() {
       IdentifierToken('A'),
       CommaToken(),
       StringLiteralToken('Hello, BASIC!'),
-    ]);
-  });
-
-  test('Goto statement: 10 GOTO 20', () {
-    var lexer = Lexer('10 GOTO 20');
-    expect(lexer.tokenize(), [
-      IntegerLiteralToken(10),
-      GotoKeywordToken(),
-      IntegerLiteralToken(20),
     ]);
   });
 

@@ -35,11 +35,6 @@ class Interpreter {
       Statement statement = programLines[currentLine]!;
       print("$currentLine: $statement");
 
-      if (statement is GotoStatement) {
-        currentLine = statement.execute(context, currentLine);
-        continue;
-      }
-
       if (statement is IfStatement) {
         int? jumpLine = statement.execute(context, currentLine);
         if (jumpLine != null) {

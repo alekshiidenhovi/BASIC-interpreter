@@ -180,25 +180,6 @@ void main() {
     });
   });
 
-  group("GOTO statements", () {
-    test("Parse GOTO statement", () {
-      final tokens = [
-        IntegerLiteralToken(10),
-        GotoKeywordToken(),
-        IntegerLiteralToken(20),
-        EndOfLineToken(),
-      ];
-
-      final parser = Parser(tokens);
-      final program = parser.parse();
-
-      expect(
-        program[10],
-        isA<GotoStatement>().having((p) => p.lineNumber, "lineNumber", 20),
-      );
-    });
-  });
-
   group("IF THEN statements", () {
     test("If with equals comparison operator", () {
       final tokens = [

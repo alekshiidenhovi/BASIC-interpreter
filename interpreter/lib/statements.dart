@@ -46,22 +46,6 @@ class PrintStatement extends Statement<String> {
   }
 }
 
-/// A statement, which unconditionally jumps to a specified line number.
-class GotoStatement extends Statement<int> {
-  /// The line number to jump to.
-  final int lineNumber;
-
-  /// Creates a new [GotoStatement].
-  ///
-  /// Requires the [lineNumber] to jump to.
-  GotoStatement(this.lineNumber);
-
-  @override
-  int execute(Context context, int currentLine) {
-    return lineNumber;
-  }
-}
-
 /// A statement, which conditionally jumps to a specified line number based on an expression's evaluation.
 class IfStatement extends Statement<int?> {
   /// The comparison expression that determines whether to jump.

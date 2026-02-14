@@ -149,7 +149,6 @@ class Lexer {
       final token = switch (uppercaseStr) {
         "LET" => LetKeywordToken(),
         "PRINT" => PrintKeywordToken(),
-        "GOTO" => GotoKeywordToken(),
         "IF" => IfKeywordToken(),
         "THEN" => ThenKeywordToken(),
         "END" => EndKeywordToken(),

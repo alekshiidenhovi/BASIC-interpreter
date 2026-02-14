@@ -74,19 +74,6 @@ void main() {
     });
   });
 
-  group("Goto statements", () {
-    test("Goto statement skipping a line", () {
-      final statements = SplayTreeMap<int, Statement>.from({
-        10: GotoStatement(30),
-        20: PrintStatement([StringLiteralExpression("SKIP")]),
-        30: PrintStatement([StringLiteralExpression("END")]),
-        40: EndStatement(),
-      });
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["END"]);
-    });
-  });
-
   group("If-then statements", () {
     test("If statement", () {
       final statements = SplayTreeMap<int, Statement>.from({

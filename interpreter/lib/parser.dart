@@ -31,7 +31,6 @@ class Parser {
       final statement = switch (keywordToken) {
         LetKeywordToken() => parseLetStatement(),
         PrintKeywordToken() => parsePrintStatement(),
-        GotoKeywordToken() => parseGotoStatement(),
         IfKeywordToken() => parseIfStatement(),
         EndKeywordToken() => parseEndStatement(),
         RemKeywordToken() => parseRemarkStatement(),
@@ -41,7 +40,6 @@ class Parser {
           TokenTypeOptionMany([
             TokenType.letKeyword,
             TokenType.printKeyword,
-            TokenType.gotoKeyword,
             TokenType.ifKeyword,
             TokenType.endKeyword,
             TokenType.remKeyword,
@@ -96,18 +94,6 @@ class Parser {
 
     expectToken(TokenType.endOfLine);
     return PrintStatement(arguments);
-  }
-
-  /// Parses a GOTO statement.
-  ///
-  /// Expects a number literal representing the line number to jump to.
-  /// Returns a [GotoStatement] representing the parsed statement.
-  Statement parseGotoStatement() {
-    expectToken(TokenType.gotoKeyword);
-    final lineNumberToken = parseIntegerLiteral();
-    expectToken(TokenType.endOfLine);
-    final lineNumber = lineNumberToken.value;
-    return GotoStatement(lineNumber);
   }
 
   /// Parses an IF statement.

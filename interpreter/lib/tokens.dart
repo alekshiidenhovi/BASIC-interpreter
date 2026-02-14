@@ -21,7 +21,6 @@ enum TokenType {
   printKeyword,
   forKeyword,
   toKeyword,
-  gotoKeyword,
   ifKeyword,
   thenKeyword,
   stepKeyword,
@@ -56,7 +55,6 @@ sealed class Token {
     PrintKeywordToken() => "PrintKeywordToken",
     ForKeywordToken() => "ForKeywordToken",
     ToKeywordToken() => "ToKeywordToken",
-    GotoKeywordToken() => "GotoKeywordToken",
     IfKeywordToken() => "IfKeywordToken",
     ThenKeywordToken() => "ThenKeywordToken",
     StepKeywordToken() => "StepKeywordToken",
@@ -88,7 +86,6 @@ sealed class Token {
     PrintKeywordToken() => TokenType.printKeyword,
     ForKeywordToken() => TokenType.forKeyword,
     ToKeywordToken() => TokenType.toKeyword,
-    GotoKeywordToken() => TokenType.gotoKeyword,
     IfKeywordToken() => TokenType.ifKeyword,
     ThenKeywordToken() => TokenType.thenKeyword,
     StepKeywordToken() => TokenType.stepKeyword,
@@ -195,9 +192,6 @@ final class StepKeywordToken extends Token {}
 
 /// Represents a next keyword token.
 final class NextKeywordToken extends Token {}
-
-/// Represents a goto keyword token.
-final class GotoKeywordToken extends Token {}
 
 /// Represents a if keyword token.
 final class IfKeywordToken extends Token {}
