@@ -11,8 +11,8 @@ void main() {
         PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
         EndStatement(),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["HELLO, WORLD!"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), ["HELLO, WORLD!"]);
     });
 
     test('Two print statements', () {
@@ -21,8 +21,11 @@ void main() {
         PrintStatement([StringLiteralExpression("HELLO, BASIC!")]),
         EndStatement(),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["HELLO, WORLD!", "HELLO, BASIC!"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), [
+        "HELLO, WORLD!",
+        "HELLO, BASIC!",
+      ]);
     });
 
     test('PRINT "HELLO, WORLD!", "HELLO, BASIC!"', () {
@@ -33,8 +36,10 @@ void main() {
         ]),
         EndStatement(),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["HELLO, WORLD!\tHELLO, BASIC!"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), [
+        "HELLO, WORLD!\tHELLO, BASIC!",
+      ]);
     });
   });
 
@@ -45,8 +50,8 @@ void main() {
         PrintStatement([IdentifierExpression("A")]),
         EndStatement(),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["5"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), ["5"]);
     });
 
     test('LET A = 5.2\nPRINT A', () {
@@ -55,8 +60,8 @@ void main() {
         PrintStatement([IdentifierExpression("A")]),
         EndStatement(),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["5.2"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), ["5.2"]);
     });
 
     test('LET A = 42\nPRINT "A IS", A', () {
@@ -68,8 +73,8 @@ void main() {
         ]),
         EndStatement(),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["A IS\t42"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), ["A IS\t42"]);
     });
   });
 
@@ -87,8 +92,8 @@ void main() {
         ),
         EndStatement(),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["5"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), ["5"]);
     });
   });
 
@@ -99,16 +104,16 @@ void main() {
         EndStatement(),
         PrintStatement([StringLiteralExpression("This is not executed")]),
       ];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), ["This is printed"]);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), ["This is printed"]);
     });
   });
 
   group("REM statements", () {
     test("REM statement", () {
       final List<Statement> statements = [RemarkStatement(), EndStatement()];
-      final interpreter = Interpreter(statements);
-      expect(interpreter.interpret(), []);
+      final interpreter = Interpreter();
+      expect(interpreter.interpret(statements), []);
     });
   });
 }

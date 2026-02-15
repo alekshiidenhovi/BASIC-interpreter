@@ -31,8 +31,8 @@ void main() {
                 return programLines.map((p) => p.toString().toJS).toList().toJS;
               }
 
-              final interpreter = Interpreter(programLines);
-              final List<String> result = interpreter.interpret();
+              final interpreter = Interpreter();
+              final List<String> result = interpreter.interpret(programLines);
 
               return result.map((s) => s.toJS).toList().toJS;
             } on BASICInterpreterError catch (e) {
