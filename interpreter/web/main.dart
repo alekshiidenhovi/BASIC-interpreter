@@ -64,7 +64,8 @@ void main() {
   windowObj.interpretReplLine =
       ((JSString code) {
             try {
-              final lexer = Lexer(code.toDart);
+              final codeWithNewLine = "${code.toDart}\n";
+              final lexer = Lexer(codeWithNewLine);
               final tokens = lexer.tokenize();
 
               final parser = Parser(tokens);
