@@ -1,0 +1,19 @@
+---
+title: Expressions
+index: 2
+starterCode:
+  - "LET NUM = 10 - 3"
+---
+import CodeBlock from "../../components/CodeBlock.vue";
+
+<p>This interpreter supports a limited set of expressions, including basic arithmetic operations and comparison expressions. Expressions have the following general skeleton:</p>
+
+<CodeBlock client:load code="<lhs> <operator> <rhs>" />
+
+<p>You can use a combination of a LET statements and an arithmatic expressions to store a value in a variable. For instance, the following will store the value 7 to variable "NUM":</p>
+
+<CodeBlock client:load code="LET NUM = 10 - 3" />
+
+<p>Comparison expressions evaluate to either TRUE or FALSE. For instance, the following will store TRUE to variable "IS_GREATER":</p>
+
+<CodeBlock client:load code="LET IS_GREATER = 10 > 5" />
