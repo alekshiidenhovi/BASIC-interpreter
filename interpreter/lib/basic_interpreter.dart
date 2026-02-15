@@ -24,8 +24,11 @@ class Interpreter {
   /// Throws an [Exception] if the parser does not find any statements.
   List<String> interpret(List<Statement> statements) {
     final List<String> outputLines = [];
-    while (_context.statementIndex < statements.length) {
-      Statement statement = statements[_context.statementIndex];
+    final int initialStatementIndex = _context.getStatementCount();
+    while (_context.getStatementCount() - initialStatementIndex <
+        statements.length) {
+      Statement statement =
+          statements[_context.getStatementCount() - initialStatementIndex];
 
       final postStatementAction = _executeStatement(statement, outputLines);
 
@@ -33,7 +36,7 @@ class Interpreter {
         break;
       }
 
-      _context.statementIndex++;
+      _context.incrementStatementCount();
     }
 
     return outputLines;

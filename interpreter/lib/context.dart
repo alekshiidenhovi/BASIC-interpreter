@@ -4,7 +4,7 @@ class Context {
   Map<String, num> variables = {};
 
   /// The current statement index.
-  int statementIndex = 0;
+  int _statementIndex = 0;
 
   Context();
 
@@ -14,7 +14,17 @@ class Context {
   /// * Resets the current statement index to 0.
   void reset() {
     variables = {};
-    statementIndex = 0;
+    _statementIndex = 0;
+  }
+
+  /// Increments the current statement index by 1.
+  void incrementStatementCount() {
+    _statementIndex++;
+  }
+
+  /// Returns the current statement index.
+  int getStatementCount() {
+    return _statementIndex;
   }
 
   Context.withVariables(Map<String, num> initialVariables)

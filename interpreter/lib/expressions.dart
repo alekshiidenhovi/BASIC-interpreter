@@ -71,7 +71,11 @@ class IdentifierExpression extends Expression<num> {
   num evaluate(Context context) {
     final value = context.variables[identifier];
     if (value == null) {
-      throw MissingIdentifierError(context.statementIndex, this, identifier);
+      throw MissingIdentifierError(
+        context.getStatementCount(),
+        this,
+        identifier,
+      );
     }
     return value;
   }
@@ -138,7 +142,7 @@ class ArithmeticExpression extends Expression<num> {
       ArithmeticOperator.mul => leftValue * rightValue,
       ArithmeticOperator.div =>
         rightValue == 0
-            ? throw DivisionByZeroError(context.statementIndex, this)
+            ? throw DivisionByZeroError(context.getStatementCount(), this)
             : leftValue / rightValue,
     };
   }
