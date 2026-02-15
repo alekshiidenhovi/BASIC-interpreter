@@ -2,16 +2,16 @@
 import { ref, nextTick } from "vue";
 import { assertNever } from "@/utils";
 import { Icon } from "@iconify/vue";
-import type { OutputMode, Result } from "@/types";
+import type { OutputMode, Result, Statement } from "@/types";
 
 type IndexedResult<T> = Result<T> & { index: number };
 
-const statements = ref<string[]>([
-  "PRINT \"HELLO WORLD\"",
-  "LET HELLO_VARIABLE = 10",
-  "PRINT HELLO_VARIABLE",
-  "END"
-]);
+interface Props {
+  initialCode: Statement[]
+}
+
+const props = defineProps<Props>();
+const statements = ref<Statement[]>(props.initialCode);
 const results = ref<IndexedResult<string[]> | undefined>(undefined);
 const outputMode = ref<OutputMode>("interpreter");
 
@@ -19,7 +19,7 @@ const runCode = (outputMode: OutputMode) => {
   if (!window.interpretProgram) {
     throw new Error("Interpreter not loaded");
   }
-  const code = statements.value.join("\n");
+  const code = statements.value.map((s) => s.code).join("\n");
   const result = window.interpretProgram(code, outputMode);
   if (!result.ok) {
     console.error(result.error);
@@ -73,7 +73,7 @@ const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
       console.warn('No previous statement found on left key press');
       return;
     }
-    focusStatement(index - 1, prevStatement.length);
+    focusStatement(index - 1, prevStatement.code.length);
     desiredColumn.value = null;
   }
 
@@ -85,7 +85,7 @@ const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
 
   else if (event.key === 'Enter') {
     event.preventDefault();
-    statements.value.splice(index + 1, 0, '');
+    statements.value.splice(index + 1, 0, { id: window.crypto.randomUUID(), code: '' });
     nextTick(() => {
       focusStatement(index + 1, 0);
       desiredColumn.value = null;
@@ -98,7 +98,7 @@ const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
     const prevIndex = index - 1;
     if (prevIndex >= 0) {
       nextTick(() => {
-        focusStatement(prevIndex, statements.value[prevIndex]?.length);
+        focusStatement(prevIndex, statements.value[prevIndex]?.code.length as number);
         desiredColumn.value = null;
       });
     }
@@ -124,13 +124,14 @@ const focusStatement = (index: number, column: number) => {
     }
   });
 };
+
 </script>
 
 <template>
   <div class="editor-content">
-    <div class="editor-statement" v-for="(statement, index) in statements" :key="index">
+    <div class="editor-statement" v-for="(statement, index) in statements" :key="statement.id">
       <span class="line-number-display" type="number">{{ index + 1 }}</span>
-      <input v-model="statements[index]" :class="['statement-input', `statement-input-${index}`]"
+      <input v-model="statements[index].code" :class="['statement-input', `statement-input-${index}`]"
         @keydown="handleStatementKeydown($event, index)" />
     </div>
   </div>

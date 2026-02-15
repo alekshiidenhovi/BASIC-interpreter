@@ -3,6 +3,7 @@ import Layout from "@layouts/Layout.astro"
 import CodeBlock from "@components/CodeBlock.vue"
 import CodeEditor from "@components/CodeEditor/index.vue"
 import PageNavigation from "@components/PageNavigation.vue"
+import type { Statement } from "@/types";
 
 export const getStaticPaths = () => {
   const pages = [
@@ -24,6 +25,20 @@ export const getStaticPaths = () => {
 };
 const {id} = Astro.params;
 const {title, prevIndex, nextIndex} = Astro.props;
+const initialCode: Statement[] = [
+  {
+    id: crypto.randomUUID(),
+    code: "LET HELLO_VARIABLE = 10",
+  },
+  {
+    id: crypto.randomUUID(),
+    code: "PRINT HELLO_VARIABLE",
+  },
+  {
+    id: crypto.randomUUID(),
+    code: "END",
+  }
+]
 ---
 
 <Layout title={`Terminal -  Tutorial ${id}`}>
@@ -39,7 +54,7 @@ const {title, prevIndex, nextIndex} = Astro.props;
         </div>
         <PageNavigation client:load prevIndex={prevIndex} nextIndex={nextIndex} />
       </div>
-      <CodeEditor client:load />
+      <CodeEditor client:load initialCode={initialCode} />
     </div>
   </main>
 </Layout>

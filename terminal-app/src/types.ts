@@ -10,6 +10,10 @@ type Result<T> =
     error: string;
   };
 
+type Statement = {
+  id: string
+  code: string
+}
 
 
-export type { OutputMode, Result };
+export type { OutputMode, Result, Statement };
