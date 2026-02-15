@@ -20,12 +20,12 @@ export const getStaticPaths = async () => {
   });
 };
 
-const {id} = Astro.params;
+const id = Number(Astro.params.id);
 const {tutorial, tutorialCount} = Astro.props;
 const title = tutorial.data.title;
 const starterCode = tutorial.data.starterCode;
-const prevIndex = id > 0 ? id - 1 : null;
-const nextIndex = id < tutorialCount - 1 ? id + 1 : null;
+const prevIndex = id > 1 ? id - 1 : null;
+const nextIndex = id < tutorialCount ? id + 1 : null;
 
 const { Content } = await render(tutorial);
 
