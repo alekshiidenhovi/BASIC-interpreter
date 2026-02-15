@@ -4,9 +4,6 @@ import { assertNever } from "@/utils";
 import { Icon } from "@iconify/vue";
 import type { OutputMode } from "@/types";
 
-type Mode = 'editor' | 'repl';
-
-const selectedMode = ref<Mode>('editor');
 const statements = ref<string[]>([
   "PRINT \"HELLO WORLD\"",
   "LET HELLO_VARIABLE = 10",
@@ -16,6 +13,14 @@ const statements = ref<string[]>([
 const printLines = ref<string[]>([]);
 const outputMode = ref<OutputMode>("interpreter");
 
+const runCode = (outputMode: OutputMode) => {
+  if (!window.interpretBASIC) {
+    throw new Error("Interpreter not loaded");
+  }
+  const code = statements.value.join("\n");
+  const output = window.interpretBASIC(code, outputMode);
+  printLines.value = output;
+}
 const toggleOutputMode = () => {
   if (outputMode.value === "lexer") {
     outputMode.value = "parser";
@@ -28,16 +33,7 @@ const toggleOutputMode = () => {
   }
 }
 
-const runCode = (outputMode: OutputMode) => {
-  if (!window.interpretBASIC) {
-    throw new Error("Interpreter not loaded");
-  }
-  const code = statements.value.join("\n");
-  const output = window.interpretBASIC(code, outputMode);
-  printLines.value = output;
-}
-
-// Track the desired cursor column across vertical movements
+/** Track the desired cursor column across vertical movements */
 const desiredColumn = ref<number | null>(null);
 
 const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
@@ -122,32 +118,24 @@ const focusStatement = (index: number, column: number) => {
 </script>
 
 <template>
-  <div class="editor-container">
-    <div class="editor-mode-container">
-      <button class="editor-mode-button" :class="{ 'selected-mode': selectedMode === 'editor' }"
-        @click="selectedMode = 'editor'">Editor</button>
-      <button class="editor-mode-button" :class="{ 'selected-mode': selectedMode === 'repl' }"
-        @click="selectedMode = 'repl'">REPL</button>
+  <div class="editor-content">
+    <div class="editor-statement" v-for="(statement, index) in statements" :key="index">
+      <span class="line-number-display" type="number">{{ index + 1 }}</span>
+      <input v-model="statements[index]" :class="['statement-input', `statement-input-${index}`]"
+        @keydown="handleStatementKeydown($event, index)" />
     </div>
-    <div class="editor-content">
-      <div class="editor-statement" v-for="(statement, index) in statements" :key="index">
-        <span class="line-number-display" type="number">{{ index + 1 }}</span>
-        <input v-model="statements[index]" :class="['statement-input', `statement-input-${index}`]"
-          @keydown="handleStatementKeydown($event, index)" />
-      </div>
-    </div>
-    <div class="editor-run-container">
-      <button class="editor-run-button" @click="runCode(outputMode)">
-        <Icon class="icon" :icon="'lucide:play'" />
-      </button>
-      <button class="editor-output-mode-button" @click="toggleOutputMode">
-        <span>Output Mode: </span>
-        <span>{{ outputMode }}</span>
-      </button>
-    </div>
-    <div class="editor-print-container">
-      <p class="editor-print-line" v-for="(line, index) in printLines" :key="index">{{ line }}</p>
-    </div>
+  </div>
+  <div class="editor-run-container">
+    <button class="editor-run-button" @click="runCode(outputMode)">
+      <Icon class="icon" :icon="'lucide:play'" />
+    </button>
+    <button class="editor-output-mode-button" @click="toggleOutputMode">
+      <span>Output Mode: </span>
+      <span>{{ outputMode }}</span>
+    </button>
+  </div>
+  <div class="editor-print-container">
+    <p class="editor-print-line" v-for="(line, index) in printLines" :key="index">{{ line }}</p>
   </div>
 </template>
 
@@ -157,52 +145,15 @@ button:focus-visible {
   outline: none;
 }
 
-.editor-container {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 1fr);
-  border: 2px solid var(--sky-900);
-  height: 100%;
-  min-height: 0;
-}
-
-.editor-container>*+* {
-  border-top: 2px solid var(--sky-900);
-}
-
-.editor-mode-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
 .editor-run-container {
   display: grid;
   grid-template-columns: auto 1fr;
-}
-
-.editor-mode-container>*+* {
-  border-left: 2px solid var(--sky-900);
 }
 
 .icon {
   width: 1.25rem;
   height: 1.25rem;
   color: var(--sky-700);
-}
-
-.editor-mode-button {
-  background-color: transparent;
-  color: var(--sky-700);
-  padding: 1.5rem;
-  font-size: 1.5rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  border: none;
-  letter-spacing: 3px;
-}
-
-.editor-mode-button:nth-child(1),
-.editor-run-button:nth-child(1) {
-  border-right: 2px solid var(--sky-900);
 }
 
 .editor-run-button {
@@ -216,6 +167,11 @@ button:focus-visible {
   letter-spacing: 2px;
 }
 
+.editor-run-button:nth-child(1) {
+  border-right: 2px solid var(--sky-900);
+}
+
+
 .editor-output-mode-button {
   background-color: transparent;
   color: var(--sky-600);
@@ -226,11 +182,6 @@ button:focus-visible {
   border: none;
   letter-spacing: 2px;
   text-align: left;
-}
-
-.selected-mode {
-  color: var(--sky-500);
-  font-weight: 700;
 }
 
 .editor-content,
