@@ -1,42 +1,60 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { Icon } from "@iconify/vue";
+import type { Statement } from "@/types";
 
-type Line = {
-  id: string
-  inputCode: string
-  printOutput?: string
-}
-
-const replLines = ref<Line[]>([]);
+const replOutputs = ref<Statement[]>([]);
 const replInput = ref<string>("");
 
 const executeReplCommand = () => {
-  const inputCode = replInput.value;
-  replLines.value.push({
-    id: Date.now().toString(),
-    inputCode,
+  const codeInput = replInput.value;
+  const inputId = window.crypto.randomUUID();
+
+  if (!window.interpretReplLine) {
+    throw new Error("Interpreter not loaded");
+  }
+
+  const result = window.interpretReplLine(codeInput);
+  if (!result.ok) {
+    console.error(result.error);
+  }
+
+  replOutputs.value.push({
+    id: inputId,
+    code: codeInput,
+    printOutput: result,
   });
   replInput.value = "";
 }
 
 const resetRepl = () => {
-  replLines.value = [];
+  if (!window.resetReplContext) {
+    throw new Error("Interpreter not loaded");
+  }
+  window.resetReplContext();
+  replOutputs.value = [];
   replInput.value = "";
+
+  const replInputContainer = document.querySelector(".repl-input") as HTMLInputElement;
+  replInputContainer.focus();
 }
 
 onMounted(() => {
-  const input = document.querySelector(".repl-input") as HTMLInputElement;
-  input.focus();
+  const replInputContainer = document.querySelector(".repl-input") as HTMLInputElement;
+  replInputContainer.focus();
 })
 
 </script>
 
 <template>
   <div class="repl-print-container">
-    <div class="repl-print-line-container" v-for="line in replLines" :key="line.id">
-      <p class="repl-print-code">> {{ line.inputCode }}</p>
-      <p v-if="line.printOutput" class="repl-print-output">{{ line.printOutput }}</p>
+    <div class="repl-print-line-container" v-for="statement in replOutputs" :key="statement.id">
+      <p class="repl-print-code">> {{ statement.code }}</p>
+      <p v-if="statement.printOutput?.ok === true && statement.printOutput.output.length > 0" class="repl-print-output">
+        {{ statement.printOutput.output }}</p>
+      <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
+        statement.printOutput.error
+      }}</p>
     </div>
   </div>
   <div class="bottom-row-container">
@@ -57,17 +75,25 @@ onMounted(() => {
 }
 
 .repl-print-line-container {
-  font-size: 1rem;
   text-transform: uppercase;
   padding: 0.25rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .repl-print-code {
   color: var(--sky-200);
+  font-size: 1rem;
 }
 
 .repl-print-output {
   color: var(--sky-400);
+  font-size: 0.875rem;
+}
+
+.repl-print-line-error {
+  color: var(--red-600);
 }
 
 .repl-input-container {

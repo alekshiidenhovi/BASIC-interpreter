@@ -13,6 +13,7 @@ type Result<T> =
 type Statement = {
   id: string
   code: string
+  printOutput?: Result<string[]>
 }
 
 
