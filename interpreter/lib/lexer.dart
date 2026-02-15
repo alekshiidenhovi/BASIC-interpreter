@@ -130,7 +130,8 @@ class Lexer {
         throw MissingRegexGroupError(_position, source, pattern);
       }
       _position += fullMatch.length;
-      return (source.substring(fullMatch.length), StringLiteralToken(content));
+      final upperCaseContent = content.toUpperCase();
+      return (source.substring(fullMatch.length), StringLiteralToken(upperCaseContent));
     };
   }
 
@@ -157,9 +158,10 @@ class Lexer {
         "STEP" => StepKeywordToken(),
         "NEXT" => NextKeywordToken(),
         "REM" => RemKeywordToken(),
-        _ => IdentifierToken(matchedStr),
+        _ => IdentifierToken(uppercaseStr),
       };
       _position += uppercaseStr.length;
+
       return (source.substring(uppercaseStr.length), token);
     };
   }
