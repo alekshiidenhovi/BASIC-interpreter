@@ -14,9 +14,8 @@ extension type WindowExtension(JSObject _) implements JSObject {
 }
 
 void main() {
-  final replInterpreter = Interpreter();
-
   final windowObj = window as WindowExtension;
+  final replInterpreter = Interpreter();
 
   windowObj.interpretProgram =
       ((JSString code, JSString outputMode) {
@@ -71,8 +70,9 @@ void main() {
               final parser = Parser(tokens);
               final programLines = parser.parse();
 
-              final interpreter = Interpreter();
-              final List<String> result = interpreter.interpret(programLines);
+              final List<String> result = replInterpreter.interpret(
+                programLines,
+              );
 
               return {
                 "ok": true,
