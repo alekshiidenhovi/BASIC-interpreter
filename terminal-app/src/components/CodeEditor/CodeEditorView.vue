@@ -2,7 +2,9 @@
 import { ref, nextTick } from "vue";
 import { assertNever } from "@/utils";
 import { Icon } from "@iconify/vue";
-import type { OutputMode } from "@/types";
+import type { OutputMode, Result } from "@/types";
+
+type IndexedResult<T> = Result<T> & { index: number };
 
 const statements = ref<string[]>([
   "PRINT \"HELLO WORLD\"",
@@ -10,17 +12,24 @@ const statements = ref<string[]>([
   "PRINT HELLO_VARIABLE",
   "END"
 ]);
-const printLines = ref<string[]>([]);
+const results = ref<IndexedResult<string[]> | undefined>(undefined);
 const outputMode = ref<OutputMode>("interpreter");
 
 const runCode = (outputMode: OutputMode) => {
-  if (!window.interpretBASIC) {
+  if (!window.interpretProgram) {
     throw new Error("Interpreter not loaded");
   }
   const code = statements.value.join("\n");
-  const output = window.interpretBASIC(code, outputMode);
-  printLines.value = output;
+  const result = window.interpretProgram(code, outputMode);
+  if (!result.ok) {
+    console.error(result.error);
+  }
+  results.value = {
+    ...result,
+    index: new Date().getTime(),
+  }
 }
+
 const toggleOutputMode = () => {
   if (outputMode.value === "lexer") {
     outputMode.value = "parser";
@@ -135,7 +144,10 @@ const focusStatement = (index: number, column: number) => {
     </button>
   </div>
   <div class="editor-print-container">
-    <p class="editor-print-line" v-for="(line, index) in printLines" :key="index">{{ line }}</p>
+    <p v-if="results?.ok === true" class="editor-print-line" v-for="line in results.output" :key="results.index">{{ line
+      }}</p>
+    <p v-if="results?.ok === false" class="editor-print-line editor-print-line-error" :key="results.index">{{
+      results.error }}</p>
   </div>
 </template>
 
@@ -228,5 +240,9 @@ button:focus-visible {
   font-size: 1rem;
   text-transform: uppercase;
   padding: 0.25rem 0.75rem;
+}
+
+.editor-print-line-error {
+  color: var(--red-600);
 }
 </style>

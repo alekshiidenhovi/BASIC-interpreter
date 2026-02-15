@@ -1,3 +1,15 @@
 type OutputMode = 'lexer' | 'parser' | 'interpreter';
 
-export type { OutputMode };
+type Result<T> =
+  | {
+    ok: true;
+    output: T;
+  }
+  | {
+    ok: false;
+    error: string;
+  };
+
+
+
+export type { OutputMode, Result };
