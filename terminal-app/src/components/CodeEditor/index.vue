@@ -2,14 +2,13 @@
 import { ref } from "vue";
 import CodeEditorView from "./CodeEditorView.vue";
 import CodeEditorRepl from "./CodeEditorRepl.vue";
-import type { Statement } from "@/types";
 
 type Mode = 'editor' | 'repl';
 
 const selectedMode = ref<Mode>('editor');
 
 interface Props {
-  initialCode: Statement[]
+  starterCode: string[] | undefined
 }
 
 const props = defineProps<Props>();
@@ -24,7 +23,7 @@ const props = defineProps<Props>();
       <button class="editor-mode-button" :class="{ 'selected-mode': selectedMode === 'repl' }"
         @click="selectedMode = 'repl'">REPL</button>
     </div>
-    <CodeEditorView v-if="selectedMode === 'editor'" :initialCode="props.initialCode" />
+    <CodeEditorView v-if="selectedMode === 'editor'" :starterCode="props.starterCode" />
     <CodeEditorRepl v-if="selectedMode === 'repl'" />
   </div>
 </template>

@@ -7,11 +7,22 @@ import type { OutputMode, Result, Statement } from "@/types";
 type IndexedResult<T> = Result<T> & { index: number };
 
 interface Props {
-  initialCode: Statement[]
+  starterCode: string[] | undefined
+}
+const props = defineProps<Props>();
+
+const initStarterCode = (): Statement[] => {
+  if (props.starterCode) {
+    return props.starterCode.map(code => ({
+      id: window.crypto.randomUUID(),
+      code,
+    }))
+  } else {
+    return [{ id: window.crypto.randomUUID(), code: "LET A" }];
+  }
 }
 
-const props = defineProps<Props>();
-const statements = ref<Statement[]>(props.initialCode);
+const statements = ref<Statement[]>(initStarterCode());
 const results = ref<IndexedResult<string[]> | undefined>(undefined);
 const outputMode = ref<OutputMode>("interpreter");
 
@@ -146,7 +157,7 @@ const focusStatement = (index: number, column: number) => {
   </div>
   <div class="editor-print-container">
     <p v-if="results?.ok === true" class="editor-print-line" v-for="line in results.output" :key="results.index">{{ line
-      }}</p>
+    }}</p>
     <p v-if="results?.ok === false" class="editor-print-line editor-print-line-error" :key="results.index">{{
       results.error }}</p>
   </div>
