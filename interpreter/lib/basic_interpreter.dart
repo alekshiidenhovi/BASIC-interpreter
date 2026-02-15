@@ -42,6 +42,14 @@ class Interpreter {
     return outputLines;
   }
 
+  /// Resets the execution context of the interpreter.
+  ///
+  /// * Resets the current statement index to 0.
+  /// * Removes all variables from the context.
+  void resetContext() {
+    context.reset();
+  }
+
   /// Executes a statement.
   PostStatementAction executeStatement(Statement statement) {
     /// IF

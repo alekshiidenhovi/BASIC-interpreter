@@ -8,6 +8,15 @@ class Context {
 
   Context();
 
+  /// Resets the context
+  ///
+  /// * Removes all variables from the context.
+  /// * Resets the current statement index to 0.
+  void reset() {
+    variables = {};
+    statementIndex = 0;
+  }
+
   Context.withVariables(Map<String, num> initialVariables)
     : variables = Map.from(initialVariables);
 }
