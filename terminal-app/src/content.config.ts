@@ -7,9 +7,7 @@ const tutorials = defineCollection({
   schema: z.object({
     title: z.string(),
     index: z.number().int().positive(),
-    starterCode: z.array(z.object({
-      code: z.string(),
-    }))
+    starterCode: z.array(z.string()).optional(),
   }),
 });
 

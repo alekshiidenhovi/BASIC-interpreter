@@ -23,7 +23,7 @@ export const getStaticPaths = async () => {
 const {id} = Astro.params;
 const {tutorial, tutorialCount} = Astro.props;
 const title = tutorial.data.title;
-const starterCode = tutorial.data.starterCode.map(code => code.code);
+const starterCode = tutorial.data.starterCode;
 const prevIndex = id > 0 ? id - 1 : null;
 const nextIndex = id < tutorialCount - 1 ? id + 1 : null;
 
