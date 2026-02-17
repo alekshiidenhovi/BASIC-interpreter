@@ -5,6 +5,7 @@ INTERPRETER_IN="interpreter/web/main.dart"
 INTERPRETER_OUT="terminal-app/public/basic_interpreter.js"
 
 echo "▶ Compiling Dart interpreter to JS..."
+dart pub get
 dart compile js $INTERPRETER_IN -o "$INTERPRETER_OUT" -O2 --no-source-maps
 rm -f "$INTERPRETER_OUT".deps
 
