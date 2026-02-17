@@ -10,7 +10,7 @@ rm -f "$INTERPRETER_OUT".deps
 
 echo "▶ Installing terminal dependencies..."
 cd terminal-app
-pnpm install
+pnpm install --frozen-lockfile
 
 echo "▶ Building Astro app..."
 pnpm build
