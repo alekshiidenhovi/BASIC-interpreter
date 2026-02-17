@@ -1,0 +1,3 @@
+[site]
+bucket = "./dist"
+exclude = ["*.deps", "*.map"]
