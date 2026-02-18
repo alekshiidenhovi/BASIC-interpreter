@@ -9,6 +9,7 @@ const path = Astro.url.pathname;
 import "@/styles.css"
 import TimeCounter from "@components/TimeCounter.vue"
 import SystemStatusLine from "@components/SystemStatusLine.vue"
+import HeaderPageNavigation from "@components/HeaderPageNavigation.vue"
 ---
 
 <!doctype html>
@@ -22,7 +23,7 @@ import SystemStatusLine from "@components/SystemStatusLine.vue"
 	</head>
   <body class="terminal-screen">
     <header>
-      <span>{path}</span>
+      <HeaderPageNavigation path={path} />
       <TimeCounter client:only />
     </header>
     <hr />
@@ -35,7 +36,7 @@ import SystemStatusLine from "@components/SystemStatusLine.vue"
 	</body>
 </html>
 
-<style>
+<style scoped>
   html {
     overflow: hidden;
   }
