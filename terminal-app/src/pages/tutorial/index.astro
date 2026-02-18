@@ -1,7 +1,7 @@
 
 ---
 import Layout from "@layouts/Layout.astro"
-import TutorialLinkButton from "@components/TutorialLinkButton.vue"
+import MenuButton from "@components/MenuButton.vue"
 import { getCollection} from "astro:content";
 
 const tutorials = await getCollection("tutorials");
@@ -14,7 +14,7 @@ const title = "Tutorial Menu"
     <h1>Tutorials</h1>
     <div class="tutorial-button-container">
       {tutorials.map((tutorial) => (
-      <TutorialLinkButton label={`${tutorial.data.index}. ${tutorial.data.title}`} href={`/tutorial/${tutorial.data.index}`} />
+      <MenuButton label={`${tutorial.data.index}. ${tutorial.data.title}`} href={`/tutorial/${tutorial.data.index}`} />
       ))}
     </div>
   </main>

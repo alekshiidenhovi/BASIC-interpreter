@@ -1,30 +1,34 @@
 <script setup lang="ts">
 interface Props {
-  buttonText: string;
+  label: string;
   href: string;
+  textCenter?: boolean;
 }
-const props = defineProps<Props>();
+const { label, href, textCenter } = defineProps<Props>();
 </script>
 
 <template>
-  <a :href="props.href">
-    {{ props.buttonText }}
+  <a :href="href" :class="{ 'text-center': textCenter }">
+    {{ label }}
   </a>
 </template>
 
-<style>
+<style scoped>
 a {
+  color: var(--sky-400);
+  background-color: color-mix(in srgb, var(--slate-900) 50%, transparent);
+  border-radius: 2px;
+  padding: 1.25rem 2rem;
   text-decoration: none;
-  border: 2px solid color-mix(in srgb, var(--sky-500), transparent 50%);
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  border: 2px solid var(--sky-400);
+  width: 100%;
   display: flex;
   align-items: center;
+}
+
+.text-center {
   justify-content: center;
-  padding: 0.875rem 1.5rem;
-  border-radius: 4px;
-  color: var(--sky-600);
-  font-size: 1.5rem;
-  letter-spacing: 1px;
-  width: 100%;
-  text-transform: uppercase;
 }
 </style>
