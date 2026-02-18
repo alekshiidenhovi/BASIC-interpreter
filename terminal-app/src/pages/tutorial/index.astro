@@ -1,0 +1,59 @@
+
+---
+import Layout from "@layouts/Layout.astro"
+import TutorialLinkButton from "@components/TutorialLinkButton.vue"
+import { getCollection} from "astro:content";
+
+const tutorials = await getCollection("tutorials");
+tutorials.sort((a, b) => a.data.index - b.data.index);
+const title = "Tutorial Menu"
+---
+
+<Layout title={`Terminal -  ${title}`}>
+  <main> 
+    <h1>Tutorials</h1>
+    <div class="tutorial-button-container">
+      {tutorials.map((tutorial) => (
+      <TutorialLinkButton label={`${tutorial.data.index}. ${tutorial.data.title}`} href={`/tutorial/${tutorial.data.index}`} />
+      ))}
+    </div>
+  </main>
+</Layout>
+
+
+<style scoped>
+  main {
+    display: grid;
+    grid-template-rows: auto 3fr;
+    gap: 2.5rem;
+    padding: 4rem 0;
+    height: 100%;
+    min-height: 0;
+    max-width: 42rem;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 3rem;
+    letter-spacing: 1px;
+    line-height: 1;
+    font-weight: 400;
+    color: var(--sky-400);
+    width: 100%;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .tutorial-button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+</style>
+
+
