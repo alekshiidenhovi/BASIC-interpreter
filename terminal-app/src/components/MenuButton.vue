@@ -3,12 +3,13 @@ interface Props {
   label: string;
   href: string;
   textCenter?: boolean;
+  openInNewTab?: boolean;
 }
 const { label, href, textCenter } = defineProps<Props>();
 </script>
 
 <template>
-  <a :href="href" :class="{ 'text-center': textCenter }">
+  <a :href="href" :class="{ 'text-center': textCenter }" :target="openInNewTab ? '_blank' : '_self'">
     {{ label }}
   </a>
 </template>
