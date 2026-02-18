@@ -1,7 +1,7 @@
 ---
 import Layout from "@layouts/Layout.astro"
 import CodeEditor from "@components/CodeEditor/index.vue"
-import PageNavigation from "@components/PageNavigation.vue"
+import TutorialPageNavigation from "@components/TutorialPageNavigation.vue"
 import { getCollection, render } from "astro:content";
 
 
@@ -40,7 +40,7 @@ const { Content } = await render(tutorial);
         <div class="markdown-container">
           <Content />
         </div>
-        <PageNavigation client:load prevIndex={prevIndex} nextIndex={nextIndex} />
+        <TutorialPageNavigation client:load prevIndex={prevIndex} nextIndex={nextIndex} />
       </div>
       <CodeEditor client:only starterCode={starterCode} />
     </div>
