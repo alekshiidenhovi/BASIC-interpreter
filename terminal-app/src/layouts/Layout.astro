@@ -10,6 +10,7 @@ import "@/styles.css"
 import TimeCounter from "@components/TimeCounter.vue"
 import SystemStatusLine from "@components/SystemStatusLine.vue"
 import HeaderPageNavigation from "@components/HeaderPageNavigation.vue"
+import KeybindingsModal from "@components/KeybindingsModal.vue"
 ---
 
 <!doctype html>
@@ -30,7 +31,7 @@ import HeaderPageNavigation from "@components/HeaderPageNavigation.vue"
     <slot />
     <hr />
     <footer>
-      <span>mode: {import.meta.env.MODE}</span>
+      <KeybindingsModal client:only />
       <SystemStatusLine client:only />
     </footer>
 	</body>
