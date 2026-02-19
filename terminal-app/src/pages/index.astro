@@ -1,16 +1,13 @@
 ---
 import Layout from "@layouts/Layout.astro"
-import MenuButton from "@components/MenuButton.vue"
+import HomeButtonList from "@components/HomeButtonList.vue"
 ---
 
 <Layout title="Terminal - Typical BASIC">
   <main>
     <div class="menu-container">
       <h1>TYPICAL BASIC</h1>
-      <div class="menu-button-container">
-        <MenuButton label="Tutorial" href="/tutorial" textCenter />
-        <MenuButton label="Github" href="https://github.com/alekshiidenhovi/BASIC-interpreter" textCenter openInNewTab />
-      </div>
+      <HomeButtonList client:load />
     </div>
   </main>
 </Layout>
@@ -18,16 +15,13 @@ import MenuButton from "@components/MenuButton.vue"
 <style>
   main {
     padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    margin: auto;
   }
   
   .menu-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     height: 100%;
     width: 100%;
     max-width: 42rem;
@@ -41,14 +35,5 @@ import MenuButton from "@components/MenuButton.vue"
     color: var(--sky-300);
     letter-spacing: 3px;
     text-align: center;
-  }
-
-  .menu-button-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    max-width: 24rem;
-    width: 100%;
   }
 </style>

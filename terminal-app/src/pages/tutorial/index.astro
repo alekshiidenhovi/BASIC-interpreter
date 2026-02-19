@@ -1,22 +1,18 @@
 
 ---
 import Layout from "@layouts/Layout.astro"
-import MenuButton from "@components/MenuButton.vue"
-import { getCollection} from "astro:content";
+import TutorialButtonList from "@components/TutorialButtonList.vue"
+import { getCollection } from "astro:content";
 
-const tutorials = await getCollection("tutorials");
-tutorials.sort((a, b) => a.data.index - b.data.index);
+const tutorials = await getCollection("tutorials")
+tutorials.sort((a, b) => a.data.index - b.data.index)
 const title = "Tutorial Menu"
 ---
 
 <Layout title={`Terminal -  ${title}`}>
   <main> 
     <h1>Tutorials</h1>
-    <div class="tutorial-button-container">
-      {tutorials.map((tutorial) => (
-      <MenuButton label={`${tutorial.data.index}. ${tutorial.data.title}`} href={`/tutorial/${tutorial.data.index}`} />
-      ))}
-    </div>
+    <TutorialButtonList client:load tutorials={tutorials} />
   </main>
 </Layout>
 
