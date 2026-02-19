@@ -48,6 +48,6 @@ const handleHover = () => {
 }
 
 .selected {
-  background-color: color-mix(in srgb, var(--sky-400) 50%, transparent);
+  background-color: color-mix(in srgb, var(--sky-800) 50%, transparent);
 }
 </style>
