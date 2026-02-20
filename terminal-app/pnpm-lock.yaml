@@ -20,9 +20,15 @@ importers:
       '@astrojs/vue':
         specifier: 5.1.4
         version: 5.1.4(astro@5.17.1(rollup@4.57.1)(typescript@5.9.3)(yaml@2.8.2))(rollup@4.57.1)(vue@3.5.27(typescript@5.9.3))(yaml@2.8.2)
+      '@nanostores/vue':
+        specifier: 1.0.1
+        version: 1.0.1(nanostores@1.1.0)(vue@3.5.27(typescript@5.9.3))
       astro:
         specifier: 5.17.1
         version: 5.17.1(rollup@4.57.1)(typescript@5.9.3)(yaml@2.8.2)
+      nanostores:
+        specifier: 1.1.0
+        version: 1.1.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -789,6 +795,20 @@ packages:
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
+
+  '@nanostores/vue@1.0.1':
+    resolution: {integrity: sha512-0VwubMTMvEdWQhVN4BAvDZ+vHQH3O1G9BaOfgrjfF4erqBsWScoK/zyaBeRfFjptNOb25947EFPHBZwEf9JcMg==}
+    engines: {node: ^20.0.0 || >=22.0.0}
+    peerDependencies:
+      '@nanostores/logger': ^0.4.0 || ^1.0.0
+      '@vue/devtools-api': '>=7.6.2'
+      nanostores: ^0.11.3 || ^1.0.0
+      vue: '>=3.3.1'
+    peerDependenciesMeta:
+      '@nanostores/logger':
+        optional: true
+      '@vue/devtools-api':
+        optional: true
 
   '@oslojs/encoding@1.1.0':
     resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
@@ -1924,6 +1944,10 @@ packages:
     resolution: {integrity: sha512-c7+7RQ+dMB5dPwwCp4ee1/iV/q2P6aK1mTZcfr1BTuVlyW9hJYiMPybJCcnBlQtuSmTIWNeazm/zqNoZSSElBg==}
     engines: {node: ^18 || >=20}
     hasBin: true
+
+  nanostores@1.1.0:
+    resolution: {integrity: sha512-yJBmDJr18xy47dbNVlHcgdPrulSn1nhSE6Ns9vTG+Nx9VPT6iV1MD6aQFp/t52zpf82FhLLTXAXr30NuCnxvwA==}
+    engines: {node: ^20.0.0 || >=22.0.0}
 
   neotraverse@0.6.18:
     resolution: {integrity: sha512-Z4SmBUweYa09+o6pG+eASabEpP6QkQ70yHj351pQoEXIs8uHbaU2DWVmzBANKgflPa47A50PtB2+NgRpQvr7vA==}
@@ -3448,6 +3472,11 @@ snapshots:
       vfile: 6.0.3
     transitivePeerDependencies:
       - supports-color
+
+  '@nanostores/vue@1.0.1(nanostores@1.1.0)(vue@3.5.27(typescript@5.9.3))':
+    dependencies:
+      nanostores: 1.1.0
+      vue: 3.5.27(typescript@5.9.3)
 
   '@oslojs/encoding@1.1.0': {}
 
@@ -5050,6 +5079,8 @@ snapshots:
   nanoid@3.3.11: {}
 
   nanoid@5.1.6: {}
+
+  nanostores@1.1.0: {}
 
   neotraverse@0.6.18: {}
 
