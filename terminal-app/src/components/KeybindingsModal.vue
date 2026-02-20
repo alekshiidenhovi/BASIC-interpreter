@@ -100,10 +100,14 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeydown);
 })
+
+defineOptions({
+  inheritAttrs: false,
+})
 </script>
 
 <template>
-  <button @click="toggleModal">
+  <button v-bind="$attrs" @click="toggleModal">
     <span class="key-symbol">[?]</span>
     <span>Keybindings</span>
   </button>
