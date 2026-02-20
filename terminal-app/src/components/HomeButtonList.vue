@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import MenuButton from "@components/ButtonMenu/MenuButton.vue"
 import MenuButtonList from "@components/ButtonMenu/MenuButtonList.vue"
-
 </script>
 
 <template>
