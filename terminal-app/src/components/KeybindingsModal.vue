@@ -17,7 +17,7 @@ const keybindings: KeybindingGroup[] = [
     bindings: [
       {
         key: "?",
-        description: "Show keybindings modal",
+        description: "Toggle keybindings modal",
       },
       {
         key: "Esc",
@@ -79,15 +79,15 @@ const keybindings: KeybindingGroup[] = [
 ]
 
 const showModal = ref(false);
-const openModal = () => {
-  showModal.value = true;
+const toggleModal = () => {
+  showModal.value = !showModal.value;
 }
 const closeModal = () => {
   showModal.value = false;
 }
 const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === "?" && !showModal.value) {
-    openModal();
+  if (event.key === "?") {
+    toggleModal();
   }
   if (event.key === "Escape" && showModal.value) {
     closeModal();
@@ -103,7 +103,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <button @click="openModal">
+  <button @click="toggleModal">
     <span class="key-symbol">[?]</span>
     <span>Keybindings</span>
   </button>
