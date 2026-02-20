@@ -5,11 +5,14 @@ interface Props {
   nextIndex: number | null;
 }
 const props = defineProps<Props>();
+defineOptions({
+  inheritAttrs: false,
+})
 </script>
 
 <template>
   <hr />
-  <nav>
+  <nav v-bind="$attrs">
     <div v-if="props.prevIndex" class="prev">
       <Icon :icon="'lucide:chevron-left'" class="icon" />
       <a :href="`/tutorial/${props.prevIndex}`">Prev</a>
