@@ -111,10 +111,10 @@ onUnmounted(() => {
   <Teleport to="body">
     <div class="modal-overlay" v-if="showModal" @click.self="closeModal">
       <div class="modal-container">
-        <div class="keybindings-group" v-for="group in keybindings">
+        <div class="keybindings-group" v-for="group in keybindings" :key="group.groupContext">
           <h2>{{ group.groupContext }}</h2>
           <div class="keybindings-list">
-            <div class="keybinding-list-item" v-for="keybinding in group.bindings">
+            <div class="keybinding-list-item" v-for="keybinding in group.bindings" :key="keybinding.key">
               <span class="keybinding-list-item-symbol">{{ keybinding.key }}</span>
               <span>{{ keybinding.description }}</span>
             </div>
