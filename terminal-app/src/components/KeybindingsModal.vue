@@ -110,7 +110,7 @@ onUnmounted(() => {
 
   <Teleport to="body">
     <div class="modal-overlay" v-if="showModal" @click.self="closeModal">
-      <div class="modal-container" v-if="showModal">
+      <div class="modal-container">
         <div class="keybindings-group" v-for="group in keybindings">
           <h2>{{ group.groupContext }}</h2>
           <div class="keybindings-list">
