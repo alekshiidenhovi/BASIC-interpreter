@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { watch } from "vue";
 import { Icon } from "@iconify/vue";
 import type { Statement } from "@/types";
 
@@ -22,7 +21,7 @@ const { replInput, replOutputs, executeReplCommand, resetReplContext, handleRepl
         {{ statement.printOutput.output }}</p>
       <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
         statement.printOutput.error
-        }}</p>
+      }}</p>
     </div>
   </div>
   <div class="bottom-row-container">
