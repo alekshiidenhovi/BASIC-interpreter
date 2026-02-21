@@ -54,84 +54,137 @@ const toggleOutputMode = () => {
 }
 
 /** Track the desired cursor column across vertical movements */
-const desiredColumn = ref<number | null>(null);
+const desiredColumnNumber = ref<number | null>(null);
 
-const handleStatementKeydown = (event: KeyboardEvent, index: number) => {
+const handleArrowLeft = (event: KeyboardEvent, rowNumber: number) => {
   const input = event.target as HTMLInputElement;
-  const cursorPos = input.selectionStart ?? 0;
-  const textLength = input.value.length;
-
-  if (event.key === 'ArrowUp' && index > 0) {
+  const columnNumber = input.selectionStart ?? 0;
+  const isFirstColumn = columnNumber === 0;
+  const isNotFirstRow = rowNumber > 0;
+  if (isFirstColumn && isNotFirstRow) {
     event.preventDefault();
-    if (desiredColumn.value === null) {
-      desiredColumn.value = cursorPos;
-    }
-    focusStatement(index - 1, desiredColumn.value);
-  }
-
-  else if (event.key === 'ArrowDown' && index < statements.value.length - 1) {
-    event.preventDefault();
-    if (desiredColumn.value === null) {
-      desiredColumn.value = cursorPos;
-    }
-    focusStatement(index + 1, desiredColumn.value);
-  }
-
-  else if (event.key === 'ArrowLeft' && cursorPos === 0 && index > 0) {
-    event.preventDefault();
-    const prevStatement = statements.value[index - 1];
+    const prevStatement = statements.value[rowNumber - 1];
     if (!prevStatement) {
       console.warn('No previous statement found on left key press');
       return;
     }
-    focusStatement(index - 1, prevStatement.code.length);
-    desiredColumn.value = null;
+    focusStatement(rowNumber - 1, prevStatement.code.length);
   }
+  desiredColumnNumber.value = null;
+}
 
-  else if (event.key === 'ArrowRight' && cursorPos === textLength && index < statements.value.length - 1) {
+const handleArrowRight = (event: KeyboardEvent, rowNumber: number) => {
+  const input = event.target as HTMLInputElement;
+  const columnNumber = input.selectionStart ?? 0;
+  const rowCharacterCount = input.value.length;
+  const isLastColumn = columnNumber === rowCharacterCount;
+  const isNotTheLastRow = rowNumber < statements.value.length - 1;
+  if (isLastColumn && isNotTheLastRow) {
     event.preventDefault();
-    focusStatement(index + 1, 0);
-    desiredColumn.value = null;
+    focusStatement(rowNumber + 1, 0);
   }
+  desiredColumnNumber.value = null;
+}
 
-  else if (event.key === 'Enter') {
+const handleArrowUp = (event: KeyboardEvent, rowNumber: number) => {
+  const input = event.target as HTMLInputElement;
+  const columnNumber = input.selectionStart ?? 0;
+  const isNotFirstRow = rowNumber > 0;
+  if (isNotFirstRow) {
     event.preventDefault();
-    statements.value.splice(index + 1, 0, { id: window.crypto.randomUUID(), code: '' });
-    nextTick(() => {
-      focusStatement(index + 1, 0);
-      desiredColumn.value = null;
-    });
+    if (desiredColumnNumber.value === null) {
+      desiredColumnNumber.value = columnNumber;
+    }
+    focusStatement(rowNumber - 1, desiredColumnNumber.value);
+  } else {
+    desiredColumnNumber.value = null;
   }
+}
 
-  else if (event.key === 'Backspace' && cursorPos === 0 && textLength === 0 && statements.value.length > 1) {
+const handleArrowDown = (event: KeyboardEvent, rowNumber: number) => {
+  const input = event.target as HTMLInputElement;
+  const columnNumber = input.selectionStart ?? 0;
+  const isNotLastRow = rowNumber < statements.value.length - 1;
+  if (isNotLastRow) {
     event.preventDefault();
-    statements.value.splice(index, 1);
-    const prevIndex = index - 1;
+    if (desiredColumnNumber.value === null) {
+      desiredColumnNumber.value = columnNumber;
+    }
+    focusStatement(rowNumber + 1, desiredColumnNumber.value);
+  } else {
+    desiredColumnNumber.value = null;
+  }
+}
+
+const handleEnter = (event: KeyboardEvent, rowNumber: number) => {
+  event.preventDefault();
+  statements.value.splice(rowNumber + 1, 0, { id: window.crypto.randomUUID(), code: '' });
+  nextTick(() => {
+    focusStatement(rowNumber + 1, 0);
+    desiredColumnNumber.value = null;
+  });
+}
+
+const handleBackspace = (event: KeyboardEvent, rowNumber: number) => {
+  const input = event.target as HTMLInputElement;
+  const rowCharacterCount = input.value.length;
+  const isEmptyRow = rowCharacterCount === 0;
+  const isNotOnlyRow = statements.value.length > 1;
+  if (isEmptyRow && isNotOnlyRow) {
+    event.preventDefault();
+    statements.value.splice(rowNumber, 1);
+    const prevIndex = rowNumber - 1;
     if (prevIndex >= 0) {
       nextTick(() => {
         focusStatement(prevIndex, statements.value[prevIndex]?.code.length as number);
-        desiredColumn.value = null;
+        desiredColumnNumber.value = null;
       });
     }
   }
+}
 
-  else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-    desiredColumn.value = null;
+const handleSingleCharacterKey = (event: KeyboardEvent, rowNumber: number) => {
+  desiredColumnNumber.value = null;
+}
+
+const handleStatementKeydown = (event: KeyboardEvent, rowNumber: number) => {
+  if (event.key === 'ArrowUp') {
+    handleArrowUp(event, rowNumber);
+  }
+
+  else if (event.key === 'ArrowDown') {
+    handleArrowDown(event, rowNumber);
+  }
+
+  else if (event.key === 'ArrowLeft') {
+    handleArrowLeft(event, rowNumber);
+  }
+
+  else if (event.key === 'ArrowRight') {
+    handleArrowRight(event, rowNumber);
+  }
+
+  else if (event.key === 'Enter') {
+    handleEnter(event, rowNumber);
+  }
+
+  else if (event.key === 'Backspace') {
+    handleBackspace(event, rowNumber);
   }
 
   else if (event.key.length === 1) {
-    desiredColumn.value = null;
+    handleSingleCharacterKey(event, rowNumber);
   }
 };
 
-const focusStatement = (index: number, column: number) => {
+const focusStatement = (rowNumber: number, columnNumber: number) => {
   nextTick(() => {
-    const input = document.querySelector(`.statement-input-${index}`) as HTMLInputElement;
+    const input = document.querySelector(`.statement-input-${rowNumber}`) as HTMLInputElement;
     if (input) {
       input.focus();
-      const maxColumn = input.value.length;
-      const targetColumn = Math.min(column, maxColumn);
-      input.setSelectionRange(targetColumn, targetColumn);
+      const maxColumnNumber = input.value.length;
+      const targetColumnNumber = Math.min(columnNumber, maxColumnNumber);
+      input.setSelectionRange(targetColumnNumber, targetColumnNumber);
     }
   });
 };
