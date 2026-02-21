@@ -1,13 +1,35 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
+import { useKeyboardShortcut } from "@/composables/useKeyboardShortcuts";
+import { normalizeKey } from "@/stores/keyboardShortcuts";
+
 interface Props {
   prevIndex: number | null;
   nextIndex: number | null;
 }
+
 const props = defineProps<Props>();
 defineOptions({
   inheritAttrs: false,
 })
+
+if (props.prevIndex) {
+  useKeyboardShortcut({
+    key: normalizeKey({ key: "ArrowLeft", hasCtrlOrMetaKey: true }),
+    handler: () => window.location.href = `/tutorial/${props.prevIndex}`,
+    scope: "global",
+    description: "Previous tutorial",
+  });
+}
+
+if (props.nextIndex) {
+  useKeyboardShortcut({
+    key: normalizeKey({ key: "ArrowRight", hasCtrlOrMetaKey: true }),
+    handler: () => window.location.href = `/tutorial/${props.nextIndex}`,
+    scope: "global",
+    description: "Next tutorial",
+  });
+}
 </script>
 
 <template>
