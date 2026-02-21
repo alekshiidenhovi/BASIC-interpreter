@@ -11,12 +11,13 @@ interface Tutorial {
 
 interface Props {
   tutorials: Tutorial[];
+  path: string;
 }
-const { tutorials } = defineProps<Props>();
+const { tutorials, path } = defineProps<Props>();
 </script>
 
 <template>
-  <MenuButtonList :initialIndex="0">
+  <MenuButtonList :initialIndex="0" :path="path">
     <MenuButton v-for="tutorial in tutorials" :index="tutorial.data.index - 1" :label="`${tutorial.data.index}.
       ${tutorial.data.title}`" :href="`/tutorial/${tutorial.data.index}`" />
   </MenuButtonList>

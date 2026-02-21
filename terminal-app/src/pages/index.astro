@@ -7,7 +7,7 @@ import HomeButtonList from "@components/HomeButtonList.vue"
   <main>
     <div class="menu-container">
       <h1>TYPICAL BASIC</h1>
-      <HomeButtonList client:load />
+      <HomeButtonList client:load path={Astro.url.pathname} />
     </div>
   </main>
 </Layout>

@@ -1,56 +1,75 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, provide, nextTick } from 'vue';
+import { ref, provide } from 'vue';
 import { buttonMenuInjectionKey } from './injectionKey';
+import { useKeyboardShortcut } from "@/composables/useKeyboardShortcuts";
+import { type NormalizedShortcutKey, setScope } from "@/stores/keyboardShortcuts";
+
+setScope("menu");
 
 interface Props {
   initialIndex: number;
+  path: string;
 }
 
 const props = defineProps<Props>();
 
 const selectedIndex = ref(props.initialIndex);
-const menuContainer = ref<HTMLDivElement | null>(null);
+const menuContainerRef = ref<HTMLDivElement | null>(null);
 
 provide(buttonMenuInjectionKey, {
   selectedIndex,
   setIndex: (val: number) => (selectedIndex.value = val)
 });
 
-const handleKeyDown = (e: KeyboardEvent) => {
-  const buttons = menuContainer.value?.querySelectorAll('.menu-button-item') as NodeListOf<HTMLButtonElement>;
-  const buttonCount = buttons.length || 0;
-  if (buttonCount === 0) {
-    console.error('No menu buttons found');
-    return;
-  }
-
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    selectedIndex.value = (selectedIndex.value + 1) % buttonCount;
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    selectedIndex.value = (selectedIndex.value - 1 + buttonCount) % buttonCount;
-  } else if (e.key === "Escape") {
-    e.preventDefault();
-    window.location.href = "/";
-  } else if (e.key === 'Enter') {
-    const selectedEl = menuContainer.value?.querySelector('[data-selected="true"]') as HTMLElement;
-    selectedEl?.click();
-  }
+const getButtonCount = () => menuContainerRef.value?.querySelectorAll('.menu-button-item').length || 0;
+const selectNextButton = () => selectedIndex.value = (selectedIndex.value + 1) % getButtonCount();
+const selectPrevButton = () => selectedIndex.value = (selectedIndex.value - 1 + getButtonCount()) % getButtonCount();
+const pressButton = () => {
+  const selectedEl = menuContainerRef.value?.querySelector('[data-selected="true"]') as HTMLButtonElement
+  selectedEl?.click();
+};
+const navigateToPage = (currentPath: string) => {
+  const newPath = currentPath.replace(/\/$/, '').split('/').slice(0, -1).join('/') || '/';
+  window.location.href = newPath;
 };
 
-onMounted(async () => {
-  await nextTick();
-  window.addEventListener('keydown', handleKeyDown);
+useKeyboardShortcut({
+  key: "ArrowDown" as NormalizedShortcutKey,
+  handler: selectNextButton,
+  scope: "menu",
+  description: "Select next button",
+  useRawKey: true,
 });
 
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyDown);
+useKeyboardShortcut({
+  key: "ArrowUp" as NormalizedShortcutKey,
+  handler: selectPrevButton,
+  scope: "menu",
+  description: "Select previous button",
+  useRawKey: true,
 });
+
+useKeyboardShortcut({
+  key: "Enter" as NormalizedShortcutKey,
+  handler: pressButton,
+  scope: "menu",
+  description: "Press button",
+  useRawKey: true,
+});
+
+if (props.path !== "/") {
+  useKeyboardShortcut({
+    key: "Escape" as NormalizedShortcutKey,
+    handler: () => navigateToPage(props.path),
+    scope: "menu",
+    description: "Navigate to previous page",
+    useRawKey: true,
+  });
+}
 </script>
 
 <template>
-  <div ref="menuContainer" class="menu-button-list">
+  <div ref="menuContainerRef" class="menu-button-list">
     <slot />
   </div>
 </template>

@@ -10,7 +10,7 @@ import "@/styles.css"
 import TimeCounter from "@components/TimeCounter.vue"
 import SystemStatusLine from "@components/SystemStatusLine.vue"
 import HeaderPageNavigation from "@components/HeaderPageNavigation.vue"
-import KeybindingsModal from "@components/KeybindingsModal.vue"
+import ShortcutsModal from "@components/ShortcutsModal.vue"
 ---
 
 <!doctype html>
@@ -31,7 +31,7 @@ import KeybindingsModal from "@components/KeybindingsModal.vue"
     <slot />
     <hr />
     <footer>
-      <KeybindingsModal client:only />
+      <ShortcutsModal client:only />
       <SystemStatusLine client:only />
     </footer>
 	</body>

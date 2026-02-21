@@ -157,7 +157,7 @@ const focusStatement = (index: number, column: number) => {
   </div>
   <div class="editor-print-container">
     <p v-if="results?.ok === true" class="editor-print-line" v-for="line in results.output" :key="results.index">{{ line
-    }}</p>
+      }}</p>
     <p v-if="results?.ok === false" class="editor-print-line editor-print-line-error" :key="results.index">{{
       results.error }}</p>
   </div>

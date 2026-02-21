@@ -11,7 +11,7 @@ const title = "Tutorial Menu"
 <Layout title={`Terminal -  ${title}`}>
   <main> 
     <h1>Tutorials</h1>
-    <TutorialButtonList client:load tutorials={tutorials} />
+    <TutorialButtonList client:load tutorials={tutorials} path={Astro.url.pathname} />
   </main>
 </Layout>
 
