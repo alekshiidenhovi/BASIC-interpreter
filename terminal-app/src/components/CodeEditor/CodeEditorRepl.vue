@@ -1,49 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { watch } from "vue";
 import { Icon } from "@iconify/vue";
 import type { Statement } from "@/types";
 
-const replOutputs = ref<Statement[]>([]);
-const replInput = ref<string>("");
-
-const executeReplCommand = () => {
-  const codeInput = replInput.value;
-  const inputId = window.crypto.randomUUID();
-
-  if (!window.interpretReplLine) {
-    throw new Error("Interpreter not loaded");
-  }
-
-  const result = window.interpretReplLine(codeInput);
-  if (result.ok === false) {
-    console.error(result.error);
-  }
-
-  replOutputs.value.push({
-    id: inputId,
-    code: codeInput,
-    printOutput: result,
-  });
-  replInput.value = "";
+interface Props {
+  replInput: string
+  replOutputs: Statement[]
+  executeReplCommand: () => void
+  resetReplContext: () => void
+  handleReplInput: (event: InputEvent) => void
 }
 
-const resetRepl = () => {
-  if (!window.resetReplContext) {
-    throw new Error("Interpreter not loaded");
-  }
-  window.resetReplContext();
-  replOutputs.value = [];
-  replInput.value = "";
-
-  const replInputContainer = document.querySelector(".repl-input") as HTMLInputElement;
-  replInputContainer.focus();
-}
-
-onMounted(() => {
-  const replInputContainer = document.querySelector(".repl-input") as HTMLInputElement;
-  replInputContainer.focus();
-})
-
+const { replInput, replOutputs, executeReplCommand, resetReplContext, handleReplInput } = defineProps<Props>();
 </script>
 
 <template>
@@ -60,9 +28,9 @@ onMounted(() => {
   <div class="bottom-row-container">
     <div type="text" class="repl-input-container">
       <span class="repl-prompt">$</span>
-      <input v-model="replInput" @keydown.enter="executeReplCommand" class="repl-input" />
+      <input :value="replInput" @input="handleReplInput" @keydown.enter="executeReplCommand" class="repl-input" />
     </div>
-    <div class="icon-container" @click="resetRepl">
+    <div class="icon-container" @click="resetReplContext">
       <Icon class="icon" :icon="'lucide:refresh-cw'" />
     </div>
   </div>

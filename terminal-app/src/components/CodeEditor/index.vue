@@ -1,11 +1,75 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
+import type { Statement } from "@/types";
 import CodeEditorView from "./CodeEditorView.vue";
 import CodeEditorRepl from "./CodeEditorRepl.vue";
 
 type Mode = 'editor' | 'repl';
 
 const selectedMode = ref<Mode>('editor');
+const replInput = ref<string>("");
+const replOutputs = ref<Statement[]>([]);
+
+const switchToRepl = () => {
+  selectedMode.value = 'repl';
+  nextTick(() => {
+    focusReplInput();
+  });
+}
+const switchToEditor = () => {
+  selectedMode.value = 'editor';
+}
+const toggleViewMode = (event: KeyboardEvent) => {
+  event.preventDefault();
+  if (selectedMode.value === 'editor') {
+    switchToRepl();
+  } else {
+    switchToEditor();
+  }
+}
+
+const executeReplCommand = () => {
+  const codeInput = replInput.value;
+  console.log("codeInput", codeInput);
+  const inputId = window.crypto.randomUUID();
+
+  if (!window.interpretReplLine) {
+    throw new Error("Interpreter not loaded");
+  }
+
+  const result = window.interpretReplLine(codeInput);
+  if (result.ok === false) {
+    console.error(result.error);
+  }
+
+  replOutputs.value.push({
+    id: inputId,
+    code: codeInput,
+    printOutput: result,
+  });
+  replInput.value = "";
+}
+
+const focusReplInput = () => {
+  const replInputContainer = document.querySelector(".repl-input") as HTMLInputElement;
+  replInputContainer.focus();
+}
+
+const resetReplContext = () => {
+  if (!window.resetReplContext) {
+    throw new Error("Interpreter not loaded");
+  }
+  window.resetReplContext();
+  replOutputs.value = [];
+  replInput.value = "";
+
+  focusReplInput();
+}
+
+const handleReplInput = (event: InputEvent) => {
+  replInput.value = (event.target as HTMLInputElement).value;
+}
+
 
 interface Props {
   starterCode: string[] | undefined
@@ -15,16 +79,20 @@ const props = defineProps<Props>();
 </script>
 
 <template>
-  <div class="editor-container"
-    :class="{ 'editor-container-view-layout': selectedMode === 'editor', 'editor-container-repl-layout': selectedMode === 'repl' }">
+  <div class="editor-container" :class="{
+    'editor-container-view-layout': selectedMode === 'editor', 'editor-container-repl-layout': selectedMode
+      === 'repl'
+  }">
     <div class="editor-mode-container">
       <button class="editor-mode-button" :class="{ 'selected-mode': selectedMode === 'editor' }"
-        @click="selectedMode = 'editor'">Editor</button>
+        @click="switchToEditor()">Editor</button>
       <button class="editor-mode-button" :class="{ 'selected-mode': selectedMode === 'repl' }"
-        @click="selectedMode = 'repl'">REPL</button>
+        @click="switchToRepl()">REPL</button>
     </div>
     <CodeEditorView v-if="selectedMode === 'editor'" :starterCode="props.starterCode" />
-    <CodeEditorRepl v-if="selectedMode === 'repl'" />
+    <CodeEditorRepl v-if="selectedMode === 'repl'" :replOutputs="replOutputs" :replInput="replInput"
+      :executeReplCommand="executeReplCommand" :resetReplContext="resetReplContext"
+      :handleReplInput="handleReplInput" />
   </div>
 </template>
 
