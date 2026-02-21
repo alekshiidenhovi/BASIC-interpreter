@@ -132,13 +132,6 @@ const editorNavigateToPreviousPageBinding: UnregisteredShortcutBinding = {
   description: "Navigate to previous page",
 };
 
-const replNavigateToPreviousPageBinding: UnregisteredShortcutBinding = {
-  key: normalizeKey({ key: "Escape", hasCtrlOrMetaKey: false }),
-  handler: () => window.location.href = "/tutorial",
-  scope: "repl",
-  description: "Navigate to previous page",
-};
-
 const editorSwitchTabKeyBinding: UnregisteredShortcutBinding = {
   key: normalizeKey({ key: "Tab", hasCtrlOrMetaKey: false }),
   handler: enableReplMode,
@@ -151,6 +144,20 @@ const editorSwitchInterpreterModeKeyBinding: UnregisteredShortcutBinding = {
   handler: toggleInterpreterOutputMode,
   scope: "editor",
   description: "Switch interpreter output mode",
+};
+
+const editorRunProgramBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "e", hasCtrlOrMetaKey: true }),
+  handler: runCode,
+  scope: "editor",
+  description: "Run program",
+};
+
+const replNavigateToPreviousPageBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "Escape", hasCtrlOrMetaKey: false }),
+  handler: () => window.location.href = "/tutorial",
+  scope: "repl",
+  description: "Navigate to previous page",
 };
 
 const replSwitchTabKeyBinding: UnregisteredShortcutBinding = {
@@ -179,6 +186,7 @@ const registerEditorShortcutBindings = () => {
     registerKeyboardShortcut(editorSwitchTabKeyBinding),
     registerKeyboardShortcut(editorSwitchInterpreterModeKeyBinding),
     registerKeyboardShortcut(editorNavigateToPreviousPageBinding),
+    registerKeyboardShortcut(editorRunProgramBinding),
   ]
 }
 
