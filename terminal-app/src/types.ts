@@ -10,6 +10,8 @@ type Result<T> =
     error: string;
   };
 
+type IndexedResult<T> = Result<T> & { index: number };
+
 type Statement = {
   id: string
   code: string
@@ -17,4 +19,4 @@ type Statement = {
 }
 
 
-export type { OutputMode, Result, Statement };
+export type { OutputMode, Result, IndexedResult, Statement };
