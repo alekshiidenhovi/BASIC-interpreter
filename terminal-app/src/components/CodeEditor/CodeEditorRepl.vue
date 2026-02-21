@@ -15,7 +15,7 @@ const executeReplCommand = () => {
   }
 
   const result = window.interpretReplLine(codeInput);
-  if (!result.ok) {
+  if (result.ok === false) {
     console.error(result.error);
   }
 
@@ -54,7 +54,7 @@ onMounted(() => {
         {{ statement.printOutput.output }}</p>
       <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
         statement.printOutput.error
-      }}</p>
+        }}</p>
     </div>
   </div>
   <div class="bottom-row-container">

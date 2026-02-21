@@ -32,7 +32,7 @@ const runCode = (outputMode: OutputMode) => {
   }
   const code = statements.value.map((s) => s.code).join("\n");
   const result = window.interpretProgram(code, outputMode);
-  if (!result.ok) {
+  if (result.ok === false) {
     console.error(result.error);
   }
   results.value = {
