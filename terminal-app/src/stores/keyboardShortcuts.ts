@@ -1,7 +1,6 @@
 import { atom, computed } from 'nanostores'
 
 const MODIFIER_KEYS = new Set(['ctrl', 'shift', 'alt'])
-const INPUT_TAGS = new Set(['input', 'textarea'])
 
 /**
   * A type for a function that is called when a shortcut is triggered.
@@ -76,16 +75,6 @@ function normalizeKey(e: KeyboardEvent): NormalizedShortcutKey {
 }
 
 /**
- * Checks if the active element is an input or textarea.
- * @returns True if the active element is an input or textarea, false otherwise.
- */
-function isInputFocused(): boolean {
-  const tag = document.activeElement?.tagName.toLowerCase()
-  const isEditable = (document.activeElement as HTMLElement)?.isContentEditable
-  return INPUT_TAGS.has(tag ?? '') || isEditable
-}
-
-/**
   * Groups the shortcuts by scope.
   * @param bindings The shortcuts to group.
   * @returns The grouped shortcuts.
@@ -145,8 +134,6 @@ export function initKeyboardShortcuts(): void {
   initialized = true
 
   window.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (isInputFocused()) return
-
     const pressed = normalizeKey(e)
     const match = $scopedShortcutBindings.get().find(b => b.useRawKey ? b.key === e.key : b.key === pressed)
 
