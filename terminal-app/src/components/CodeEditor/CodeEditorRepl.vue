@@ -28,9 +28,9 @@ const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProp
       <span class="repl-prompt">$</span>
       <input :value="replInput" @input="handleReplInput" class="repl-input" />
     </div>
-    <div class="icon-container" @click="resetReplContext">
+    <button class="icon-container" @click="resetReplContext">
       <Icon class="icon" :icon="'lucide:refresh-cw'" />
-    </div>
+    </button>
   </div>
 </template>
 
@@ -64,10 +64,11 @@ const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProp
 
 .repl-input-container {
   color: var(--sky-400);
-  height: 3rem;
   display: flex;
   align-items: center;
-  padding: 0.75rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 1rem;
   gap: 0.5rem;
   flex-grow: 1;
   border-right: 2px solid var(--sky-900);
@@ -84,21 +85,20 @@ const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProp
 }
 
 .bottom-row-container {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr auto;
 }
 
 .icon-container {
-  height: 3rem;
-  width: 3rem;
+  background-color: transparent;
+  border: none;
   padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
 }
 
 .icon {
-  color: var(--sky-700);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--sky-500);
 }
 </style>

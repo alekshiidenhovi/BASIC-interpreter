@@ -165,21 +165,21 @@ const focusStatement = (rowNumber: number, columnNumber: number) => {
         :class="['statement-input', `statement-input-${index}`]" @keydown="handleStatementKeydown($event, index)" />
     </div>
   </div>
-  <div class="editor-run-container">
-    <button class="editor-run-button" @click="runCode">
-      <Icon class="icon" :icon="'lucide:play'" />
-    </button>
-    <button class="editor-output-mode-button" @click="toggleInterpreterOutputMode">
-      <span>Output Mode: </span>
-      <span>{{ interpreterOutputMode }}</span>
-    </button>
-  </div>
   <div class="editor-print-container">
     <p v-if="programResults?.ok === true" class="editor-print-line" v-for="line in programResults.output"
       :key="programResults.index">{{ line }}</p>
     <p v-if="programResults?.ok === false" class="editor-print-line editor-print-line-error"
       :key="programResults.index">{{
         programResults.error }}</p>
+  </div>
+  <div class="editor-run-container">
+    <button class="editor-output-mode-button" @click="toggleInterpreterOutputMode">
+      <span>Output Mode: </span>
+      <span>{{ interpreterOutputMode }}</span>
+    </button>
+    <button class="icon-container" @click="runCode">
+      <Icon class="icon" :icon="'lucide:play'" />
+    </button>
   </div>
 </template>
 
@@ -191,35 +191,32 @@ button:focus-visible {
 
 .editor-run-container {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr auto;
+}
+
+.icon-container {
+  background-color: transparent;
+  padding: 1rem;
+  cursor: pointer;
+  border: none;
 }
 
 .icon {
   width: 1.25rem;
   height: 1.25rem;
-  color: var(--sky-700);
+  color: var(--sky-500);
 }
 
-.editor-run-button {
-  background-color: transparent;
-  color: var(--sky-700);
-  padding: 1rem;
-  font-size: 1rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  border: none;
-  letter-spacing: 2px;
-}
-
-.editor-run-button:nth-child(1) {
+.editor-output-mode-button:nth-child(1) {
   border-right: 2px solid var(--sky-900);
 }
 
 .editor-output-mode-button {
   background-color: transparent;
-  color: var(--sky-600);
+  color: var(--sky-500);
   padding: 1rem;
   font-size: 1rem;
+  line-height: 1;
   cursor: pointer;
   text-transform: uppercase;
   border: none;

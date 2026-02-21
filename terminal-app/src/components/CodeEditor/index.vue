@@ -278,7 +278,7 @@ button:focus-visible {
 }
 
 .editor-container-view-layout {
-  grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
 }
 
 .editor-container-repl-layout {
