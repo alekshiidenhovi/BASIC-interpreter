@@ -97,6 +97,12 @@ const focusReplInput = () => {
   replInputContainer.focus();
 }
 
+const focusEditorInput = () => {
+  const editorInputContainer = document.querySelector(".statement-input-0") as HTMLInputElement;
+  editorInputContainer.focus();
+  editorInputContainer.setSelectionRange(0, 0);
+}
+
 const resetReplContext = () => {
   if (!window.resetReplContext) {
     throw new Error("Interpreter not loaded");
@@ -198,6 +204,9 @@ const unregisterReplShortcutBindings = () => {
 onMounted(() => {
   registerEditorShortcutBindings();
   setScope("editor");
+  nextTick(() => {
+    focusEditorInput();
+  });
 })
 
 watch(selectedMode, (newMode, oldMode) => {
@@ -207,6 +216,9 @@ watch(selectedMode, (newMode, oldMode) => {
   if (newMode === 'editor') {
     setScope("editor");
     registerEditorShortcutBindings();
+    nextTick(() => {
+      focusEditorInput();
+    });
   }
   if (newMode === 'repl') {
     setScope("repl");
