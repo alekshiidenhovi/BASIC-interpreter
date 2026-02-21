@@ -7,7 +7,6 @@ import {
   registerKeyboardShortcut,
   setScope,
   unregisterKeyboardShortcut,
-  type ShortcutScope,
   type ShortcutBinding,
 } from '@/stores/keyboardShortcuts'
 
@@ -31,16 +30,5 @@ export function useKeyboardShortcut(args: Omit<ShortcutBinding, 'id'>) {
   })
   onUnmounted(() => {
     if (id) unregisterKeyboardShortcut(id)
-  })
-}
-
-export function useScope(scope: ShortcutScope) {
-  const previous = ref<ShortcutScope>('global')
-  onMounted(() => {
-    previous.value = $activeScope.get()
-    setScope(scope)
-  })
-  onUnmounted(() => {
-    setScope(previous.value)
   })
 }
