@@ -3,7 +3,7 @@ import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
 import type { Statement, OutputMode, IndexedResult } from "@/types";
 import CodeEditorView from "./CodeEditorView.vue";
 import CodeEditorRepl from "./CodeEditorRepl.vue";
-import { setScope, registerKeyboardShortcut, unregisterKeyboardShortcut, normalizeKey, type RegisteredShortcutBinding, type UnregisteredShortcutBinding } from "@/stores/keyboardShortcuts";
+import { setScope, registerKeyboardShortcut, unregisterKeyboardShortcut, normalizeKey, type UnregisteredShortcutBinding } from "@/stores/keyboardShortcuts";
 import { assertNever } from "@/utils";
 
 type Mode = 'editor' | 'repl';
