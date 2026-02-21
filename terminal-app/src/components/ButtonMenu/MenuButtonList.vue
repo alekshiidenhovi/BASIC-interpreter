@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref, provide } from 'vue';
+import { ref, provide, onMounted } from 'vue';
 import { buttonMenuInjectionKey } from './injectionKey';
 import { useKeyboardShortcut } from "@/composables/useKeyboardShortcuts";
-import { type NormalizedShortcutKey, setScope } from "@/stores/keyboardShortcuts";
-
-setScope("menu");
+import { normalizeKey, setScope } from "@/stores/keyboardShortcuts";
 
 interface Props {
   initialIndex: number;
@@ -34,38 +32,38 @@ const navigateToPage = (currentPath: string) => {
 };
 
 useKeyboardShortcut({
-  key: "ArrowDown" as NormalizedShortcutKey,
+  key: normalizeKey({ key: "ArrowDown", hasCtrlOrMetaKey: false }),
   handler: selectNextButton,
   scope: "menu",
   description: "Select next button",
-  useRawKey: true,
 });
 
 useKeyboardShortcut({
-  key: "ArrowUp" as NormalizedShortcutKey,
+  key: normalizeKey({ key: "ArrowUp", hasCtrlOrMetaKey: false }),
   handler: selectPrevButton,
   scope: "menu",
   description: "Select previous button",
-  useRawKey: true,
 });
 
 useKeyboardShortcut({
-  key: "Enter" as NormalizedShortcutKey,
+  key: normalizeKey({ key: "Enter", hasCtrlOrMetaKey: false }),
   handler: pressButton,
   scope: "menu",
   description: "Press button",
-  useRawKey: true,
 });
 
 if (props.path !== "/") {
   useKeyboardShortcut({
-    key: "Escape" as NormalizedShortcutKey,
+    key: normalizeKey({ key: "Escape", hasCtrlOrMetaKey: false }),
     handler: () => navigateToPage(props.path),
     scope: "menu",
     description: "Navigate to previous page",
-    useRawKey: true,
   });
 }
+
+onMounted(() => {
+  setScope("menu");
+})
 </script>
 
 <template>

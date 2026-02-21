@@ -10,17 +10,17 @@ export type ShortcutHandler = (event: KeyboardEvent) => void
 /**
  * A type for a shortcut scope.
  */
-export type ShortcutScope = 'global' | 'editor' | 'modal' | "menu"
+export type ShortcutScope = 'global' | 'editor' | 'repl' | 'modal' | "menu"
 
 /**
  * A type for a normalized shortcut key.
  */
-export type NormalizedShortcutKey = string & { __normalized: true }
+type NormalizedShortcutKey = string & { __normalized: true }
 
 /**
  * A type for a shortcut binding.
  */
-export interface ShortcutBinding {
+export interface RegisteredShortcutBinding {
   /** The unique identifier for the binding. */
   id: string
   /** The key in normalized string format. */
@@ -31,14 +31,14 @@ export interface ShortcutBinding {
   scope: ShortcutScope
   /** The description of what the shortcut does. */
   description: string
-  /** Whether to use the raw key value instead of the normalized key. */
-  useRawKey?: boolean
 }
+
+export type UnregisteredShortcutBinding = Omit<RegisteredShortcutBinding, 'id'>
 
 /**
  * A store for keyboard shortcut bindings.
  */
-export const $shortcutBindings = atom<Record<string, ShortcutBinding>>({})
+export const $shortcutBindings = atom<Record<string, RegisteredShortcutBinding>>({})
 
 /**
  * A store for currently active shortcut scope.
@@ -61,10 +61,9 @@ export const $scopedShortcutBindings = computed(
  * @param e The keyboard event to normalize.
  * @returns The normalized shortcut key.
  */
-function normalizeKey(e: KeyboardEvent): NormalizedShortcutKey {
+function normalizeKeyboardEvent(e: KeyboardEvent): NormalizedShortcutKey {
   const parts: string[] = []
   if (e.ctrlKey || e.metaKey) parts.push('ctrl')
-  if (e.shiftKey) parts.push('shift')
 
   const key = e.key.toLowerCase()
   if (!MODIFIER_KEYS.has(key)) {
@@ -74,13 +73,26 @@ function normalizeKey(e: KeyboardEvent): NormalizedShortcutKey {
   return parts.join('+') as NormalizedShortcutKey
 }
 
+export function normalizeKey({
+  key,
+  hasCtrlOrMetaKey,
+}: {
+  key: string
+  hasCtrlOrMetaKey: boolean
+}): NormalizedShortcutKey {
+  const parts: string[] = []
+  if (hasCtrlOrMetaKey) parts.push('ctrl')
+  parts.push(key.toLowerCase())
+  return parts.join('+') as NormalizedShortcutKey;
+}
+
 /**
   * Groups the shortcuts by scope.
   * @param bindings The shortcuts to group.
   * @returns The grouped shortcuts.
   */
-export function groupShortcutsByScope(bindings: readonly ShortcutBinding[]): Partial<Record<ShortcutScope, ShortcutBinding[]>> {
-  const grouped: Partial<Record<ShortcutScope, ShortcutBinding[]>> = {};
+export function groupShortcutsByScope(bindings: readonly RegisteredShortcutBinding[]): Partial<Record<ShortcutScope, RegisteredShortcutBinding[]>> {
+  const grouped: Partial<Record<ShortcutScope, RegisteredShortcutBinding[]>> = {};
   bindings.forEach((binding) => {
     const scope = binding.scope;
     if (!grouped[scope]) {
@@ -97,7 +109,7 @@ export function groupShortcutsByScope(bindings: readonly ShortcutBinding[]): Par
  * @param binding The shortcut binding to register.
  * @returns The ID of the registered binding.
  */
-export function registerKeyboardShortcut(binding: Omit<ShortcutBinding, 'id'> & { id?: string }): string {
+export function registerKeyboardShortcut(binding: Omit<RegisteredShortcutBinding, 'id'> & { id?: string }): string {
   const id = binding.id ?? `${binding.scope}:${binding.key}`
   $shortcutBindings.set({
     ...$shortcutBindings.get(),
@@ -134,8 +146,8 @@ export function initKeyboardShortcuts(): void {
   initialized = true
 
   window.addEventListener('keydown', (e: KeyboardEvent) => {
-    const pressed = normalizeKey(e)
-    const match = $scopedShortcutBindings.get().find(b => b.useRawKey ? b.key === e.key : b.key === pressed)
+    const pressed = normalizeKeyboardEvent(e)
+    const match = $scopedShortcutBindings.get().find(b => b.key === pressed)
 
     if (match) {
       e.preventDefault()

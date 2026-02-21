@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useKeyboardShortcut, useShortcutRegistry } from "@/composables/useKeyboardShortcuts";
-import { setScope, groupShortcutsByScope, initKeyboardShortcuts, type NormalizedShortcutKey, type ShortcutScope } from "@/stores/keyboardShortcuts";
+import { setScope, groupShortcutsByScope, initKeyboardShortcuts, normalizeKey, type ShortcutScope } from "@/stores/keyboardShortcuts";
 
 initKeyboardShortcuts();
 
@@ -27,15 +27,14 @@ watch(showModal, (open) => {
 });
 
 useKeyboardShortcut({
-  key: "?" as NormalizedShortcutKey,
+  key: normalizeKey({ key: "?", hasCtrlOrMetaKey: false }),
   handler: toggleModal,
   scope: "global",
   description: "Toggle keybindings modal",
-  useRawKey: true,
 });
 
 useKeyboardShortcut({
-  key: "escape" as NormalizedShortcutKey,
+  key: normalizeKey({ key: "Escape", hasCtrlOrMetaKey: false }),
   scope: "modal",
   handler: closeModal,
   description: "Close keybindings modal",

@@ -1,36 +1,78 @@
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
-import type { Statement } from "@/types";
+import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
+import type { Statement, OutputMode, IndexedResult } from "@/types";
 import CodeEditorView from "./CodeEditorView.vue";
 import CodeEditorRepl from "./CodeEditorRepl.vue";
+import { setScope, registerKeyboardShortcut, unregisterKeyboardShortcut, normalizeKey, type RegisteredShortcutBinding, type UnregisteredShortcutBinding } from "@/stores/keyboardShortcuts";
+import { assertNever } from "@/utils";
 
 type Mode = 'editor' | 'repl';
+
+interface Props {
+  starterCode: string[] | undefined
+}
+
+const props = defineProps<Props>()
+
+const initStarterCode = (): Statement[] => {
+  if (props.starterCode) {
+    return props.starterCode.map(code => ({
+      id: window.crypto.randomUUID(),
+      code,
+    }))
+  } else {
+    return [{ id: window.crypto.randomUUID(), code: "LET A" }];
+  }
+}
 
 const selectedMode = ref<Mode>('editor');
 const replInput = ref<string>("");
 const replOutputs = ref<Statement[]>([]);
+const interpreterOutputMode = ref<OutputMode>("interpreter");
+const statements = ref<Statement[]>(initStarterCode());
+const programResults = ref<IndexedResult<string[]> | undefined>(undefined);
 
-const switchToRepl = () => {
-  selectedMode.value = 'repl';
-  nextTick(() => {
-    focusReplInput();
-  });
-}
-const switchToEditor = () => {
-  selectedMode.value = 'editor';
-}
-const toggleViewMode = (event: KeyboardEvent) => {
-  event.preventDefault();
-  if (selectedMode.value === 'editor') {
-    switchToRepl();
+const editorShortcutBindingIds = ref<string[]>([]);
+const replShortcutBindingIds = ref<string[]>([]);
+
+const toggleInterpreterOutputMode = () => {
+  if (interpreterOutputMode.value === "lexer") {
+    interpreterOutputMode.value = "parser";
+  } else if (interpreterOutputMode.value === "parser") {
+    interpreterOutputMode.value = "interpreter";
+  } else if (interpreterOutputMode.value === "interpreter") {
+    interpreterOutputMode.value = "lexer";
   } else {
-    switchToEditor();
+    assertNever(interpreterOutputMode.value);
+  }
+}
+
+const updateCode = (event: InputEvent, rowNumber: number) => {
+  const input = event.target as HTMLInputElement;
+  const row = statements.value[rowNumber];
+  if (!row) {
+    throw new Error("Statement not found");
+  }
+  row.code = input.value;
+}
+
+const runCode = () => {
+  if (!window.interpretProgram) {
+    throw new Error("Interpreter not loaded");
+  }
+  const code = statements.value.map((s) => s.code).join("\n");
+  const result = window.interpretProgram(code, interpreterOutputMode.value);
+  if (result.ok === false) {
+    console.error(result.error);
+  }
+  programResults.value = {
+    ...result,
+    index: new Date().getTime(),
   }
 }
 
 const executeReplCommand = () => {
   const codeInput = replInput.value;
-  console.log("codeInput", codeInput);
   const inputId = window.crypto.randomUUID();
 
   if (!window.interpretReplLine) {
@@ -42,12 +84,12 @@ const executeReplCommand = () => {
     console.error(result.error);
   }
 
+  replInput.value = "";
   replOutputs.value.push({
     id: inputId,
     code: codeInput,
     printOutput: result,
   });
-  replInput.value = "";
 }
 
 const focusReplInput = () => {
@@ -70,12 +112,116 @@ const handleReplInput = (event: InputEvent) => {
   replInput.value = (event.target as HTMLInputElement).value;
 }
 
-
-interface Props {
-  starterCode: string[] | undefined
+const enableReplMode = () => {
+  selectedMode.value = 'repl';
+}
+const enableEditorMode = () => {
+  selectedMode.value = 'editor';
 }
 
-const props = defineProps<Props>();
+const editorNavigateToPreviousPageBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "Escape", hasCtrlOrMetaKey: false }),
+  handler: () => window.location.href = "/tutorial",
+  scope: "editor",
+  description: "Navigate to previous page",
+};
+
+const replNavigateToPreviousPageBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "Escape", hasCtrlOrMetaKey: false }),
+  handler: () => window.location.href = "/tutorial",
+  scope: "repl",
+  description: "Navigate to previous page",
+};
+
+const editorSwitchTabKeyBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "Tab", hasCtrlOrMetaKey: false }),
+  handler: enableReplMode,
+  scope: "editor",
+  description: "Switch to REPL",
+};
+
+const editorSwitchInterpreterModeKeyBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "i", hasCtrlOrMetaKey: true }),
+  handler: toggleInterpreterOutputMode,
+  scope: "editor",
+  description: "Switch interpreter output mode",
+};
+
+const replSwitchTabKeyBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "Tab", hasCtrlOrMetaKey: false }),
+  handler: enableEditorMode,
+  scope: "repl",
+  description: "Switch to editor",
+};
+
+const replExecuteCommandBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "Enter", hasCtrlOrMetaKey: false }),
+  handler: executeReplCommand,
+  scope: "repl",
+  description: "Execute current line",
+};
+
+const replResetContextBinding: UnregisteredShortcutBinding = {
+  key: normalizeKey({ key: "r", hasCtrlOrMetaKey: true }),
+  handler: resetReplContext,
+  scope: "repl",
+  description: "Reset REPL context",
+};
+
+const registerEditorShortcutBindings = () => {
+  editorShortcutBindingIds.value = [
+    registerKeyboardShortcut(editorSwitchTabKeyBinding),
+    registerKeyboardShortcut(editorSwitchInterpreterModeKeyBinding),
+    registerKeyboardShortcut(editorNavigateToPreviousPageBinding),
+  ]
+}
+
+const registerReplShortcutBindings = () => {
+  replShortcutBindingIds.value = [
+    registerKeyboardShortcut(replSwitchTabKeyBinding),
+    registerKeyboardShortcut(replExecuteCommandBinding),
+    registerKeyboardShortcut(replResetContextBinding),
+    registerKeyboardShortcut(replNavigateToPreviousPageBinding),
+  ]
+}
+
+const unregisterEditorShortcutBindings = () => {
+  editorShortcutBindingIds.value.forEach(id => unregisterKeyboardShortcut(id));
+  editorShortcutBindingIds.value = [];
+}
+
+const unregisterReplShortcutBindings = () => {
+  replShortcutBindingIds.value.forEach(id => unregisterKeyboardShortcut(id));
+  replShortcutBindingIds.value = [];
+}
+
+onMounted(() => {
+  registerEditorShortcutBindings();
+  setScope("editor");
+})
+
+watch(selectedMode, (newMode, oldMode) => {
+  if (oldMode === 'editor') unregisterEditorShortcutBindings();
+  if (oldMode === 'repl') unregisterReplShortcutBindings();
+
+  if (newMode === 'editor') {
+    setScope("editor");
+    registerEditorShortcutBindings();
+  }
+  if (newMode === 'repl') {
+    setScope("repl");
+    registerReplShortcutBindings();
+    nextTick(() => {
+      focusReplInput();
+    });
+  }
+})
+
+onUnmounted(() => {
+  unregisterEditorShortcutBindings();
+  unregisterReplShortcutBindings();
+})
+
 </script>
 
 <template>
@@ -85,14 +231,15 @@ const props = defineProps<Props>();
   }">
     <div class="editor-mode-container">
       <button class="editor-mode-button" :class="{ 'selected-mode': selectedMode === 'editor' }"
-        @click="switchToEditor()">Editor</button>
+        @click="enableEditorMode()">Editor</button>
       <button class="editor-mode-button" :class="{ 'selected-mode': selectedMode === 'repl' }"
-        @click="switchToRepl()">REPL</button>
+        @click="enableReplMode()">REPL</button>
     </div>
-    <CodeEditorView v-if="selectedMode === 'editor'" :starterCode="props.starterCode" />
+    <CodeEditorView v-if="selectedMode === 'editor'" :interpreterOutputMode="interpreterOutputMode"
+      :toggleInterpreterOutputMode="toggleInterpreterOutputMode" :updateCode="updateCode" :runCode="runCode"
+      :statements="statements" :programResults="programResults" />
     <CodeEditorRepl v-if="selectedMode === 'repl'" :replOutputs="replOutputs" :replInput="replInput"
-      :executeReplCommand="executeReplCommand" :resetReplContext="resetReplContext"
-      :handleReplInput="handleReplInput" />
+      :resetReplContext="resetReplContext" :handleReplInput="handleReplInput" />
   </div>
 </template>
 

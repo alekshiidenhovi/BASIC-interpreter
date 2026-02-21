@@ -1,57 +1,18 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
-import { assertNever } from "@/utils";
 import { Icon } from "@iconify/vue";
-import type { OutputMode, Result, Statement } from "@/types";
+import type { OutputMode, Statement, IndexedResult } from "@/types";
 
-type IndexedResult<T> = Result<T> & { index: number };
 
 interface Props {
-  starterCode: string[] | undefined
+  interpreterOutputMode: OutputMode
+  toggleInterpreterOutputMode: () => void
+  updateCode: (event: InputEvent, rowNumber: number) => void
+  runCode: () => void
+  statements: Statement[]
+  programResults: IndexedResult<string[]> | undefined
 }
-const props = defineProps<Props>();
-
-const initStarterCode = (): Statement[] => {
-  if (props.starterCode) {
-    return props.starterCode.map(code => ({
-      id: window.crypto.randomUUID(),
-      code,
-    }))
-  } else {
-    return [{ id: window.crypto.randomUUID(), code: "LET A" }];
-  }
-}
-
-const statements = ref<Statement[]>(initStarterCode());
-const results = ref<IndexedResult<string[]> | undefined>(undefined);
-const outputMode = ref<OutputMode>("interpreter");
-
-const runCode = (outputMode: OutputMode) => {
-  if (!window.interpretProgram) {
-    throw new Error("Interpreter not loaded");
-  }
-  const code = statements.value.map((s) => s.code).join("\n");
-  const result = window.interpretProgram(code, outputMode);
-  if (result.ok === false) {
-    console.error(result.error);
-  }
-  results.value = {
-    ...result,
-    index: new Date().getTime(),
-  }
-}
-
-const toggleOutputMode = () => {
-  if (outputMode.value === "lexer") {
-    outputMode.value = "parser";
-  } else if (outputMode.value === "parser") {
-    outputMode.value = "interpreter";
-  } else if (outputMode.value === "interpreter") {
-    outputMode.value = "lexer";
-  } else {
-    assertNever(outputMode.value);
-  }
-}
+const { interpreterOutputMode, toggleInterpreterOutputMode, runCode, statements, programResults, updateCode } = defineProps<Props>();
 
 /** Track the desired cursor column across vertical movements */
 const desiredColumnNumber = ref<number | null>(null);
@@ -63,7 +24,7 @@ const handleArrowLeft = (event: KeyboardEvent, rowNumber: number) => {
   const isNotFirstRow = rowNumber > 0;
   if (isFirstColumn && isNotFirstRow) {
     event.preventDefault();
-    const prevStatement = statements.value[rowNumber - 1];
+    const prevStatement = statements[rowNumber - 1];
     if (!prevStatement) {
       console.warn('No previous statement found on left key press');
       return;
@@ -78,7 +39,7 @@ const handleArrowRight = (event: KeyboardEvent, rowNumber: number) => {
   const columnNumber = input.selectionStart ?? 0;
   const rowCharacterCount = input.value.length;
   const isLastColumn = columnNumber === rowCharacterCount;
-  const isNotTheLastRow = rowNumber < statements.value.length - 1;
+  const isNotTheLastRow = rowNumber < statements.length - 1;
   if (isLastColumn && isNotTheLastRow) {
     event.preventDefault();
     focusStatement(rowNumber + 1, 0);
@@ -104,7 +65,7 @@ const handleArrowUp = (event: KeyboardEvent, rowNumber: number) => {
 const handleArrowDown = (event: KeyboardEvent, rowNumber: number) => {
   const input = event.target as HTMLInputElement;
   const columnNumber = input.selectionStart ?? 0;
-  const isNotLastRow = rowNumber < statements.value.length - 1;
+  const isNotLastRow = rowNumber < statements.length - 1;
   if (isNotLastRow) {
     event.preventDefault();
     if (desiredColumnNumber.value === null) {
@@ -118,7 +79,7 @@ const handleArrowDown = (event: KeyboardEvent, rowNumber: number) => {
 
 const handleEnter = (event: KeyboardEvent, rowNumber: number) => {
   event.preventDefault();
-  statements.value.splice(rowNumber + 1, 0, { id: window.crypto.randomUUID(), code: '' });
+  statements.splice(rowNumber + 1, 0, { id: window.crypto.randomUUID(), code: '' });
   nextTick(() => {
     focusStatement(rowNumber + 1, 0);
     desiredColumnNumber.value = null;
@@ -129,14 +90,14 @@ const handleBackspace = (event: KeyboardEvent, rowNumber: number) => {
   const input = event.target as HTMLInputElement;
   const rowCharacterCount = input.value.length;
   const isEmptyRow = rowCharacterCount === 0;
-  const isNotOnlyRow = statements.value.length > 1;
+  const isNotOnlyRow = statements.length > 1;
   if (isEmptyRow && isNotOnlyRow) {
     event.preventDefault();
-    statements.value.splice(rowNumber, 1);
+    statements.splice(rowNumber, 1);
     const prevIndex = rowNumber - 1;
     if (prevIndex >= 0) {
       nextTick(() => {
-        focusStatement(prevIndex, statements.value[prevIndex]?.code.length as number);
+        focusStatement(prevIndex, statements[prevIndex]?.code.length as number);
         desiredColumnNumber.value = null;
       });
     }
@@ -177,6 +138,11 @@ const handleStatementKeydown = (event: KeyboardEvent, rowNumber: number) => {
   }
 };
 
+const handleCodeInput = (event: InputEvent, rowNumber: number) => {
+  updateCode(event, rowNumber);
+  desiredColumnNumber.value = null;
+}
+
 const focusStatement = (rowNumber: number, columnNumber: number) => {
   nextTick(() => {
     const input = document.querySelector(`.statement-input-${rowNumber}`) as HTMLInputElement;
@@ -195,24 +161,25 @@ const focusStatement = (rowNumber: number, columnNumber: number) => {
   <div class="editor-content">
     <div class="editor-statement" v-for="(statement, index) in statements" :key="statement.id">
       <span class="line-number-display" type="number">{{ index + 1 }}</span>
-      <input v-model="statements[index].code" :class="['statement-input', `statement-input-${index}`]"
-        @keydown="handleStatementKeydown($event, index)" />
+      <input :value="statements[index]?.code" @input="handleCodeInput($event, index)"
+        :class="['statement-input', `statement-input-${index}`]" @keydown="handleStatementKeydown($event, index)" />
     </div>
   </div>
   <div class="editor-run-container">
-    <button class="editor-run-button" @click="runCode(outputMode)">
+    <button class="editor-run-button" @click="runCode">
       <Icon class="icon" :icon="'lucide:play'" />
     </button>
-    <button class="editor-output-mode-button" @click="toggleOutputMode">
+    <button class="editor-output-mode-button" @click="toggleInterpreterOutputMode">
       <span>Output Mode: </span>
-      <span>{{ outputMode }}</span>
+      <span>{{ interpreterOutputMode }}</span>
     </button>
   </div>
   <div class="editor-print-container">
-    <p v-if="results?.ok === true" class="editor-print-line" v-for="line in results.output" :key="results.index">{{ line
-      }}</p>
-    <p v-if="results?.ok === false" class="editor-print-line editor-print-line-error" :key="results.index">{{
-      results.error }}</p>
+    <p v-if="programResults?.ok === true" class="editor-print-line" v-for="line in programResults.output"
+      :key="programResults.index">{{ line }}</p>
+    <p v-if="programResults?.ok === false" class="editor-print-line editor-print-line-error"
+      :key="programResults.index">{{
+        programResults.error }}</p>
   </div>
 </template>
 
@@ -247,7 +214,6 @@ button:focus-visible {
 .editor-run-button:nth-child(1) {
   border-right: 2px solid var(--sky-900);
 }
-
 
 .editor-output-mode-button {
   background-color: transparent;

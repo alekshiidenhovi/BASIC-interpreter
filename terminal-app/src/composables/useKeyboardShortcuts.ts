@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, readonly, ref } from 'vue'
+import { onMounted, onUnmounted, readonly } from 'vue'
 import { useStore } from '@nanostores/vue'
 import {
   $activeScope,
@@ -7,7 +7,7 @@ import {
   registerKeyboardShortcut,
   setScope,
   unregisterKeyboardShortcut,
-  type ShortcutBinding,
+  type RegisteredShortcutBinding,
 } from '@/stores/keyboardShortcuts'
 
 export function useShortcutRegistry() {
@@ -23,7 +23,7 @@ export function useShortcutRegistry() {
   }
 }
 
-export function useKeyboardShortcut(args: Omit<ShortcutBinding, 'id'>) {
+export function useKeyboardShortcut(args: Omit<RegisteredShortcutBinding, 'id'>) {
   let id: string | null = null
   onMounted(() => {
     id = registerKeyboardShortcut(args)

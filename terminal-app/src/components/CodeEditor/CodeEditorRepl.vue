@@ -5,12 +5,11 @@ import type { Statement } from "@/types";
 interface Props {
   replInput: string
   replOutputs: Statement[]
-  executeReplCommand: () => void
   resetReplContext: () => void
   handleReplInput: (event: InputEvent) => void
 }
 
-const { replInput, replOutputs, executeReplCommand, resetReplContext, handleReplInput } = defineProps<Props>();
+const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProps<Props>();
 </script>
 
 <template>
@@ -21,13 +20,13 @@ const { replInput, replOutputs, executeReplCommand, resetReplContext, handleRepl
         {{ statement.printOutput.output }}</p>
       <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
         statement.printOutput.error
-      }}</p>
+        }}</p>
     </div>
   </div>
   <div class="bottom-row-container">
     <div type="text" class="repl-input-container">
       <span class="repl-prompt">$</span>
-      <input :value="replInput" @input="handleReplInput" @keydown.enter="executeReplCommand" class="repl-input" />
+      <input :value="replInput" @input="handleReplInput" class="repl-input" />
     </div>
     <div class="icon-container" @click="resetReplContext">
       <Icon class="icon" :icon="'lucide:refresh-cw'" />
