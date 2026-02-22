@@ -34,6 +34,7 @@ class Lexer {
       createRegexParser(RegExp(r'^='), EqualsToken()),
       createRegexParser(RegExp(r'^<'), LessThanToken()),
       createRegexParser(RegExp(r'^>'), GreaterThanToken()),
+      createRegexParser(RegExp(r'^--'), DoubleMinusToken()),
       createRegexParser(RegExp(r'^\+'), PlusToken()),
       createRegexParser(RegExp(r'^\-'), MinusToken()),
       createRegexParser(RegExp(r'^\*'), TimesToken()),

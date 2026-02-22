@@ -123,6 +123,11 @@ void main() {
     expect(lexer.tokenize(), [CommaToken(), EqualsToken(), EndOfLineToken()]);
   });
 
+  test('Double minus token: --', () {
+    var lexer = Lexer('--');
+    expect(lexer.tokenize(), [DoubleMinusToken()]);
+  });
+
   test("Expressions with parentheses", () {
     var lexer = Lexer('LET A = (10 + 20) * 30 / (40 - 50)');
     expect(lexer.tokenize(), [
