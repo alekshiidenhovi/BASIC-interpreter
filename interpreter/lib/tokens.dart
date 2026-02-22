@@ -106,6 +106,22 @@ sealed class Token {
   @override
   String toString() => name;
 
+  /// Returns the precedence of the binary operator represented by this token.
+  ///
+  /// Returns null if this token does not represent a binary operator.
+  int? getBinaryOperatorPrecedence() {
+    return switch (this) {
+      TimesToken() || DivideToken() => 50,
+      PlusToken() || MinusToken() => 45,
+      LessThanToken() ||
+      LessThanOrEqualToken() ||
+      GreaterThanToken() ||
+      GreaterThanOrEqualToken() => 35,
+      EqualsToken() || NotEqualToken() => 30,
+      _ => null,
+    };
+  }
+
   @override
   bool operator ==(Object other) => other is Token && name == other.name;
 
