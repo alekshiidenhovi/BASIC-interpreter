@@ -40,6 +40,8 @@ class Lexer {
       createRegexParser(RegExp(r'^/'), DivideToken()),
       createRegexParser(RegExp(r'^,'), CommaToken()),
       createRegexParser(RegExp(r'^;'), SemicolonToken()),
+      createRegexParser(RegExp(r'^\('), OpenParenToken()),
+      createRegexParser(RegExp(r'^\)'), CloseParenToken()),
       createRegexParser(RegExp(r'^\n'), EndOfLineToken()),
     ];
 
@@ -131,7 +133,10 @@ class Lexer {
       }
       _position += fullMatch.length;
       final upperCaseContent = content.toUpperCase();
-      return (source.substring(fullMatch.length), StringLiteralToken(upperCaseContent));
+      return (
+        source.substring(fullMatch.length),
+        StringLiteralToken(upperCaseContent),
+      );
     };
   }
 

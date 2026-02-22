@@ -123,6 +123,28 @@ void main() {
     expect(lexer.tokenize(), [CommaToken(), EqualsToken(), EndOfLineToken()]);
   });
 
+  test("Expressions with parentheses", () {
+    var lexer = Lexer('LET A = (10 + 20) * 30 / (40 - 50)');
+    expect(lexer.tokenize(), [
+      LetKeywordToken(),
+      IdentifierToken('A'),
+      EqualsToken(),
+      OpenParenToken(),
+      IntegerLiteralToken(10),
+      PlusToken(),
+      IntegerLiteralToken(20),
+      CloseParenToken(),
+      TimesToken(),
+      IntegerLiteralToken(30),
+      DivideToken(),
+      OpenParenToken(),
+      IntegerLiteralToken(40),
+      MinusToken(),
+      IntegerLiteralToken(50),
+      CloseParenToken(),
+    ]);
+  });
+
   test('Full program', () {
     var lexer = Lexer('''10 LET A = 5
 20 PRINT A, "Hello, BASIC!"''');
