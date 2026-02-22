@@ -16,6 +16,7 @@ enum TokenType {
   greaterThanOrEqual,
   plus,
   minus,
+  doubleMinus,
   times,
   divide,
   notEqual,
@@ -52,6 +53,7 @@ sealed class Token {
     GreaterThanOrEqualToken() => "GreaterThanOrEqualToken",
     PlusToken() => "PlusToken",
     MinusToken() => "MinusToken",
+    DoubleMinusToken() => "DoubleMinusToken",
     TimesToken() => "TimesToken",
     DivideToken() => "DivideToken",
     NotEqualToken() => "NotEqualToken",
@@ -85,6 +87,7 @@ sealed class Token {
     GreaterThanOrEqualToken() => TokenType.greaterThanOrEqual,
     PlusToken() => TokenType.plus,
     MinusToken() => TokenType.minus,
+    DoubleMinusToken() => TokenType.doubleMinus,
     TimesToken() => TokenType.times,
     DivideToken() => TokenType.divide,
     NotEqualToken() => TokenType.notEqual,
@@ -177,6 +180,9 @@ final class PlusToken extends Token {}
 
 /// Represents a minus token.j
 final class MinusToken extends Token {}
+
+/// Represents a double minus token.
+final class DoubleMinusToken extends Token {}
 
 /// Represents a times token.
 final class TimesToken extends Token {}
