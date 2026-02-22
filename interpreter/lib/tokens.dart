@@ -7,6 +7,8 @@ enum TokenType {
   endOfLine,
   comma,
   semicolon,
+  openParen,
+  closeParen,
   equals,
   lessThan,
   lessThanOrEqual,
@@ -41,6 +43,8 @@ sealed class Token {
     EndOfLineToken() => "EndOfLineToken",
     CommaToken() => "CommaToken",
     SemicolonToken() => "SemicolonToken",
+    OpenParenToken() => "OpenParenToken",
+    CloseParenToken() => "CloseParenToken",
     EqualsToken() => "EqualsToken",
     LessThanToken() => "LessThanToken",
     LessThanOrEqualToken() => "LessThanOrEqualToken",
@@ -72,6 +76,8 @@ sealed class Token {
     EndOfLineToken() => TokenType.endOfLine,
     CommaToken() => TokenType.comma,
     SemicolonToken() => TokenType.semicolon,
+    OpenParenToken() => TokenType.openParen,
+    CloseParenToken() => TokenType.closeParen,
     EqualsToken() => TokenType.equals,
     LessThanToken() => TokenType.lessThan,
     LessThanOrEqualToken() => TokenType.lessThanOrEqual,
@@ -144,6 +150,12 @@ final class CommaToken extends Token {}
 
 /// Represents a semicolon token.
 final class SemicolonToken extends Token {}
+
+/// Represents an open parenthesis token.
+final class OpenParenToken extends Token {}
+
+/// Represents a close parenthesis token.
+final class CloseParenToken extends Token {}
 
 /// Represents an equals token.
 final class EqualsToken extends Token {}
