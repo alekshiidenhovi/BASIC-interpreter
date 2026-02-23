@@ -49,7 +49,7 @@ void main() {
               final typeChecker = TypeChecker();
               final typedProgramLines = typeChecker.check(programLines);
 
-              if (outputMode.toDart == "typeChecker") {
+              if (outputMode.toDart == "type checker") {
                 return {
                   "ok": true,
                   "output": typedProgramLines

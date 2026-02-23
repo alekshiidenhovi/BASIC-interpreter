@@ -1,4 +1,4 @@
-type OutputMode = 'lexer' | 'parser' | 'interpreter';
+type OutputMode = 'lexer' | 'parser' | 'type checker' | 'interpreter';
 
 type Result<T> =
   | {

@@ -39,6 +39,8 @@ const toggleInterpreterOutputMode = () => {
   if (interpreterOutputMode.value === "lexer") {
     interpreterOutputMode.value = "parser";
   } else if (interpreterOutputMode.value === "parser") {
+    interpreterOutputMode.value = "type checker";
+  } else if (interpreterOutputMode.value === "type checker") {
     interpreterOutputMode.value = "interpreter";
   } else if (interpreterOutputMode.value === "interpreter") {
     interpreterOutputMode.value = "lexer";
