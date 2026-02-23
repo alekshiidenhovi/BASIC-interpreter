@@ -23,6 +23,9 @@ class TypedLetStatement extends TypedStatement<void> {
   TypedLetStatement(this.identifier, this.expression);
 
   @override
+  String toString() => "TYPED_LET_STATEMENT $identifier = $expression";
+
+  @override
   void execute(Context context) {
     context.setVariable(identifier, expression.evaluate(context));
   }
@@ -37,6 +40,9 @@ class TypedPrintStatement extends TypedStatement<String> {
   ///
   /// Requires a list of [arguments] to evaluate and print.
   TypedPrintStatement(this.arguments);
+
+  @override
+  String toString() => "TYPED_PRINT_STATEMENT $arguments";
 
   @override
   String execute(Context context) {
@@ -58,6 +64,9 @@ class TypedIfStatement<T> extends TypedStatement {
   TypedIfStatement(this.condition, this.thenStatement);
 
   @override
+  String toString() => "TYPED_IF_STATEMENT $condition $thenStatement";
+
+  @override
   TypedStatement<T>? execute(Context context) {
     return condition.evaluate(context) ? thenStatement : null;
   }
@@ -69,6 +78,9 @@ class TypedEndStatement extends TypedStatement<void> {
   TypedEndStatement();
 
   @override
+  String toString() => "TYPED_END_STATEMENT";
+
+  @override
   void execute(Context context) {
     throw Exception("END statement reached!");
   }
@@ -78,6 +90,9 @@ class TypedEndStatement extends TypedStatement<void> {
 class TypedRemarkStatement extends TypedStatement<void> {
   /// Creates a new [TypedRemarkStatement].
   TypedRemarkStatement();
+
+  @override
+  String toString() => "TYPED_REMARK_STATEMENT";
 
   @override
   void execute(Context context) {

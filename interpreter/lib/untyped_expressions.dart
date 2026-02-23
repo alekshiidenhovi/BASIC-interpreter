@@ -12,6 +12,9 @@ class IntegerConstantExpression extends Expression {
 
   /// Creates a new [IntegerConstantExpression] with the given [value].
   const IntegerConstantExpression(this.value);
+
+  @override
+  String toString() => "(INTEGER_CONSTANT_EXPRESSION $value)";
 }
 
 /// Represents an untyped floating point constant expression.
@@ -21,6 +24,9 @@ class FloatingPointConstantExpression extends Expression {
 
   /// Creates a new [FloatingPointConstantExpression] with the given [value].
   const FloatingPointConstantExpression(this.value);
+
+  @override
+  String toString() => "(FLOATING_POINT_CONSTANT_EXPRESSION $value)";
 }
 
 /// Represents an untyped string constant expression.
@@ -32,6 +38,9 @@ class StringConstantExpression extends Expression {
 
   /// Creates a new [StringConstantExpression] with the given [value].
   const StringConstantExpression(this.value);
+
+  @override
+  String toString() => "(STRING_CONSTANT_EXPRESSION $value)";
 }
 
 /// Represents an untyped constant identifier expression.
@@ -41,6 +50,9 @@ class IdentifierConstantExpression extends Expression {
 
   /// Creates a new [IdentifierConstantExpression] with the given [identifier].
   const IdentifierConstantExpression(this.identifier);
+
+  @override
+  String toString() => "(IDENTIFIER_CONSTANT_EXPRESSION $identifier)";
 }
 
 /// Represents an untyped unary expression.
@@ -53,6 +65,9 @@ class UnaryExpression extends Expression {
 
   /// Creates a new [UnaryExpression] with the given [expression] and [operator].
   const UnaryExpression(this.operand, this.operator);
+
+  @override
+  String toString() => "(UNARY_EXPRESSION operator-$operator operand-$operand)";
 }
 
 /// Represents an untyped binary expression.
@@ -71,4 +86,8 @@ class BinaryExpression extends Expression {
 
   /// Creates a new [BinaryExpression] with the given [lhs], [rhs], and [operator].
   const BinaryExpression(this.lhs, this.rhs, this.operator);
+
+  @override
+  String toString() =>
+      "(BINARY_EXPRESSION operator-$operator lhs-$lhs rhs-$rhs)";
 }

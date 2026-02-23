@@ -1,5 +1,4 @@
 import "operators.dart";
-import "errors.dart";
 import "context.dart";
 
 /// Represents a base typed expression.
@@ -23,6 +22,9 @@ class TypedIntegerConstantExpression extends TypedExpression<int> {
   const TypedIntegerConstantExpression(this.value);
 
   @override
+  String toString() => "(TYPED_INTEGER_CONSTANT_EXPRESSION $value)";
+
+  @override
   int evaluate(Context context) => value;
 }
 
@@ -33,6 +35,9 @@ class TypedFloatingPointConstantExpression extends TypedExpression<double> {
 
   /// Creates a new [TypedFloatingPointConstantExpression] with the given [value].
   const TypedFloatingPointConstantExpression(this.value);
+
+  @override
+  String toString() => "(TYPED_FLOATING_POINT_CONSTANT_EXPRESSION $value)";
 
   @override
   double evaluate(Context context) => value;
@@ -47,6 +52,9 @@ class TypedStringConstantExpression extends TypedExpression<String> {
 
   /// Creates a new [TypedStringConstantExpression] with the given [value].
   const TypedStringConstantExpression(this.value);
+
+  @override
+  String toString() => "(TYPED_STRING_CONSTANT_EXPRESSION $value)";
 
   @override
   String evaluate(Context context) => value;
@@ -64,6 +72,9 @@ class TypedIdentifierConstantExpression<T> extends TypedExpression<T> {
   const TypedIdentifierConstantExpression(this.identifier);
 
   @override
+  String toString() => "(TYPED_IDENTIFIER_CONSTANT_EXPRESSION $identifier)";
+
+  @override
   T evaluate(Context context) => context.getVariable<T>(identifier);
 }
 
@@ -79,6 +90,10 @@ class TypedUnaryExpression extends TypedExpression<num> {
 
   /// Creates a new [TypedUnaryExpression] with the given [expression] and [operator].
   const TypedUnaryExpression(this.operand, this.operator);
+
+  @override
+  String toString() =>
+      "(TYPED_UNARY_EXPRESSION operator-$operator operand-$operand)";
 
   @override
   num evaluate(Context context) {
@@ -105,6 +120,10 @@ class TypedComparisonExpression extends TypedExpression<bool> {
 
   /// Creates a new [TypedComparisonExpression] with the given [lhs], [rhs], and [operator].
   const TypedComparisonExpression(this.lhs, this.rhs, this.operator);
+
+  @override
+  String toString() =>
+      "(TYPED_COMPARISON_EXPRESSION operator-$operator lhs-$lhs rhs-$rhs)";
 
   @override
   bool evaluate(Context context) {
@@ -138,6 +157,10 @@ class TypedArithmeticExpression extends TypedExpression<num> {
 
   /// Creates a new [TypedArithmeticExpression] with the given [lhs], [rhs], and [operator].
   const TypedArithmeticExpression(this.lhs, this.rhs, this.operator);
+
+  @override
+  String toString() =>
+      "(TYPED_ARITHMETIC_EXPRESSION operator-$operator lhs-$lhs rhs-$rhs)";
 
   @override
   num evaluate(Context context) {

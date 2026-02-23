@@ -15,6 +15,9 @@ class LetStatement extends Statement<void> {
   ///
   /// Requires the [identifier] to assign to and the [expression] to evaluate.
   LetStatement(this.identifier, this.expression);
+
+  @override
+  String toString() => "LET_STATEMENT $identifier = $expression";
 }
 
 /// A statement, which evaluates a list of expressions and concatenates their string representations.
@@ -26,6 +29,9 @@ class PrintStatement extends Statement<String> {
   ///
   /// Requires a list of [arguments] to evaluate and print.
   PrintStatement(this.arguments);
+
+  @override
+  String toString() => "PRINT_STATEMENT $arguments";
 }
 
 /// A statement, which conditionally executed another statement based on an expression's evaluation.
@@ -40,16 +46,25 @@ class IfStatement<T> extends Statement {
   ///
   /// Requires the [condition] to evaluate and the [thenStatement] to execute if true.
   IfStatement(this.condition, this.thenStatement);
+
+  @override
+  String toString() => "IF_STATEMENT $condition $thenStatement";
 }
 
 /// A statement, which unconditionally ends the program.
 class EndStatement extends Statement<void> {
   /// Creates a new [EndStatement].
   EndStatement();
+
+  @override
+  String toString() => "END_STATEMENT";
 }
 
 /// A statement, which represents a user comment.
 class RemarkStatement extends Statement<void> {
   /// Creates a new [RemarkStatement].
   RemarkStatement();
+
+  @override
+  String toString() => "REMARK_STATEMENT";
 }
