@@ -1,8 +1,8 @@
-import "expressions.dart";
 import "tokens.dart";
-import "statements.dart";
 import "errors.dart";
 import "operators.dart";
+import "untyped_expressions.dart";
+import "untyped_statements.dart";
 
 /// Parses a list of tokens into executable statements.
 class Parser {
@@ -73,10 +73,10 @@ class Parser {
   /// Returns a [LetStatement] representing the parsed statement.
   Statement parseLetStatement() {
     expectToken(TokenType.letKeyword);
-    final identifierToken = parseIdentifier();
+    final identifierExpression = parseIdentifierFactor();
     expectToken(TokenType.equals);
-    final numberExpression = parseNumExpression();
-    return LetStatement(identifierToken.value, numberExpression);
+    final expression = parseExpression(0);
+    return LetStatement(identifierExpression.identifier, expression);
   }
 
   /// Parses a PRINT statement.
@@ -88,12 +88,11 @@ class Parser {
     final List<Expression> arguments = [];
 
     if (peekToken().kind() == EndOfLineToken().kind()) {
-      consumeToken();
       return PrintStatement(arguments);
     }
 
     while (true) {
-      arguments.add(parseExpression());
+      arguments.add(parseExpression(0));
 
       if (peekToken().kind() == TokenType.comma) {
         consumeToken();
@@ -111,12 +110,9 @@ class Parser {
   /// Returns an [IfStatement] representing the parsed statement.
   Statement parseIfStatement() {
     expectToken(TokenType.ifKeyword);
-    final Expression<num> lhs = parseNumExpression();
-    final comparisonOperator = parseComparisonOperator();
-    final Expression<num> rhs = parseNumExpression();
+    final Expression condition = parseExpression(0);
     expectToken(TokenType.thenKeyword);
     final thenStatement = parseStatement();
-    final condition = ComparisonExpression(lhs, rhs, comparisonOperator);
     return IfStatement(condition, thenStatement);
   }
 
@@ -141,47 +137,55 @@ class Parser {
     return RemarkStatement();
   }
 
-  /// Parses an expression that evaluates to a number.
+  /// Parses an expression from the token stream,
   ///
-  /// Returns an [Expression] of type [num] representing the parsed expression.
-  Expression<num> parseNumExpression() {
-    final token = consumeToken();
-    return switch (token) {
-      IntegerLiteralToken(value: var v) => IntegerLiteralExpression(v),
-      FloatingPointLiteralToken(value: var v) => FloatingPointLiteralExpression(
-        v,
-      ),
-      IdentifierToken(value: var i) => IdentifierExpression(i),
-      _ => throw UnexpectedTokenError(
-        position,
-        token.kind(),
-        TokenTypeOptionMany([
-          TokenType.integerLiteral,
-          TokenType.floatingPointLiteral,
-          TokenType.identifier,
-        ]),
-      ),
-    };
+  /// Uses the precedence climbing algorithm to parse the expression.
+  ///
+  /// The [minPrecedence] argument is the minimum precedence of the expression being parsed.
+  /// Returns an [Expression] representing the parsed expression.
+  Expression parseExpression(int minPrecedence) {
+    var left = parseFactor();
+    while (true) {
+      final token = peekToken();
+      final int? precedence = token.getBinaryOperatorPrecedence();
+      if (precedence == null || precedence < minPrecedence) {
+        break;
+      }
+      final operator = parseBinaryOperator();
+      final right = parseExpression(precedence + 1);
+      left = BinaryExpression(left, right, operator);
+    }
+    return left;
   }
 
-  /// Parses an expression that evaluates to a value.
+  /// Parses a factor from the token stream.
   ///
-  /// Returns an [Expression] representing the parsed expression.
-  Expression parseExpression() {
-    final token = consumeToken();
-    return switch (token) {
-      IntegerLiteralToken(value: var v) => IntegerLiteralExpression(v),
-      FloatingPointLiteralToken(value: var v) => FloatingPointLiteralExpression(
-        v,
-      ),
-      StringLiteralToken(value: var s) => StringLiteralExpression(s),
-      IdentifierToken(value: var i) => IdentifierExpression(i),
+  /// Supported factors:
+  /// - Integer literal
+  /// - Floating point literal
+  /// - String literal
+  /// - Identifier
+  /// - Unary operator
+  /// - Parenthesized expression
+  ///
+  /// Returns an [Expression] representing the parsed factor.
+  Expression parseFactor() {
+    final token = peekToken();
+    return switch (token.kind()) {
+      TokenType.integerLiteral => parseIntegerFactor(),
+      TokenType.floatingPointLiteral => parseFloatingPointFactor(),
+      TokenType.stringLiteral => parseStringFactor(),
+      TokenType.identifier => parseIdentifierFactor(),
+      TokenType.minus => parseUnaryFactor(),
+      TokenType.openParen => parseParenthesizedExpression(),
       _ => throw UnexpectedTokenError(
         position,
         token.kind(),
         TokenTypeOptionMany([
           TokenType.integerLiteral,
           TokenType.floatingPointLiteral,
+          TokenType.minus,
+          TokenType.openParen,
           TokenType.stringLiteral,
           TokenType.identifier,
         ]),
@@ -189,28 +193,59 @@ class Parser {
     };
   }
 
-  /// Parses an integer literal token.
+  /// Parses an expression that evaluates to an integer.
   ///
-  /// Expects an integer literal token and returns a [IntegerLiteralToken] representing the parsed token.
-  IntegerLiteralToken parseIntegerLiteral() {
-    final expectedNumberLiteralToken = expectToken(TokenType.integerLiteral);
-    return switch (expectedNumberLiteralToken) {
-      IntegerLiteralToken(value: var v) => IntegerLiteralToken(v),
+  /// Returns an [Expression] of type [int] representing the parsed expression.
+  IntegerConstantExpression parseIntegerFactor() {
+    final token = consumeToken();
+    return switch (token) {
+      IntegerLiteralToken(value: var v) => IntegerConstantExpression(v),
       _ => throw UnexpectedTokenError(
         position,
-        expectedNumberLiteralToken.kind(),
+        token.kind(),
         TokenTypeOptionOne(TokenType.integerLiteral),
       ),
     };
   }
 
-  /// Parses an identifier token.
+  /// Parses an expression that evaluates to a floating point number.
+  ///
+  /// Returns an [Expression] of type [double] representing the parsed expression.
+  FloatingPointConstantExpression parseFloatingPointFactor() {
+    final token = consumeToken();
+    return switch (token) {
+      FloatingPointLiteralToken(value: var v) =>
+        FloatingPointConstantExpression(v),
+      _ => throw UnexpectedTokenError(
+        position,
+        token.kind(),
+        TokenTypeOptionOne(TokenType.floatingPointLiteral),
+      ),
+    };
+  }
+
+  /// Parses a constant expression that evaluates to a string.
+  ///
+  /// Returns an [Expression] of type [String] representing the parsed expression.
+  StringConstantExpression parseStringFactor() {
+    final token = consumeToken();
+    return switch (token) {
+      StringLiteralToken(value: var v) => StringConstantExpression(v),
+      _ => throw UnexpectedTokenError(
+        position,
+        token.kind(),
+        TokenTypeOptionOne(TokenType.stringLiteral),
+      ),
+    };
+  }
+
+  /// Parses an identifier constant expression.
   ///
   /// Expects an identifier token and returns an [IdentifierToken] representing the parsed token.
-  IdentifierToken parseIdentifier() {
+  IdentifierConstantExpression parseIdentifierFactor() {
     final expectedIdentifierToken = expectToken(TokenType.identifier);
     return switch (expectedIdentifierToken) {
-      IdentifierToken(value: var v) => IdentifierToken(v),
+      IdentifierToken(value: var v) => IdentifierConstantExpression(v),
       _ => throw UnexpectedTokenError(
         position,
         expectedIdentifierToken.kind(),
@@ -219,10 +254,46 @@ class Parser {
     };
   }
 
-  /// Parses a comparison operator token
+  /// Parses a parenthesized expression.
   ///
-  /// Expects a comparison operator token and returns a [ComparisonOperator] representing the parsed token.
-  ComparisonOperator parseComparisonOperator() {
+  /// Expects an open parenthesis token, an expression, and a close parenthesis token.
+  /// Returns a [ParenthesizedExpression] representing the parsed expression.
+  Expression parseParenthesizedExpression() {
+    expectToken(TokenType.openParen);
+    final expression = parseExpression(0);
+    expectToken(TokenType.closeParen);
+    return expression;
+  }
+
+  /// Parses a unary expression.
+  ///
+  /// Expects a unary operator and an expression.
+  /// Returns a [UnaryExpression] representing the parsed expression.
+  UnaryExpression parseUnaryFactor() {
+    final unaryOperator = parseUnaryOperator();
+    final expression = parseFactor();
+    return UnaryExpression(expression, unaryOperator);
+  }
+
+  /// Parses a unary operator.
+  ///
+  /// Expects a unary operator token and returns a [UnaryOperator] representing the parsed token.
+  UnaryOperator parseUnaryOperator() {
+    final unaryOperatorToken = consumeToken();
+    return switch (unaryOperatorToken) {
+      MinusToken() => UnaryOperator.negate,
+      _ => throw UnexpectedTokenError(
+        position,
+        unaryOperatorToken.kind(),
+        TokenTypeOptionMany([TokenType.minus]),
+      ),
+    };
+  }
+
+  /// Parses a binary operator.
+  ///
+  /// Expects a binary operator token and returns a [BinaryOperator] representing the parsed token.
+  BinaryOperator parseBinaryOperator() {
     final comparisonOperatorToken = consumeToken();
     return switch (comparisonOperatorToken) {
       EqualsToken() => ComparisonOperator.eq,
@@ -231,6 +302,10 @@ class Parser {
       LessThanOrEqualToken() => ComparisonOperator.lte,
       GreaterThanToken() => ComparisonOperator.gt,
       GreaterThanOrEqualToken() => ComparisonOperator.gte,
+      PlusToken() => ArithmeticOperator.add,
+      MinusToken() => ArithmeticOperator.sub,
+      TimesToken() => ArithmeticOperator.mul,
+      DivideToken() => ArithmeticOperator.div,
       _ => throw UnexpectedTokenError(
         position,
         comparisonOperatorToken.kind(),
@@ -241,6 +316,10 @@ class Parser {
           TokenType.lessThanOrEqual,
           TokenType.greaterThan,
           TokenType.greaterThanOrEqual,
+          TokenType.plus,
+          TokenType.minus,
+          TokenType.times,
+          TokenType.divide,
         ]),
       ),
     };

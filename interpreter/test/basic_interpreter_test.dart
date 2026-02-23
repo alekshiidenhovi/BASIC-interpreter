@@ -1,40 +1,27 @@
 import 'package:basic_interpreter/basic_interpreter.dart';
-import 'package:basic_interpreter/expressions.dart';
 import 'package:basic_interpreter/operators.dart';
-import 'package:basic_interpreter/statements.dart';
+import 'package:basic_interpreter/typed_expressions.dart';
+import 'package:basic_interpreter/typed_statements.dart';
 import 'package:test/test.dart';
 
 void main() {
   group("Printing", () {
-    test('PRINT "HELLO, WORLD!"', () {
-      final List<Statement> statements = [
-        PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
-        EndStatement(),
+    test('One print statement', () {
+      final List<TypedStatement> statements = [
+        TypedPrintStatement([TypedStringConstantExpression("HELLO, WORLD!")]),
+        TypedEndStatement(),
       ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), ["HELLO, WORLD!"]);
     });
 
     test('Two print statements', () {
-      final List<Statement> statements = [
-        PrintStatement([StringLiteralExpression("HELLO, WORLD!")]),
-        PrintStatement([StringLiteralExpression("HELLO, BASIC!")]),
-        EndStatement(),
-      ];
-      final interpreter = Interpreter();
-      expect(interpreter.interpret(statements), [
-        "HELLO, WORLD!",
-        "HELLO, BASIC!",
-      ]);
-    });
-
-    test('PRINT "HELLO, WORLD!", "HELLO, BASIC!"', () {
-      final List<Statement> statements = [
-        PrintStatement([
-          StringLiteralExpression("HELLO, WORLD!"),
-          StringLiteralExpression("HELLO, BASIC!"),
+      final List<TypedStatement> statements = [
+        TypedPrintStatement([
+          TypedStringConstantExpression("HELLO, WORLD!"),
+          TypedStringConstantExpression("HELLO, BASIC!"),
         ]),
-        EndStatement(),
+        TypedEndStatement(),
       ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), [
@@ -45,33 +32,33 @@ void main() {
 
   group("Variables", () {
     test('LET A = 5\nPRINT A', () {
-      final List<Statement> statements = [
-        LetStatement("A", IntegerLiteralExpression(5)),
-        PrintStatement([IdentifierExpression("A")]),
-        EndStatement(),
+      final List<TypedStatement> statements = [
+        TypedLetStatement("A", TypedIntegerConstantExpression(5)),
+        TypedPrintStatement([TypedIdentifierConstantExpression("A")]),
+        TypedEndStatement(),
       ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), ["5"]);
     });
 
     test('LET A = 5.2\nPRINT A', () {
-      final List<Statement> statements = [
-        LetStatement("A", FloatingPointLiteralExpression(5.2)),
-        PrintStatement([IdentifierExpression("A")]),
-        EndStatement(),
+      final List<TypedStatement> statements = [
+        TypedLetStatement("A", TypedFloatingPointConstantExpression(5.2)),
+        TypedPrintStatement([TypedIdentifierConstantExpression("A")]),
+        TypedEndStatement(),
       ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), ["5.2"]);
     });
 
     test('LET A = 42\nPRINT "A IS", A', () {
-      final List<Statement> statements = [
-        LetStatement("A", IntegerLiteralExpression(42)),
-        PrintStatement([
-          StringLiteralExpression("A IS"),
-          IdentifierExpression("A"),
+      final List<TypedStatement> statements = [
+        TypedLetStatement("A", TypedIntegerConstantExpression(42)),
+        TypedPrintStatement([
+          TypedStringConstantExpression("A IS"),
+          TypedIdentifierConstantExpression("A"),
         ]),
-        EndStatement(),
+        TypedEndStatement(),
       ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), ["A IS\t42"]);
@@ -80,17 +67,17 @@ void main() {
 
   group("If-then statements", () {
     test("If statement", () {
-      final List<Statement> statements = [
-        LetStatement("A", IntegerLiteralExpression(5)),
-        IfStatement(
-          ComparisonExpression(
-            IdentifierExpression("A"),
-            IntegerLiteralExpression(5),
+      final List<TypedStatement> statements = [
+        TypedLetStatement("A", TypedIntegerConstantExpression(5)),
+        TypedIfStatement(
+          TypedComparisonExpression(
+            TypedIdentifierConstantExpression("A"),
+            TypedIntegerConstantExpression(5),
             ComparisonOperator.eq,
           ),
-          PrintStatement([IdentifierExpression("A")]),
+          TypedPrintStatement([TypedIdentifierConstantExpression("A")]),
         ),
-        EndStatement(),
+        TypedEndStatement(),
       ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), ["5"]);
@@ -99,10 +86,12 @@ void main() {
 
   group("END statements", () {
     test("END statement", () {
-      final List<Statement> statements = [
-        PrintStatement([StringLiteralExpression("This is printed")]),
-        EndStatement(),
-        PrintStatement([StringLiteralExpression("This is not executed")]),
+      final List<TypedStatement> statements = [
+        TypedPrintStatement([TypedStringConstantExpression("This is printed")]),
+        TypedEndStatement(),
+        TypedPrintStatement([
+          TypedStringConstantExpression("This is not printed"),
+        ]),
       ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), ["This is printed"]);
@@ -111,7 +100,10 @@ void main() {
 
   group("REM statements", () {
     test("REM statement", () {
-      final List<Statement> statements = [RemarkStatement(), EndStatement()];
+      final List<TypedStatement> statements = [
+        TypedRemarkStatement(),
+        TypedEndStatement(),
+      ];
       final interpreter = Interpreter();
       expect(interpreter.interpret(statements), []);
     });

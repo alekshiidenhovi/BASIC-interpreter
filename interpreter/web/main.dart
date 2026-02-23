@@ -1,6 +1,7 @@
 import 'dart:js_interop';
 import 'package:basic_interpreter/lexer.dart';
 import 'package:basic_interpreter/parser.dart';
+import 'package:basic_interpreter/type_checker.dart';
 import 'package:basic_interpreter/basic_interpreter.dart';
 import 'package:basic_interpreter/errors.dart';
 
@@ -13,9 +14,11 @@ extension type WindowExtension(JSObject _) implements JSObject {
   external set resetReplContext(JSFunction f);
 }
 
+final replTypeChecker = TypeChecker();
+final replInterpreter = Interpreter();
+
 void main() {
   final windowObj = window as WindowExtension;
-  final replInterpreter = Interpreter();
 
   windowObj.interpretProgram =
       ((JSString code, JSString outputMode) {
@@ -43,8 +46,23 @@ void main() {
                 }.jsify();
               }
 
+              final typeChecker = TypeChecker();
+              final typedProgramLines = typeChecker.check(programLines);
+
+              if (outputMode.toDart == "typeChecker") {
+                return {
+                  "ok": true,
+                  "output": typedProgramLines
+                      .map((p) => p.toString().toJS)
+                      .toList()
+                      .toJS,
+                }.jsify();
+              }
+
               final interpreter = Interpreter();
-              final List<String> result = interpreter.interpret(programLines);
+              final List<String> result = interpreter.interpret(
+                typedProgramLines,
+              );
 
               return {
                 "ok": true,
@@ -71,8 +89,10 @@ void main() {
               final parser = Parser(tokens);
               final programLines = parser.parse();
 
+              final typedProgramLines = replTypeChecker.check(programLines);
+
               final List<String> result = replInterpreter.interpret(
-                programLines,
+                typedProgramLines,
               );
 
               return {

@@ -1,5 +1,6 @@
 import "tokens.dart";
-import "expressions.dart";
+import "types.dart";
+import "untyped_expressions.dart";
 
 sealed class BASICInterpreterError extends Error {
   final String interpreterStepErrorName;
@@ -166,6 +167,66 @@ class UnmatchedStringError extends LexerError {
       );
 }
 
+/// Generic error that occurs during type checking.
+///
+/// This class serves as a base for all specific type checking errors, providing
+/// common properties like a descriptive message and an error name.
+sealed class TypeCheckerError extends BASICInterpreterError {
+  final int lineNumber;
+
+  /// Creates a new [TypeCheckerError].
+  TypeCheckerError(String detailedErrorName, String message, this.lineNumber)
+    : super("Type checking error", detailedErrorName, message);
+
+  @override
+  String toString() {
+    return "$detailedErrorName at line number $lineNumber: $message";
+  }
+}
+
+sealed class BasicTypeOption {
+  const BasicTypeOption();
+}
+
+class BasicTypeOptionOne extends BasicTypeOption {
+  final BasicType type;
+
+  const BasicTypeOptionOne(this.type);
+}
+
+class BasicTypeOptionMany extends BasicTypeOption {
+  final List<BasicType> types;
+
+  const BasicTypeOptionMany(this.types);
+}
+
+class NonMatchingTypeError extends TypeCheckerError {
+  /// The expected type.
+  final BasicTypeOption expectedType;
+
+  /// The actual type.
+  final BasicType actualType;
+
+  /// Creates a new [NonMatchingTypeError].
+  NonMatchingTypeError(int lineNumber, this.expectedType, this.actualType)
+    : super("Non-matching type error", switch (expectedType) {
+        BasicTypeOptionOne(type: var t) => "expected type $t, got $actualType",
+        BasicTypeOptionMany(types: var ts) =>
+          "expected one of ${ts.join(", ")}, got $actualType",
+      }, lineNumber);
+}
+
+class MissingIdentifierError extends TypeCheckerError {
+  final String identifier;
+
+  MissingIdentifierError(int lineNumber, this.identifier)
+    : super(
+        "Missing identifier error",
+        "missing identifier '$identifier'",
+        lineNumber,
+      );
+}
+
 /// Generic error that occurs during interpretation.
 ///
 /// This class serves as a base for all specific interpreter errors, providing
@@ -187,24 +248,29 @@ sealed class InterpretationError extends BASICInterpreterError {
 /// Represents an error that occurs during the runtime execution of a program.
 class RuntimeError extends InterpretationError {
   /// Creates a new [RuntimeError].
-  RuntimeError(int lineNumber, String message): super("Runtime error", message, lineNumber);
+  RuntimeError(int lineNumber, String message)
+    : super("Runtime error", message, lineNumber);
 }
 
-/// Represents an error when a required identifier is missing during expression evaluation.
-///
-/// This error is raised when an expression references an identifier that has not
-/// been defined in the current scope.
-class MissingIdentifierError extends InterpretationError {
-  /// The expression that could not be evaluated.
-  final Expression expression;
+class RuntimeTypeError extends InterpretationError {
   /// The identifier that was expected but not found.
   final String identifier;
 
-  /// Creates a new [MissingIdentifierError].
-  MissingIdentifierError(int lineNumber, this.expression, this.identifier)
-    : super(
-        "Missing identifier error",
-        "missing identifier '$identifier' for expression $expression",
+  /// The expected type.
+  final Type expectedType;
+
+  /// The actual type.
+  final Type actualType;
+
+  /// Creates a new [RuntimeTypeError].
+  RuntimeTypeError(
+    int lineNumber,
+    this.identifier,
+    this.expectedType,
+    this.actualType,
+  ) : super(
+        "Runtime type error",
+        "expected type $expectedType for identifier $identifier, got $actualType",
         lineNumber,
       );
 }
@@ -214,9 +280,13 @@ class MissingIdentifierError extends InterpretationError {
 /// This error is raised when an attempt is made to divide a number by zero.
 class DivisionByZeroError extends InterpretationError {
   /// The expression that could not be evaluated.
-  final Expression<num> expression;
+  final Expression expression;
 
   /// Creates a new [DivisionByZeroError].
   DivisionByZeroError(int lineNumber, this.expression)
-    : super("Division by zero", "division by zero occurred for expression $expression", lineNumber);
+    : super(
+        "Division by zero",
+        "division by zero occurred for expression $expression",
+        lineNumber,
+      );
 }

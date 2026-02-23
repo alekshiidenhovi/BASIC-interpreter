@@ -1,6 +1,6 @@
 import 'package:basic_interpreter/parser.dart';
-import 'package:basic_interpreter/statements.dart';
-import 'package:basic_interpreter/expressions.dart';
+import 'package:basic_interpreter/untyped_statements.dart';
+import 'package:basic_interpreter/untyped_expressions.dart';
 import 'package:basic_interpreter/tokens.dart';
 import 'package:basic_interpreter/errors.dart';
 import 'package:test/test.dart';
@@ -26,7 +26,7 @@ void main() {
             .having(
               (p) => p.expression,
               "expression",
-              isA<IntegerLiteralExpression>(),
+              isA<IntegerConstantExpression>(),
             ),
       );
     });
@@ -82,7 +82,7 @@ void main() {
             .having(
               (p) => p.expression,
               "expression",
-              isA<IntegerLiteralExpression>(),
+              isA<IntegerConstantExpression>(),
             ),
       );
       expect(
@@ -92,7 +92,7 @@ void main() {
             .having(
               (p) => p.expression,
               "expression",
-              isA<FloatingPointLiteralExpression>(),
+              isA<FloatingPointConstantExpression>(),
             ),
       );
     });
@@ -150,7 +150,7 @@ void main() {
       expect(
         program[0],
         isA<PrintStatement>().having((p) => p.arguments, "arguments", [
-          isA<IdentifierExpression>().having(
+          isA<IdentifierConstantExpression>().having(
             (p) => p.identifier,
             "identifier",
             "A",
@@ -160,7 +160,7 @@ void main() {
       expect(
         program[1],
         isA<PrintStatement>().having((p) => p.arguments, "arguments", [
-          isA<StringLiteralExpression>().having(
+          isA<StringConstantExpression>().having(
             (p) => p.value,
             "value",
             "Hello, BASIC!",
