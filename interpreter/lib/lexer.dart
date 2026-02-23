@@ -44,6 +44,7 @@ class Lexer {
       createRegexParser(RegExp(r'^\('), OpenParenToken()),
       createRegexParser(RegExp(r'^\)'), CloseParenToken()),
       createRegexParser(RegExp(r'^\n'), EndOfLineToken()),
+      createRegexParser(RegExp(r'^\^'), CaretToken()),
     ];
 
     while (source.isNotEmpty) {

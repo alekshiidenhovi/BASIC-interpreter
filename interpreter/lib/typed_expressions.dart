@@ -1,5 +1,6 @@
 import "operators.dart";
 import "context.dart";
+import "dart:math";
 
 /// Represents a base typed expression.
 ///
@@ -172,6 +173,7 @@ class TypedArithmeticExpression extends TypedExpression<num> {
       ArithmeticOperator.sub => leftValue - rightValue,
       ArithmeticOperator.mul => leftValue * rightValue,
       ArithmeticOperator.div => leftValue / rightValue,
+      ArithmeticOperator.exp => pow(leftValue, rightValue),
     };
   }
 }

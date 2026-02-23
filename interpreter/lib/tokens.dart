@@ -19,6 +19,7 @@ enum TokenType {
   doubleMinus,
   times,
   divide,
+  caret,
   notEqual,
   letKeyword,
   printKeyword,
@@ -56,6 +57,7 @@ sealed class Token {
     DoubleMinusToken() => "DoubleMinusToken",
     TimesToken() => "TimesToken",
     DivideToken() => "DivideToken",
+    CaretToken() => "CaretToken",
     NotEqualToken() => "NotEqualToken",
     LetKeywordToken() => "LetKeywordToken",
     PrintKeywordToken() => "PrintKeywordToken",
@@ -90,6 +92,7 @@ sealed class Token {
     DoubleMinusToken() => TokenType.doubleMinus,
     TimesToken() => TokenType.times,
     DivideToken() => TokenType.divide,
+    CaretToken() => TokenType.caret,
     NotEqualToken() => TokenType.notEqual,
     LetKeywordToken() => TokenType.letKeyword,
     PrintKeywordToken() => TokenType.printKeyword,
@@ -111,6 +114,7 @@ sealed class Token {
   /// Returns null if this token does not represent a binary operator.
   int? getBinaryOperatorPrecedence() {
     return switch (this) {
+      CaretToken() => 55,
       TimesToken() || DivideToken() => 50,
       PlusToken() || MinusToken() => 45,
       LessThanToken() ||
@@ -205,6 +209,9 @@ final class TimesToken extends Token {}
 
 /// Represents a divide token.
 final class DivideToken extends Token {}
+
+/// Represents a caret token.
+final class CaretToken extends Token {}
 
 /// Represents a not equal token.
 final class NotEqualToken extends Token {}

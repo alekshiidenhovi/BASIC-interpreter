@@ -19,7 +19,7 @@ enum UnaryOperator implements Operator { negate }
 /// - `sub`: Subtraction
 /// - `mul`: Multiplication
 /// - `div`: Division
-enum ArithmeticOperator implements BinaryOperator { add, sub, mul, div }
+enum ArithmeticOperator implements BinaryOperator { add, sub, mul, div, exp }
 
 /// Represents the possible comparison operators used in filtering or ordering data.
 ///
