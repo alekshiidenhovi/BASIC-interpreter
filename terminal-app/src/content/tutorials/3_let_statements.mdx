@@ -1,0 +1,23 @@
+---
+title: LET statements
+index: 3
+starterCode:
+  - "LET PI = 3.14"
+  - "LET RADIUS = 5"
+  - "PRINT AREA"
+  - "END"
+---
+import CodeBlock from "../../components/CodeBlock.vue";
+
+<p>Storing variables in Typical BASIC is performed using LET statements. The syntax for LET statements is the following:</p>
+
+<CodeBlock client:load code="LET <variable-name> = <numeric-value>" />
+
+<p>Valid variable names consist of letters, numbers, and underscores, and they must start with either a letter or an underscore. Valid variable names cannot be a single underscore.</p>
+
+<p>The following LET statements are valid:</p>
+
+<CodeBlock client:load code="LET HELLO_VARIABLE = 10" />
+<CodeBlock client:load code="LET A123 = 50" />
+
+<p>Try calculating the area of a circle with the radius stored in the variable "RADIUS" and the area stored in the variable "AREA". A crude approximation of PI has been stored in variable "PI". Correct implementation would result in 78.5.</p>

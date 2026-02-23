@@ -1,0 +1,22 @@
+---
+title: IF statements
+index: 5
+starterCode:
+  - "LET SCORE = 45"
+  - "IF SCORE >= 50 THEN PRINT \"PASS\""
+  - "IF SCORE < 50 THEN PRINT \"FAIL\""
+  - "END"
+---
+import CodeBlock from "../../components/CodeBlock.vue";
+
+<p>IF statements are used to conditionally execute a statement based on whether a condition is true. The syntax for IF statements is the following:</p>
+
+<CodeBlock client:load code="IF <condition> THEN <statement>" />
+
+<p>For instance, the following code will print "ADULT" if the value stored in AGE is greater than or equal to 18:</p>
+
+<CodeBlock client:load code='IF AGE >= 18 THEN PRINT "ADULT"' />
+
+<p>The condition can use any of the following comparison operators: =, !=, &lt;, &gt;, &lt;=, and &gt;=.</p>
+
+<p>The starter code checks whether a student has passed or failed an exam. A score of 50 or above is a pass. Try changing the value of SCORE and observe how the output changes.</p>

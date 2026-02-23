@@ -1,0 +1,25 @@
+---
+title: Comments
+index: 4
+starterCode:
+  - "REM COMPOUND INTEREST"
+  - "LET STARTING_AMOUNT = 1000"
+  - "LET INTEREST_RATE = 0.05"
+  - "LET TERMS = 10"
+  - "LET MONTHS = 12"
+  - "LET INTEREST_AMOUNT = STARTING_AMOUNT * (1 + INTEREST_RATE / MONTHS) ^ (MONTHS * TERMS)"
+  - "PRINT THIS_VARIABLE_DOES_NOT_EXIST"
+  - "PRINT INTEREST_AMOUNT"
+  - "END"
+---
+import CodeBlock from "../../components/CodeBlock.vue";
+
+<p>You can add comments to your code by using a REM(ark) statement. When the interpreter encounters a REM keyword at the start of a statement, it ignores the rest of the line and continues to the next line.</p> 
+
+An example of a comment is the following:
+
+<CodeBlock client:load code="REM This is a comment" />
+
+<p>You can use comments to explain your code, or to temporarily disable a line of code.</p>
+
+<p>The code in the editor includes a statement that does not belong there that crashes the program. Try fixing it by turning the line into a comment by using the REM keyword. The correct results should be between 1600 and 1700.</p>

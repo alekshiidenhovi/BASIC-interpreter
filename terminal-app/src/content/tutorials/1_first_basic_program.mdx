@@ -1,0 +1,22 @@
+---
+title: First BASIC program
+index: 1
+starterCode:
+  - 'PRINT "Hello BASIC!"'
+  - "END"
+---
+import CodeBlock from "../../components/CodeBlock.vue";
+
+<p>Typical BASIC is a line-based, interpreted language. Typical BASIC program consists of a series of statements that are executed in order.</p>
+
+<p>On the right side of the screen, there is a simple web-based text-editor that has two lines of code. This is BASIC's version of a simple "Hello world" application.</p>
+
+<p>The first line of code is a PRINT statement. PRINT statements are used to print text to the screen. The syntax for PRINT statements is the following:</p>
+
+<CodeBlock client:load code="PRINT <expression>" />
+
+<p>The second line of code is an END statement. END statements are used to signal the end of a BASIC program. The syntax for END statements is straight-forward, just a plain keyword "END":</p>
+
+<CodeBlock client:load code="END" />
+
+<p>Try running the program on the right side of the screen. You should see text being printed on the bottom part of the editor.</p>
