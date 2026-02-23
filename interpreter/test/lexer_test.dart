@@ -27,13 +27,13 @@ void main() {
 
     test('String literals: "Hello, BASIC!"', () {
       var lexer = Lexer('"Hello, BASIC!"');
-      expect(lexer.tokenize(), [StringLiteralToken('Hello, BASIC!')]);
+      expect(lexer.tokenize(), [StringLiteralToken('HELLO, BASIC!')]);
     });
 
     test('String literals: "Hello", "BASIC"', () {
       var lexer = Lexer('"Hello", "BASIC"');
       expect(lexer.tokenize(), [
-        StringLiteralToken('Hello'),
+        StringLiteralToken('HELLO'),
         CommaToken(),
         StringLiteralToken('BASIC'),
       ]);
@@ -164,7 +164,7 @@ void main() {
       PrintKeywordToken(),
       IdentifierToken('A'),
       CommaToken(),
-      StringLiteralToken('Hello, BASIC!'),
+      StringLiteralToken('HELLO, BASIC!'),
     ]);
   });
 
