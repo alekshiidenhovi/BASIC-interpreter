@@ -81,17 +81,14 @@ const executeReplCommand = () => {
     throw new Error("Interpreter not loaded");
   }
 
-  const result = window.interpretReplLine(codeInput);
-  if (result.ok === false) {
-    console.error(result.error);
-  }
-
   replInput.value = "";
+  const result = window.interpretReplLine(codeInput);
   replOutputs.value.push({
     id: inputId,
     code: codeInput,
     printOutput: result,
   });
+
 }
 
 const focusReplInput = () => {

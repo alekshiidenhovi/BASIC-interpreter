@@ -25,7 +25,7 @@ interface Navigator {
 }
 
 interface Window {
-  interpretProgram?: (code: string, mode: import("./types").OutputMode) => import("./types").Result<List<string>>;
-  interpretReplLine?: (code: string) => import("./types").Result<List<string>>;
+  interpretProgram?: (code: string, mode: import("./types").OutputMode) => import("./types").InterpreterResponseResult<string[]>;
+  interpretReplLine?: (code: string) => import("./types").ReplResponseResult<string[]>;
   resetReplContext?: () => void;
 }

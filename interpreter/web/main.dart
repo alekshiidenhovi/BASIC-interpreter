@@ -1,4 +1,5 @@
 import 'dart:js_interop';
+import 'package:basic_interpreter/repl_buffer.dart';
 import 'package:basic_interpreter/lexer.dart';
 import 'package:basic_interpreter/parser.dart';
 import 'package:basic_interpreter/type_checker.dart';
@@ -14,6 +15,7 @@ extension type WindowExtension(JSObject _) implements JSObject {
   external set resetReplContext(JSFunction f);
 }
 
+final replBuffer = ReplBuffer();
 final replTypeChecker = TypeChecker();
 final replInterpreter = Interpreter();
 
@@ -82,8 +84,12 @@ void main() {
   windowObj.interpretReplLine =
       ((JSString code) {
             try {
-              final codeWithNewLine = "${code.toDart}\n";
-              final lexer = Lexer(codeWithNewLine);
+              final waiting = replBuffer.addLine(code.toDart);
+              if (waiting) {
+                return {"ok": true, "pending": true}.jsify();
+              }
+              final bufferedCode = replBuffer.flush();
+              final lexer = Lexer(bufferedCode);
               final tokens = lexer.tokenize();
 
               final parser = Parser(tokens);
@@ -97,14 +103,17 @@ void main() {
 
               return {
                 "ok": true,
+                "pending": false,
                 "output": result.map((s) => s.toJS).toList().toJS,
               }.jsify();
             } on BASICInterpreterError catch (e) {
+              replBuffer.reset();
               return {
                 "ok": false,
                 "error": "${e.interpreterStepErrorName}: $e".toJS,
               }.jsify();
             } catch (e) {
+              replBuffer.reset();
               return {"ok": false, "error": "Unknown error: $e".toJS}.jsify();
             }
           }).toJS

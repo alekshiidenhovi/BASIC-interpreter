@@ -1,6 +1,21 @@
 type OutputMode = 'lexer' | 'parser' | 'type checker' | 'interpreter';
 
-type Result<T> =
+type ReplResponseResult<T> =
+  | {
+    ok: true;
+    pending: true
+  }
+  | {
+    ok: true;
+    pending: false
+    output: T;
+  }
+  | {
+    ok: false;
+    error: string;
+  };
+
+type InterpreterResponseResult<T> =
   | {
     ok: true;
     output: T;
@@ -10,13 +25,13 @@ type Result<T> =
     error: string;
   };
 
-type IndexedResult<T> = Result<T> & { index: number };
+type IndexedResult<T> = InterpreterResponseResult<T> & { index: number };
 
 type Statement = {
   id: string
   code: string
-  printOutput?: Result<string[]>
+  printOutput?: ReplResponseResult<string[]>
 }
 
 
-export type { OutputMode, Result, IndexedResult, Statement };
+export type { OutputMode, InterpreterResponseResult, ReplResponseResult, IndexedResult, Statement };

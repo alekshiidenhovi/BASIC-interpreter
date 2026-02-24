@@ -15,12 +15,14 @@ const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProp
 <template>
   <div class="repl-print-container">
     <div class="repl-print-line-container" v-for="statement in replOutputs" :key="statement.id">
-      <p class="repl-print-code">> {{ statement.code }}</p>
-      <p v-if="statement.printOutput?.ok === true && statement.printOutput.output.length > 0" class="repl-print-output">
+      <p class="repl-print-code" :class="{ 'repl-print-code-pending': statement.printOutput?.pending }">{{
+        statement.printOutput?.pending ? '...' : '>' }} {{ statement.code }}</p>
+      <p v-if="statement.printOutput?.ok === true && !statement.printOutput?.pending && statement.printOutput.output.length > 0"
+        class="repl-print-output">
         {{ statement.printOutput.output }}</p>
       <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
         statement.printOutput.error
-        }}</p>
+      }}</p>
     </div>
   </div>
   <div class="bottom-row-container">
@@ -51,6 +53,10 @@ const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProp
 .repl-print-code {
   color: var(--sky-200);
   font-size: 1rem;
+}
+
+.repl-print-code-pending {
+  color: var(--sky-500);
 }
 
 .repl-print-output {
