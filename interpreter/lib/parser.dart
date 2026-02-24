@@ -57,6 +57,7 @@ class Parser {
           TokenType.ifKeyword,
           TokenType.endKeyword,
           TokenType.remKeyword,
+          TokenType.forKeyword,
         ]),
       ),
     };
