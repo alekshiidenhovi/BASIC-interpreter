@@ -144,6 +144,10 @@ class TypeChecker {
         TypedStringConstantExpression(expression.value),
         BasicType.string,
       ),
+      BooleanConstantExpression() => (
+        TypedBooleanConstantExpression(expression.value),
+        BasicType.boolean,
+      ),
       IdentifierConstantExpression() => inferIdentifier(expression),
       UnaryExpression() => inferUnary(expression),
       BinaryExpression() => inferBinary(expression),

@@ -165,6 +165,8 @@ class Lexer {
         "STEP" => StepKeywordToken(),
         "NEXT" => NextKeywordToken(),
         "REM" => RemKeywordToken(),
+        "TRUE" => TrueKeywordToken(),
+        "FALSE" => FalseKeywordToken(),
         _ => IdentifierToken(uppercaseStr),
       };
       _position += uppercaseStr.length;

@@ -220,6 +220,7 @@ class Parser {
       TokenType.integerLiteral => parseIntegerFactor(),
       TokenType.floatingPointLiteral => parseFloatingPointFactor(),
       TokenType.stringLiteral => parseStringFactor(),
+      TokenType.trueKeyword || TokenType.falseKeyword => parseBooleanFactor(),
       TokenType.identifier => parseIdentifierFactor(),
       TokenType.minus => parseUnaryFactor(),
       TokenType.openParen => parseParenthesizedExpression(),
@@ -280,6 +281,22 @@ class Parser {
         position,
         token.kind(),
         TokenTypeOptionOne(TokenType.stringLiteral),
+      ),
+    };
+  }
+
+  /// Parses a boolean constant expression.
+  ///
+  /// Expects a boolean token and returns a [BooleanConstantExpression] representing the parsed token.
+  BooleanConstantExpression parseBooleanFactor() {
+    final token = consumeToken();
+    return switch (token) {
+      TrueKeywordToken() => BooleanConstantExpression(true),
+      FalseKeywordToken() => BooleanConstantExpression(false),
+      _ => throw UnexpectedTokenError(
+        position,
+        token.kind(),
+        TokenTypeOptionMany([TokenType.trueKeyword, TokenType.falseKeyword]),
       ),
     };
   }

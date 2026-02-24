@@ -61,6 +61,21 @@ class TypedStringConstantExpression extends TypedExpression<String> {
   String evaluate(Context context) => value;
 }
 
+/// Represents a typed boolean constant expression.
+class TypedBooleanConstantExpression extends TypedExpression<bool> {
+  /// The boolean value of this constant.
+  final bool value;
+
+  /// Creates a new [TypedBooleanConstantExpression] with the given [value].
+  const TypedBooleanConstantExpression(this.value);
+
+  @override
+  String toString() => "(TYPED_BOOLEAN_CONSTANT_EXPRESSION $value)";
+
+  @override
+  bool evaluate(Context context) => value;
+}
+
 /// Represents a typed constant identifier expression.
 ///
 /// This expression evaluates to the value associated with the [identifier]

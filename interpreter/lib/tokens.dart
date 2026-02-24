@@ -21,6 +21,8 @@ enum TokenType {
   divide,
   caret,
   notEqual,
+  trueKeyword,
+  falseKeyword,
   letKeyword,
   printKeyword,
   forKeyword,
@@ -59,6 +61,8 @@ sealed class Token {
     DivideToken() => "DivideToken",
     CaretToken() => "CaretToken",
     NotEqualToken() => "NotEqualToken",
+    TrueKeywordToken() => "TrueKeywordToken",
+    FalseKeywordToken() => "FalseKeywordToken",
     LetKeywordToken() => "LetKeywordToken",
     PrintKeywordToken() => "PrintKeywordToken",
     ForKeywordToken() => "ForKeywordToken",
@@ -94,6 +98,8 @@ sealed class Token {
     DivideToken() => TokenType.divide,
     CaretToken() => TokenType.caret,
     NotEqualToken() => TokenType.notEqual,
+    TrueKeywordToken() => TokenType.trueKeyword,
+    FalseKeywordToken() => TokenType.falseKeyword,
     LetKeywordToken() => TokenType.letKeyword,
     PrintKeywordToken() => TokenType.printKeyword,
     ForKeywordToken() => TokenType.forKeyword,
@@ -215,6 +221,12 @@ final class CaretToken extends Token {}
 
 /// Represents a not equal token.
 final class NotEqualToken extends Token {}
+
+/// Represents a true keyword token.
+final class TrueKeywordToken extends Token {}
+
+/// Represents a false keyword token.
+final class FalseKeywordToken extends Token {}
 
 /// Represents a let keyword token.
 final class LetKeywordToken extends Token {}

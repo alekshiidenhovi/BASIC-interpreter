@@ -43,6 +43,18 @@ class StringConstantExpression extends Expression {
   String toString() => "(STRING_CONSTANT_EXPRESSION $value)";
 }
 
+/// Represents an untyped boolean constant expression.
+class BooleanConstantExpression extends Expression {
+  /// The boolean value of this constant.
+  final bool value;
+
+  /// Creates a new [BooleanConstantExpression] with the given [value].
+  const BooleanConstantExpression(this.value);
+
+  @override
+  String toString() => "(BOOLEAN_CONSTANT_EXPRESSION $value)";
+}
+
 /// Represents an untyped constant identifier expression.
 class IdentifierConstantExpression extends Expression {
   /// The name of the identifier.
