@@ -73,6 +73,18 @@ class Interpreter {
       outputLines.add(output);
       return PostStatementAction.continueProgram;
 
+      /// FOR
+    } else if (statement is TypedForStatement) {
+      final startValue = statement.start.evaluate(_context);
+      final endValue = statement.end.evaluate(_context);
+      final stepValue = statement.step.evaluate(_context);
+      for (var i = startValue; i <= endValue; i += stepValue) {
+        _context.setVariable(statement.loopVariableName, i);
+        _executeStatement(statement.body, outputLines);
+      }
+      statement.execute(_context);
+      return PostStatementAction.continueProgram;
+
       /// LET
     } else if (statement is TypedLetStatement) {
       statement.execute(_context);

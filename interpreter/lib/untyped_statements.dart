@@ -51,6 +51,39 @@ class IfStatement<T> extends Statement {
   String toString() => "IF_STATEMENT $condition $thenStatement";
 }
 
+/// A statement, which executes a block of statements repeatedly.
+class ForStatement<T> extends Statement<void> {
+  /// The identifier of the variable to assign.
+  final String loopVariableName;
+
+  /// The expression whose evaluation will determine the start value of the loop.
+  final Expression start;
+
+  /// The expression whose evaluation will determine the end value of the loop.
+  final Expression end;
+
+  /// The expression whose evaluation will determine the step value of the loop.
+  final Expression step;
+
+  /// The statement to execute for each iteration of the loop.
+  final Statement<T> body;
+
+  /// Creates a new [ForStatement].
+  ///
+  /// Requires the [identifier] to assign to and the [expression] to evaluate.
+  ForStatement(
+    this.loopVariableName,
+    this.start,
+    this.end,
+    this.step,
+    this.body,
+  );
+
+  @override
+  String toString() =>
+      "FOR_STATEMENT $loopVariableName = $start TO $end STEP $step (BODY: $body)";
+}
+
 /// A statement, which unconditionally ends the program.
 class EndStatement extends Statement<void> {
   /// Creates a new [EndStatement].

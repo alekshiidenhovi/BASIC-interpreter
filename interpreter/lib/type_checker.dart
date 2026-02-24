@@ -53,6 +53,7 @@ class TypeChecker {
       LetStatement() => checkLetStatement(statement),
       PrintStatement() => checkPrintStatement(statement),
       IfStatement() => checkIfStatement(statement),
+      ForStatement() => checkForStatement(statement),
       EndStatement() => TypedEndStatement(),
       RemarkStatement() => TypedRemarkStatement(),
     };
@@ -85,6 +86,47 @@ class TypeChecker {
     }
     final typedThen = checkStatement(statement.thenStatement);
     return TypedIfStatement(typedCondition as TypedExpression<bool>, typedThen);
+  }
+
+  /// Type checks a FOR statement and returns a typed version of it.
+  TypedForStatement checkForStatement(ForStatement statement) {
+    final (typedStartValue, startType) = inferExpression(statement.start);
+    final (typedEndValue, endType) = inferExpression(statement.end);
+    final (typedStepValue, stepType) = inferExpression(statement.step);
+
+    if (startType != BasicType.integer) {
+      throw NonMatchingTypeError(
+        getStatementIndex(),
+        BasicTypeOptionOne(BasicType.integer),
+        startType,
+      );
+    }
+
+    if (endType != BasicType.integer) {
+      throw NonMatchingTypeError(
+        getStatementIndex(),
+        BasicTypeOptionOne(BasicType.integer),
+        endType,
+      );
+    }
+
+    if (stepType != BasicType.integer) {
+      throw NonMatchingTypeError(
+        getStatementIndex(),
+        BasicTypeOptionOne(BasicType.integer),
+        stepType,
+      );
+    }
+
+    _symbols.declare(statement.loopVariableName, BasicType.integer);
+    final typedBody = checkStatement(statement.body);
+    return TypedForStatement(
+      statement.loopVariableName,
+      typedStartValue as TypedExpression<int>,
+      typedEndValue as TypedExpression<int>,
+      typedStepValue as TypedExpression<int>,
+      typedBody,
+    );
   }
 
   /// Infers the type of an expression and returns a typed version of it.

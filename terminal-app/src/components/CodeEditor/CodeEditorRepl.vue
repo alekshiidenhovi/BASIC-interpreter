@@ -7,22 +7,25 @@ interface Props {
   replOutputs: Statement[]
   resetReplContext: () => void
   handleReplInput: (event: InputEvent) => void
+  clientIsPending: boolean
 }
 
-const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProps<Props>();
+const { replInput, replOutputs, resetReplContext, handleReplInput, clientIsPending } = defineProps<Props>();
 </script>
 
 <template>
   <div class="repl-print-container">
-    <div class="repl-print-line-container" v-for="statement in replOutputs" :key="statement.id">
-      <p class="repl-print-code" :class="{ 'repl-print-code-pending': statement.printOutput?.pending }">{{
-        statement.printOutput?.pending ? '...' : '>' }} {{ statement.code }}</p>
+    <div class="repl-print-line-container" v-for="(statement, index) in replOutputs" :key="statement.id">
+      <p class="repl-print-code" :class="{ 'repl-print-code-pending': statement.submittedWhilePending }">{{
+        statement.submittedWhilePending ? '...' : '>' }} {{ statement.code }}</p>
       <p v-if="statement.printOutput?.ok === true && !statement.printOutput?.pending && statement.printOutput.output.length > 0"
         class="repl-print-output">
         {{ statement.printOutput.output }}</p>
       <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
         statement.printOutput.error
-      }}</p>
+        }}</p>
+      <p v-if="clientIsPending && index == replOutputs.length - 1" class="repl-print-code repl-print-code-pending">...
+      </p>
     </div>
   </div>
   <div class="bottom-row-container">
@@ -56,7 +59,7 @@ const { replInput, replOutputs, resetReplContext, handleReplInput } = defineProp
 }
 
 .repl-print-code-pending {
-  color: var(--sky-500);
+  color: var(--sky-300);
 }
 
 .repl-print-output {

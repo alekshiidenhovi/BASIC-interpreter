@@ -101,6 +101,23 @@ class UnexpectedEndOfInputError extends ParserError {
       );
 }
 
+class NonMatchingIdentifierError extends ParserError {
+  final String expectedIdentifier;
+
+  final String actualIdentifier;
+
+  /// Creates a new [NonMatchingIdentifierError].
+  NonMatchingIdentifierError(
+    int tokenNumber,
+    this.expectedIdentifier,
+    this.actualIdentifier,
+  ) : super(
+        "Non-matching identifier error",
+        "expected identifier $expectedIdentifier, got $actualIdentifier",
+        tokenNumber,
+      );
+}
+
 /// Generic error that occurs during lexing.
 ///
 /// This class serves as a base for all specific lexer errors, providing common

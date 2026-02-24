@@ -13,6 +13,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const clientIsPending = ref<boolean>(false);
 
 const initStarterCode = (): Statement[] => {
   if (props.starterCode) {
@@ -74,19 +75,25 @@ const runCode = () => {
 }
 
 const executeReplCommand = () => {
-  const codeInput = replInput.value;
-  const inputId = window.crypto.randomUUID();
+  const code = replInput.value;
+  const id = window.crypto.randomUUID();
 
   if (!window.interpretReplLine) {
     throw new Error("Interpreter not loaded");
   }
 
   replInput.value = "";
-  const result = window.interpretReplLine(codeInput);
+
+  const submittedWhilePending = clientIsPending.value;
+  const result = window.interpretReplLine(code);
+
+  clientIsPending.value = result.ok === true && result.pending === true;
+
   replOutputs.value.push({
-    id: inputId,
-    code: codeInput,
+    id,
+    code,
     printOutput: result,
+    submittedWhilePending
   });
 
 }
@@ -109,6 +116,7 @@ const resetReplContext = () => {
   window.resetReplContext();
   replOutputs.value = [];
   replInput.value = "";
+  clientIsPending.value = false;
 
   focusReplInput();
 }
@@ -258,7 +266,7 @@ onUnmounted(() => {
       :toggleInterpreterOutputMode="toggleInterpreterOutputMode" :updateCode="updateCode" :runCode="runCode"
       :statements="statements" :programResults="programResults" />
     <CodeEditorRepl v-if="selectedMode === 'repl'" :replOutputs="replOutputs" :replInput="replInput"
-      :resetReplContext="resetReplContext" :handleReplInput="handleReplInput" />
+      :resetReplContext="resetReplContext" :handleReplInput="handleReplInput" :clientIsPending="clientIsPending" />
   </div>
 </template>
 

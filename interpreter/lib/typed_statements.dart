@@ -72,6 +72,44 @@ class TypedIfStatement<T> extends TypedStatement {
   }
 }
 
+/// A statement, which executes a block of statements repeatedly.
+class TypedForStatement<T> extends TypedStatement<void> {
+  /// The identifier of the variable to assign.
+  final String loopVariableName;
+
+  /// The expression whose evaluation will determine the start value of the loop.
+  final TypedExpression<int> start;
+
+  /// The expression whose evaluation will determine the end value of the loop.
+  final TypedExpression<int> end;
+
+  /// The expression whose evaluation will determine the step value of the loop.
+  final TypedExpression<int> step;
+
+  /// The statement to execute for each iteration of the loop.
+  final TypedStatement<T> body;
+
+  /// Creates a new [TypedForStatement].
+  ///
+  /// Requires the [identifier] to assign to and the [expression] to evaluate.
+  TypedForStatement(
+    this.loopVariableName,
+    this.start,
+    this.end,
+    this.step,
+    this.body,
+  );
+
+  @override
+  String toString() =>
+      "TYPED_FOR_STATEMENT $loopVariableName = $start TO $end STEP $step (BODY: $body)";
+
+  @override
+  void execute(Context context) {
+    throw Exception("Execute method should not be called for FOR statements");
+  }
+}
+
 /// A statement, which unconditionally ends the program.
 class TypedEndStatement extends TypedStatement<void> {
   /// Creates a new [TypedEndStatement].
@@ -82,7 +120,7 @@ class TypedEndStatement extends TypedStatement<void> {
 
   @override
   void execute(Context context) {
-    throw Exception("END statement reached!");
+    throw Exception("Execute method should not be called for END statements");
   }
 }
 

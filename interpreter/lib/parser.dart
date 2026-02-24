@@ -47,6 +47,7 @@ class Parser {
       IfKeywordToken() => parseIfStatement(),
       EndKeywordToken() => parseEndStatement(),
       RemKeywordToken() => parseRemarkStatement(),
+      ForKeywordToken() => parseForStatement(),
       _ => throw UnexpectedTokenError(
         position,
         keywordToken.kind(),
@@ -135,6 +136,49 @@ class Parser {
       consumeToken();
     }
     return RemarkStatement();
+  }
+
+  /// Parses a FOR statement.
+  ///
+  /// For statements have three constructs: the for line, the body, and the next line.
+  /// Returns a [ForStatement] representing the parsed statement.
+  Statement parseForStatement() {
+    expectToken(TokenType.forKeyword);
+    final variableName = expectToken(TokenType.identifier);
+    expectToken(TokenType.equals);
+    final startValue = parseExpression(0);
+    expectToken(TokenType.toKeyword);
+    final endValue = parseExpression(0);
+
+    final potentialStepToken = peekToken();
+    Expression stepValue = IntegerConstantExpression(1); // Default step value
+    if (potentialStepToken.kind() == TokenType.stepKeyword) {
+      consumeToken();
+      stepValue = parseExpression(0);
+      expectToken(TokenType.endOfLine);
+    } else {
+      expectToken(TokenType.endOfLine);
+    }
+
+    final body = parseStatement();
+    expectToken(TokenType.endOfLine);
+
+    expectToken(TokenType.nextKeyword);
+    final repeatVariable = expectToken(TokenType.identifier);
+    if (repeatVariable.name != variableName.name) {
+      throw NonMatchingIdentifierError(
+        position,
+        variableName.name,
+        repeatVariable.name,
+      );
+    }
+    return ForStatement(
+      variableName.name,
+      startValue,
+      endValue,
+      stepValue,
+      body,
+    );
   }
 
   /// Parses an expression from the token stream,

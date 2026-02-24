@@ -31,6 +31,7 @@ type Statement = {
   id: string
   code: string
   printOutput?: ReplResponseResult<string[]>
+  submittedWhilePending?: boolean
 }
 
 
