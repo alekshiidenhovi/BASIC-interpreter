@@ -23,7 +23,7 @@ const { replInput, replOutputs, resetReplContext, handleReplInput, clientIsPendi
         {{ statement.printOutput.output }}</p>
       <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
         statement.printOutput.error
-        }}</p>
+      }}</p>
       <p v-if="clientIsPending && index == replOutputs.length - 1" class="repl-print-code repl-print-code-pending">...
       </p>
     </div>
@@ -91,6 +91,7 @@ const { replInput, replOutputs, resetReplContext, handleReplInput, clientIsPendi
   font-size: inherit;
   outline: none;
   text-transform: uppercase;
+  flex-grow: 1;
 }
 
 .bottom-row-container {
