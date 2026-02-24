@@ -24,7 +24,9 @@ const { replInput, replOutputs, resetReplContext, handleReplInput, clientIsPendi
       <p v-if="statement.printOutput?.ok === false" class="repl-print-output repl-print-line-error">{{
         statement.printOutput.error
       }}</p>
-      <p v-if="clientIsPending && index == replOutputs.length - 1" class="repl-print-code repl-print-code-pending">...
+    </div>
+    <div class="repl-print-line-container">
+      <p v-if="clientIsPending" class="repl-print-code repl-print-code-pending">...
       </p>
     </div>
   </div>
