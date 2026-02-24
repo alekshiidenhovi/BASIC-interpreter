@@ -144,7 +144,7 @@ class Parser {
   /// Returns a [ForStatement] representing the parsed statement.
   Statement parseForStatement() {
     expectToken(TokenType.forKeyword);
-    final variableName = expectToken(TokenType.identifier);
+    final variableName = parseIdentifierFactor();
     expectToken(TokenType.equals);
     final startValue = parseExpression(0);
     expectToken(TokenType.toKeyword);
@@ -164,16 +164,16 @@ class Parser {
     expectToken(TokenType.endOfLine);
 
     expectToken(TokenType.nextKeyword);
-    final repeatVariable = expectToken(TokenType.identifier);
-    if (repeatVariable.name != variableName.name) {
+    final repeatVariable = parseIdentifierFactor();
+    if (repeatVariable.identifier != variableName.identifier) {
       throw NonMatchingIdentifierError(
         position,
-        variableName.name,
-        repeatVariable.name,
+        variableName.identifier,
+        repeatVariable.identifier,
       );
     }
     return ForStatement(
-      variableName.name,
+      variableName.identifier,
       startValue,
       endValue,
       stepValue,
