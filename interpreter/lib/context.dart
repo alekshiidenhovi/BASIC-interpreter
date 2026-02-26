@@ -78,25 +78,8 @@ class Context {
     throw MissingIdentifierError(_statementIndex, identifier);
   }
 
-  T evaluateFunction<T>(String identifier, List<Object> argValues) {
-    final funcDef = _lookupFunction(identifier);
-    if (funcDef == null) {
-      throw MissingIdentifierError(_statementIndex, identifier);
-    }
-    final (argNames, body) = funcDef;
-
-    _variables.push(Scope());
-    try {
-      for (var i = 0; i < argNames.length; i++) {
-        _variables.peek.declare(argNames[i], argValues[i]);
-      }
-      return body.evaluate(this) as T;
-    } finally {
-      _variables.pop();
-    }
-  }
-
-  (List<String>, TypedExpression)? _lookupFunction(String identifier) {
+  /// Returns the value of a function in the context from the innermost scope.
+  (List<String>, TypedExpression)? lookupFunction(String identifier) {
     for (final scope in _functions.topToBottom) {
       final value = scope.lookup(identifier);
       if (value != null) return value;

@@ -116,7 +116,20 @@ class TypedFunctionCallExpression<T> extends TypedExpression<T> {
     final argValues = arguments
         .map((arg) => arg.evaluate(context) as Object)
         .toList();
-    return context.evaluateFunction<T>(identifier, argValues);
+    final funcDef = context.lookupFunction(identifier);
+    if (funcDef == null) {
+      throw MissingIdentifierError(context.getStatementCount(), identifier);
+    }
+    final (argNames, body) = funcDef;
+    context.createNewScope();
+    try {
+      for (var i = 0; i < argNames.length; i++) {
+        context.declareVariable(argNames[i], argValues[i]);
+      }
+      return body.evaluate(context) as T;
+    } finally {
+      context.removeTopScope();
+    }
   }
 }
 
