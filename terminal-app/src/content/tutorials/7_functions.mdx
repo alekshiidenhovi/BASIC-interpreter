@@ -13,11 +13,11 @@ import CodeBlock from "../../components/CodeBlock.vue";
 
 <p>Typical BASIC allows you to define your own reusable functions using the DEF FN statement. A function takes a parameter, evaluates a single expression using it, and returns the result. The syntax for defining a function is the following:</p>
 
-<CodeBlock client:load code="DEF <name>(<parameter>) = <expression>" />
+<CodeBlock client:load code="DEF <name>(...<parameters>) = <expression>" />
 
 <p>Once defined, a function can be called anywhere an expression is expected by using the FN keyword followed by the function name and an argument:</p>
 
-<CodeBlock client:load code="<name>(<argument>)" />
+<CodeBlock client:load code="<name>(...<arguments>)" />
 
 <p>For example, the following defines a function that computes the square of a number and then calls it:</p>
 
