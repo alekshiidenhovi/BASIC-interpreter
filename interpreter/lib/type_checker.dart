@@ -19,6 +19,7 @@ class TypeCheckerContext {
   TypeCheckerContext() {
     _variables.push(Scope());
     _functions.push(Scope());
+    _registerBuiltinFunctions();
   }
 
   /// Adds a new scope to the stack.
@@ -59,6 +60,11 @@ class TypeCheckerContext {
       if (type != null) return type;
     }
     return null;
+  }
+
+  /// Registers built-in functions.
+  void _registerBuiltinFunctions() {
+    declareFunction("SQR", BasicType.double);
   }
 }
 
@@ -163,7 +169,10 @@ class TypeChecker {
       );
     }
 
-    _typeCheckerContext.declareVariable(statement.loopVariableName, BasicType.integer);
+    _typeCheckerContext.declareVariable(
+      statement.loopVariableName,
+      BasicType.integer,
+    );
     final typedBody = checkStatement(statement.body);
     return TypedForStatement(
       statement.loopVariableName,
@@ -180,7 +189,10 @@ class TypeChecker {
   ) {
     _typeCheckerContext.createNewScope();
     for (final arg in statement.arguments) {
-      _typeCheckerContext.declareVariable(arg, BasicType.integer); // Only integers are supported for now
+      _typeCheckerContext.declareVariable(
+        arg,
+        BasicType.double,
+      ); // Only floats are supported for now
     }
     final (typedBody, bodyType) = inferExpression(statement.body);
     _typeCheckerContext.removeTopScope();
@@ -252,7 +264,9 @@ class TypeChecker {
   (TypedFunctionCallExpression, BasicType) inferFunctionCall(
     FunctionCallExpression expression,
   ) {
-    final returnType = _typeCheckerContext.lookupFunction(expression.identifier);
+    final returnType = _typeCheckerContext.lookupFunction(
+      expression.identifier,
+    );
     if (returnType == null) {
       throw MissingIdentifierError(_getStatementIndex(), expression.identifier);
     }
@@ -261,31 +275,19 @@ class TypeChecker {
         .toList();
     return switch (returnType) {
       BasicType.integer => (
-        TypedFunctionCallExpression(
-          expression.identifier,
-          typedAttributes,
-        ),
+        TypedFunctionCallExpression(expression.identifier, typedAttributes),
         BasicType.integer,
       ),
       BasicType.double => (
-        TypedFunctionCallExpression(
-          expression.identifier,
-          typedAttributes,
-        ),
+        TypedFunctionCallExpression(expression.identifier, typedAttributes),
         BasicType.double,
       ),
       BasicType.string => (
-        TypedFunctionCallExpression(
-          expression.identifier,
-          typedAttributes,
-        ),
+        TypedFunctionCallExpression(expression.identifier, typedAttributes),
         BasicType.string,
       ),
       BasicType.boolean => (
-        TypedFunctionCallExpression(
-          expression.identifier,
-          typedAttributes,
-        ),
+        TypedFunctionCallExpression(expression.identifier, typedAttributes),
         BasicType.boolean,
       ),
     };
@@ -366,14 +368,7 @@ class TypeChecker {
         lhsType,
       ),
     };
-    return (
-      TypedArithmeticExpression(
-        lhs,
-        rhs,
-        operator,
-      ),
-      returnType,
-    );
+    return (TypedArithmeticExpression(lhs, rhs, operator), returnType);
   }
 
   /// Infers the type of a comparison expression.
@@ -401,13 +396,6 @@ class TypeChecker {
         lhsType,
       ),
     };
-    return (
-      TypedComparisonExpression(
-        lhs,
-        rhs,
-        operator,
-      ),
-      returnType,
-    );
+    return (TypedComparisonExpression(lhs, rhs, operator), returnType);
   }
 }

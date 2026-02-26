@@ -307,3 +307,19 @@ class DivisionByZeroError extends InterpretationError {
         lineNumber,
       );
 }
+
+/// Represents an error when a negative square root is encountered during expression evaluation.
+///
+/// This error is raised when an attempt is made to take the square root of a negative number.
+class NegativeSquareRootError extends InterpretationError {
+  /// The negative number that could not be evaluated.
+  final double negativeNumber;
+
+  /// Creates a new [NegativeSquareRootError].
+  NegativeSquareRootError(int lineNumber, this.negativeNumber)
+    : super(
+        "Negative square root",
+        "square root of negative number $negativeNumber",
+        lineNumber,
+      );
+}
