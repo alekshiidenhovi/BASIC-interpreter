@@ -1,3 +1,4 @@
+import "errors.dart";
 import "operators.dart";
 import "context.dart";
 import "dart:math";
@@ -230,4 +231,18 @@ class TypedArithmeticExpression extends TypedExpression<num> {
       ArithmeticOperator.exp => pow(leftValue, rightValue),
     };
   }
+}
+
+/// Represents a typed expression executed in native Dart code.
+class TypedNativeExpression<T> extends TypedExpression<T> {
+  final T Function(Context) _fn;
+
+  /// Creates a new [TypedNativeExpression] with the given [_fn].
+  const TypedNativeExpression(this._fn);
+
+  @override
+  String toString() => "(TYPED_NATIVE_EXPRESSION $_fn)";
+
+  @override
+  T evaluate(Context context) => _fn(context);
 }
