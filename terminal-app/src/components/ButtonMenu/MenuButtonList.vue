@@ -78,5 +78,6 @@ onMounted(() => {
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  overflow-y: auto;
 }
 </style>
