@@ -1,0 +1,26 @@
+---
+title: FOR loops
+index: 6
+starterCode:
+  - "REM 7 TIMES TABLE"
+  - "LET N = 7"
+  - "REM ADD YOUR FOR LOOP HERE"
+  - "END"
+---
+import CodeBlock from "../../components/CodeBlock.vue";
+
+<p>Typical BASIC supports looping through a range of values using the FOR loop. A FOR loop repeats a block of statements a fixed number of times, incrementing a variable with each iteration. The syntax for a FOR loop is the following:</p>
+
+<CodeBlock client:load code={"FOR <variable> = <start> TO <end>\n  <statements>\nNEXT <variable>"} />
+
+<p>The loop begins by assigning the <strong>start</strong> value to the given variable. The block of statements is then executed repeatedly until the variable exceeds the <strong>end</strong> value. After each iteration, the variable is automatically incremented by 1. The NEXT keyword marks the end of the loop body and signals the interpreter to increment the variable and check the loop condition again.</p>
+
+<p>For example, the following program prints the numbers 1 through 5:</p>
+
+<CodeBlock client:load code={"FOR I = 1 TO 5\n  PRINT I\nNEXT I"} />
+
+<p>You can also control the increment step using the optional STEP keyword. By default, the step is 1, but you can specify any numeric value, including negative numbers to count downwards:</p>
+
+<CodeBlock client:load code={"FOR I = 10 TO 1 STEP -2\n  PRINT I\nNEXT I"} />
+
+<p>The code in the editor has a variable N set to 7. Write a FOR loop that prints the first 10 multiples of N, that is N*1, N*2, all the way through N*10. When the program is correct, the output should start with 7 and end with <strong>70</strong>.</p>
