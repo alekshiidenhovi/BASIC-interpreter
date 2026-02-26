@@ -91,7 +91,33 @@ class TypedIdentifierConstantExpression<T> extends TypedExpression<T> {
   String toString() => "(TYPED_IDENTIFIER_CONSTANT_EXPRESSION $identifier)";
 
   @override
-  T evaluate(Context context) => context.getVariable<T>(identifier);
+  T evaluate(Context context) => context.lookupVariable<T>(identifier);
+}
+
+/// Represents a typed function call expression.
+///
+/// This expression evaluates to the result of calling the function with the given [identifier] and [arguments].
+class TypedFunctionCallExpression<T> extends TypedExpression<T> {
+  /// The name of the function to call.
+  final String identifier;
+
+  /// The arguments of the function call.
+  final List<TypedExpression> arguments;
+
+  /// Creates a new [TypedFunctionCallExpression] with the given [identifier] and [arguments].
+  const TypedFunctionCallExpression(this.identifier, this.arguments);
+
+  @override
+  String toString() =>
+      "(TYPED_FUNCTION_CALL_EXPRESSION $identifier $arguments)";
+
+  @override
+  T evaluate(Context context) {
+    final argValues = arguments
+        .map((arg) => arg.evaluate(context) as Object)
+        .toList();
+    return context.evaluateFunction<T>(identifier, argValues);
+  }
 }
 
 /// Represents a typed unary expression.
@@ -126,10 +152,10 @@ class TypedUnaryExpression extends TypedExpression<num> {
 /// satisfy the given [operator].
 class TypedComparisonExpression extends TypedExpression<bool> {
   /// The left-hand side of the comparison.
-  final TypedExpression<num> lhs;
+  final TypedExpression lhs;
 
   /// The right-hand side of the comparison.
-  final TypedExpression<num> rhs;
+  final TypedExpression rhs;
 
   /// The comparison operator to apply to the [lhs] and [rhs].
   final ComparisonOperator operator;
@@ -143,8 +169,8 @@ class TypedComparisonExpression extends TypedExpression<bool> {
 
   @override
   bool evaluate(Context context) {
-    final leftValue = lhs.evaluate(context);
-    final rightValue = rhs.evaluate(context);
+    final leftValue = lhs.evaluate(context) as num;
+    final rightValue = rhs.evaluate(context) as num;
 
     return switch (operator) {
       ComparisonOperator.eq => leftValue == rightValue,
@@ -163,10 +189,10 @@ class TypedComparisonExpression extends TypedExpression<bool> {
 /// satisfy the given [operator].
 class TypedArithmeticExpression extends TypedExpression<num> {
   /// The left-hand side of the arithmetic operation.
-  final TypedExpression<num> lhs;
+  final TypedExpression lhs;
 
   /// The right-hand side of the arithmetic operation.
-  final TypedExpression<num> rhs;
+  final TypedExpression rhs;
 
   /// The comparison operator to apply to the [lhs] and [rhs].
   final ArithmeticOperator operator;
@@ -180,8 +206,8 @@ class TypedArithmeticExpression extends TypedExpression<num> {
 
   @override
   num evaluate(Context context) {
-    final leftValue = lhs.evaluate(context);
-    final rightValue = rhs.evaluate(context);
+    final leftValue = lhs.evaluate(context) as num;
+    final rightValue = rhs.evaluate(context) as num;
 
     return switch (operator) {
       ArithmeticOperator.add => leftValue + rightValue,

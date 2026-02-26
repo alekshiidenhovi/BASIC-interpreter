@@ -1,4 +1,5 @@
 import "errors.dart";
+import "data_structures.dart";
 import "operators.dart";
 import "typed_expressions.dart";
 import "typed_statements.dart";
@@ -8,16 +9,37 @@ import "untyped_statements.dart";
 
 /// Stores the type of each variable in the program.
 class IdentifierTypeTable {
-  /// Maps variable names to their types.
-  final Map<String, BasicType> _types = {};
+  /// Stores variables in different scopes.
+  final Stack<Scope<BasicType>> _scopes = Stack();
+
+  /// Default [IdentifierTypeTable] constructor, initializes the stack with global scope.
+  IdentifierTypeTable() {
+    _scopes.push(Scope());
+  }
+
+  /// Adds a new scope to the stack.
+  void createNewScope() {
+    _scopes.push(Scope());
+  }
+
+  /// Removes the top scope from the stack.
+  Scope<BasicType> removeTopScope() {
+    return _scopes.pop();
+  }
 
   /// Declares a variable with the given [identifier] and [type].
   void declare(String identifier, BasicType type) {
-    _types[identifier] = type;
+    _scopes.peek.declare(identifier, type);
   }
 
   /// Returns the type of the variable with the given [identifier].
-  BasicType? lookup(String identifier) => _types[identifier];
+  BasicType? lookup(String identifier) {
+    for (final scope in _scopes.topToBottom) {
+      final type = scope.lookup(identifier);
+      if (type != null) return type;
+    }
+    return null;
+  }
 }
 
 /// Checks the types of the program statements.
@@ -31,10 +53,10 @@ class TypeChecker {
   int _statementIndex = 0;
 
   /// Increments the current statement index by one.
-  void incrementStatementIndex() => _statementIndex++;
+  void _incrementStatementIndex() => _statementIndex++;
 
   /// Gets the current statement index.
-  int getStatementIndex() => _statementIndex;
+  int _getStatementIndex() => _statementIndex;
 
   /// Entry point function that walks iterates over the untyped statements and returns typed ones.
   List<TypedStatement> check(List<Statement> statements) {
@@ -42,7 +64,7 @@ class TypeChecker {
     for (final statement in statements) {
       final typed = checkStatement(statement);
       result.add(typed);
-      incrementStatementIndex();
+      _incrementStatementIndex();
     }
     return result;
   }
@@ -54,6 +76,9 @@ class TypeChecker {
       PrintStatement() => checkPrintStatement(statement),
       IfStatement() => checkIfStatement(statement),
       ForStatement() => checkForStatement(statement),
+      FunctionDeclarationStatement() => checkFunctionDeclarationStatement(
+        statement,
+      ),
       EndStatement() => TypedEndStatement(),
       RemarkStatement() => TypedRemarkStatement(),
     };
@@ -79,7 +104,7 @@ class TypeChecker {
     final (typedCondition, condType) = inferExpression(statement.condition);
     if (condType != BasicType.boolean) {
       throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionOne(BasicType.boolean),
         condType,
       );
@@ -96,7 +121,7 @@ class TypeChecker {
 
     if (startType != BasicType.integer) {
       throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionOne(BasicType.integer),
         startType,
       );
@@ -104,7 +129,7 @@ class TypeChecker {
 
     if (endType != BasicType.integer) {
       throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionOne(BasicType.integer),
         endType,
       );
@@ -112,7 +137,7 @@ class TypeChecker {
 
     if (stepType != BasicType.integer) {
       throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionOne(BasicType.integer),
         stepType,
       );
@@ -125,6 +150,24 @@ class TypeChecker {
       typedStartValue as TypedExpression<int>,
       typedEndValue as TypedExpression<int>,
       typedStepValue as TypedExpression<int>,
+      typedBody,
+    );
+  }
+
+  /// Type checks a function declaration statement and returns a typed version of it.
+  TypedFunctionDeclarationStatement checkFunctionDeclarationStatement(
+    FunctionDeclarationStatement statement,
+  ) {
+    _symbols.createNewScope();
+    for (final arg in statement.arguments) {
+      _symbols.declare(arg, BasicType.integer); // Only integers are supported for now
+    }
+    final (typedBody, bodyType) = inferExpression(statement.body);
+    _symbols.removeTopScope();
+    _symbols.declare(statement.identifier, bodyType);
+    return TypedFunctionDeclarationStatement(
+      statement.identifier,
+      statement.arguments,
       typedBody,
     );
   }
@@ -149,6 +192,7 @@ class TypeChecker {
         BasicType.boolean,
       ),
       IdentifierConstantExpression() => inferIdentifier(expression),
+      FunctionCallExpression() => inferFunctionCall(expression),
       UnaryExpression() => inferUnary(expression),
       BinaryExpression() => inferBinary(expression),
     };
@@ -160,7 +204,7 @@ class TypeChecker {
   ) {
     final type = _symbols.lookup(expression.identifier);
     if (type == null) {
-      throw MissingIdentifierError(getStatementIndex(), expression.identifier);
+      throw MissingIdentifierError(_getStatementIndex(), expression.identifier);
     }
     return switch (type) {
       BasicType.integer => (
@@ -177,6 +221,51 @@ class TypeChecker {
       ),
       BasicType.boolean => (
         TypedIdentifierConstantExpression<bool>(expression.identifier),
+        BasicType.boolean,
+      ),
+    };
+  }
+
+  /// Infers the type of a function call expression.
+  ///
+  /// Looks up the function's return type in the symbol table and type-checks the arguments.
+  (TypedFunctionCallExpression, BasicType) inferFunctionCall(
+    FunctionCallExpression expression,
+  ) {
+    final returnType = _symbols.lookup(expression.identifier);
+    if (returnType == null) {
+      throw MissingIdentifierError(_getStatementIndex(), expression.identifier);
+    }
+    final typedAttributes = expression.arguments
+        .map((arg) => inferExpression(arg).$1)
+        .toList();
+    return switch (returnType) {
+      BasicType.integer => (
+        TypedFunctionCallExpression(
+          expression.identifier,
+          typedAttributes,
+        ),
+        BasicType.integer,
+      ),
+      BasicType.double => (
+        TypedFunctionCallExpression(
+          expression.identifier,
+          typedAttributes,
+        ),
+        BasicType.double,
+      ),
+      BasicType.string => (
+        TypedFunctionCallExpression(
+          expression.identifier,
+          typedAttributes,
+        ),
+        BasicType.string,
+      ),
+      BasicType.boolean => (
+        TypedFunctionCallExpression(
+          expression.identifier,
+          typedAttributes,
+        ),
         BasicType.boolean,
       ),
     };
@@ -203,7 +292,7 @@ class TypeChecker {
       );
     } else {
       throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionMany([BasicType.integer, BasicType.double]),
         type,
       );
@@ -247,20 +336,20 @@ class TypeChecker {
       (BasicType.double, BasicType.integer) => BasicType.double,
       (BasicType.double, BasicType.double) => BasicType.double,
       (BasicType.integer || BasicType.double, _) => throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionMany([BasicType.integer, BasicType.double]),
         rhsType,
       ),
       _ => throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionMany([BasicType.integer, BasicType.double]),
         lhsType,
       ),
     };
     return (
       TypedArithmeticExpression(
-        lhs as TypedExpression<num>,
-        rhs as TypedExpression<num>,
+        lhs,
+        rhs,
         operator,
       ),
       returnType,
@@ -282,20 +371,20 @@ class TypeChecker {
       ) =>
         BasicType.boolean,
       (BasicType.integer || BasicType.double, _) => throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionMany([BasicType.integer, BasicType.double]),
         rhsType,
       ),
       _ => throw NonMatchingTypeError(
-        getStatementIndex(),
+        _getStatementIndex(),
         BasicTypeOptionMany([BasicType.integer, BasicType.double]),
         lhsType,
       ),
     };
     return (
       TypedComparisonExpression(
-        lhs as TypedExpression<num>,
-        rhs as TypedExpression<num>,
+        lhs,
+        rhs,
         operator,
       ),
       returnType,

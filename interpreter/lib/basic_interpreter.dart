@@ -46,6 +46,7 @@ class Interpreter {
   ///
   /// * Resets the current statement index to 0.
   /// * Removes all variables from the context.
+  /// * Removes all functions from the context.
   void resetContext() {
     _context.reset();
   }
@@ -83,9 +84,14 @@ class Interpreter {
         stepValue > 0 ? i <= endValue : i >= endValue;
         i += stepValue
       ) {
-        _context.setVariable(statement.loopVariableName, i);
+        _context.declareVariable(statement.loopVariableName, i);
         _executeStatement(statement.body, outputLines);
       }
+      return PostStatementAction.continueProgram;
+
+      /// FUNCTION
+    } else if (statement is TypedFunctionDeclarationStatement) {
+      statement.execute(_context);
       return PostStatementAction.continueProgram;
 
       /// LET

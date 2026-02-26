@@ -1,26 +1,38 @@
+import "data_structures.dart";
 import "errors.dart";
+import "typed_expressions.dart";
 
 /// Execution context for the BASIC interpreter.
 class Context {
   /// The variables stored in the context.
-  Map<String, Object> _variables = {};
+  Stack<Scope<Object>> _variables = Stack();
+  Stack<Scope<(List<String>, TypedExpression)>> _functions = Stack();
 
   /// The current statement index.
   int _statementIndex = 0;
 
   /// Default [Context] constructor.
-  Context();
+  Context() {
+    _variables.push(Scope());
+    _functions.push(Scope());
+  }
 
   /// Creates a new [Context] with the given [initialVariables].
-  Context.withVariables(Map<String, num> initialVariables)
-    : _variables = Map.from(initialVariables);
+  Context.withVariables(Map<String, num> initialVariables) {
+    _variables.push(Scope());
+    _functions.push(Scope());
+    for (final variable in initialVariables.entries) {
+      _variables.peek.declare(variable.key, variable.value);
+    }
+  }
 
   /// Resets the context
   ///
   /// * Removes all variables from the context.
   /// * Resets the current statement index to 0.
   void reset() {
-    _variables = {};
+    _variables = Stack()..push(Scope());
+    _functions = Stack()..push(Scope());
     _statementIndex = 0;
   }
 
@@ -34,18 +46,61 @@ class Context {
     return _statementIndex;
   }
 
-  void setVariable(String identifier, Object value) {
-    _variables[identifier] = value;
+  /// Sets the value of a variable in the context.
+  void declareVariable(String identifier, Object value) {
+    _variables.peek.declare(identifier, value);
   }
 
-  T getVariable<T>(String identifier) {
-    final value = _variables[identifier];
-    if (value == null) {
+  /// Returns the value of a variable in the context from the innermost scope.
+  T lookupVariable<T>(String identifier) {
+    for (final scope in _variables.topToBottom) {
+      final value = scope.lookup(identifier);
+      if (value == null) continue;
+      if (value is! T) {
+        throw RuntimeTypeError(
+          _statementIndex,
+          identifier,
+          T,
+          value.runtimeType,
+        );
+      }
+      return value as T;
+    }
+    throw MissingIdentifierError(_statementIndex, identifier);
+  }
+
+  /// Sets the value of a function in the context to the innermost scope.
+  void declareFunction(
+    String identifier,
+    List<String> arguments,
+    TypedExpression expression,
+  ) {
+    _functions.peek.declare(identifier, (arguments, expression));
+  }
+
+  T evaluateFunction<T>(String identifier, List<Object> argValues) {
+    final funcDef = _lookupFunction(identifier);
+    if (funcDef == null) {
       throw MissingIdentifierError(_statementIndex, identifier);
     }
-    if (value is! T) {
-      throw RuntimeTypeError(_statementIndex, identifier, T, value.runtimeType);
+    final (argNames, body) = funcDef;
+
+    _variables.push(Scope());
+    try {
+      for (var i = 0; i < argNames.length; i++) {
+        _variables.peek.declare(argNames[i], argValues[i]);
+      }
+      return body.evaluate(this) as T;
+    } finally {
+      _variables.pop();
     }
-    return value as T;
+  }
+
+  (List<String>, TypedExpression)? _lookupFunction(String identifier) {
+    for (final scope in _functions.topToBottom) {
+      final value = scope.lookup(identifier);
+      if (value != null) return value;
+    }
+    return null;
   }
 }

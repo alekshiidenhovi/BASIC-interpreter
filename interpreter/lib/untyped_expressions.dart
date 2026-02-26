@@ -67,6 +67,21 @@ class IdentifierConstantExpression extends Expression {
   String toString() => "(IDENTIFIER_CONSTANT_EXPRESSION $identifier)";
 }
 
+/// Represents an untyped function call expression.
+class FunctionCallExpression extends Expression {
+  /// The name of the function to call.
+  final String identifier;
+
+  /// The arguments of the function call.
+  final List<Expression> arguments;
+
+  /// Creates a new [FunctionCallExpression] with the given [identifier] and [arguments].
+  const FunctionCallExpression(this.identifier, this.arguments);
+
+  @override
+  String toString() => "(FUNCTION_CALL_EXPRESSION $identifier $arguments)";
+}
+
 /// Represents an untyped unary expression.
 class UnaryExpression extends Expression {
   /// The expression to evaluate.

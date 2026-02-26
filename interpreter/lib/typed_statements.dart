@@ -27,7 +27,7 @@ class TypedLetStatement extends TypedStatement<void> {
 
   @override
   void execute(Context context) {
-    context.setVariable(identifier, expression.evaluate(context));
+    context.declareVariable(identifier, expression.evaluate(context));
   }
 }
 
@@ -107,6 +107,32 @@ class TypedForStatement<T> extends TypedStatement<void> {
   @override
   void execute(Context context) {
     throw Exception("Execute method should not be called for FOR statements");
+  }
+}
+
+/// A statement, which defines a callable function.
+class TypedFunctionDeclarationStatement extends TypedStatement<void> {
+  /// The identifier of the function.
+  final String identifier;
+
+  /// The arguments of the function.
+  final List<String> arguments;
+
+  /// The body of the function.
+  final TypedExpression body;
+
+  /// Creates a new [TypedFunctionDeclarationStatement].
+  ///
+  /// Requires the [name] of the function, the [parameters] of the function, and the [body] of the function.
+  TypedFunctionDeclarationStatement(this.identifier, this.arguments, this.body);
+
+  @override
+  String toString() =>
+      "TYPED_FUNCTION_DECLARATION $identifier($arguments) = $body";
+
+  @override
+  void execute(Context context) {
+    context.declareFunction(identifier, arguments, body);
   }
 }
 

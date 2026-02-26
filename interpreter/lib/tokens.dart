@@ -31,6 +31,7 @@ enum TokenType {
   thenKeyword,
   stepKeyword,
   nextKeyword,
+  defKeyword,
   endKeyword,
   remKeyword,
 }
@@ -71,6 +72,7 @@ sealed class Token {
     ThenKeywordToken() => "ThenKeywordToken",
     StepKeywordToken() => "StepKeywordToken",
     NextKeywordToken() => "NextKeywordToken",
+    DefKeywordToken() => "DefKeywordToken",
     EndKeywordToken() => "EndKeywordToken",
     RemKeywordToken() => "RemKeywordToken",
   };
@@ -108,6 +110,7 @@ sealed class Token {
     ThenKeywordToken() => TokenType.thenKeyword,
     StepKeywordToken() => TokenType.stepKeyword,
     NextKeywordToken() => TokenType.nextKeyword,
+    DefKeywordToken() => TokenType.defKeyword,
     EndKeywordToken() => TokenType.endKeyword,
     RemKeywordToken() => TokenType.remKeyword,
   };
@@ -251,6 +254,9 @@ final class IfKeywordToken extends Token {}
 
 /// Represents a then keyword token.
 final class ThenKeywordToken extends Token {}
+
+/// Represents a def keyword token.
+final class DefKeywordToken extends Token {}
 
 /// Represents an end keyword token.
 final class EndKeywordToken extends Token {}

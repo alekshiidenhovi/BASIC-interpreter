@@ -48,6 +48,7 @@ class Parser {
       EndKeywordToken() => parseEndStatement(),
       RemKeywordToken() => parseRemarkStatement(),
       ForKeywordToken() => parseForStatement(),
+      DefKeywordToken() => parseFunctionDeclarationStatement(),
       _ => throw UnexpectedTokenError(
         position,
         keywordToken.kind(),
@@ -182,6 +183,24 @@ class Parser {
     );
   }
 
+  /// Parser a function declaration.
+  ///
+  /// Functions can only have a single statement in their body. Arbitrary number of arguments are supported.
+  Statement parseFunctionDeclarationStatement() {
+    expectToken(TokenType.defKeyword);
+    final identifierFactor = parseIdentifierFactor();
+    final arguments = parseArgumentList(
+      () => parseIdentifierFactor().identifier,
+    );
+    expectToken(TokenType.equals);
+    final body = parseExpression(0);
+    return FunctionDeclarationStatement(
+      identifierFactor.identifier,
+      arguments,
+      body,
+    );
+  }
+
   /// Parses an expression from the token stream,
   ///
   /// Uses the precedence climbing algorithm to parse the expression.
@@ -221,7 +240,10 @@ class Parser {
       TokenType.floatingPointLiteral => parseFloatingPointFactor(),
       TokenType.stringLiteral => parseStringFactor(),
       TokenType.trueKeyword || TokenType.falseKeyword => parseBooleanFactor(),
-      TokenType.identifier => parseIdentifierFactor(),
+      TokenType.identifier =>
+        _isFollowedByOpenParen()
+            ? parseFunctionCallExpression()
+            : parseIdentifierFactor(),
       TokenType.minus => parseUnaryFactor(),
       TokenType.openParen => parseParenthesizedExpression(),
       _ => throw UnexpectedTokenError(
@@ -316,6 +338,13 @@ class Parser {
     };
   }
 
+  /// Parses a function call expression.
+  FunctionCallExpression parseFunctionCallExpression() {
+    final identifier = parseIdentifierFactor();
+    final arguments = parseArgumentList(() => parseExpression(0));
+    return FunctionCallExpression(identifier.identifier, arguments);
+  }
+
   /// Parses a parenthesized expression.
   ///
   /// Expects an open parenthesis token, an expression, and a close parenthesis token.
@@ -389,6 +418,21 @@ class Parser {
     };
   }
 
+  /// Parses a list of arguments for either a function call or a function declaration.
+  List<T> parseArgumentList<T>(T Function() parseArgument) {
+    final List<T> arguments = [];
+    expectToken(TokenType.openParen);
+    if (peekToken().kind() != TokenType.closeParen) {
+      while (true) {
+        arguments.add(parseArgument());
+        if (peekToken().kind() != TokenType.comma) break;
+        consumeToken();
+      }
+    }
+    expectToken(TokenType.closeParen);
+    return arguments;
+  }
+
   /// Expects a token of the given [category] and return it when matched.
   ///
   /// Throws a [UnexpectedEndOfInputError] if the end of the token stream is reached.
@@ -424,5 +468,12 @@ class Parser {
       throw UnexpectedEndOfInputError(position);
     }
     return tokens[position];
+  }
+
+  /// Returns true if the current token is followed by an open parenthesis.
+  bool _isFollowedByOpenParen() {
+    final nextPosition = position + 1;
+    if (nextPosition >= tokens.length) return false;
+    return tokens[nextPosition].kind() == TokenType.openParen;
   }
 }

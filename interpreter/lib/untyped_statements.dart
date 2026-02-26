@@ -84,6 +84,26 @@ class ForStatement<T> extends Statement<void> {
       "FOR_STATEMENT $loopVariableName = $start TO $end STEP $step (BODY: $body)";
 }
 
+/// A statement, which defines a callable function.
+class FunctionDeclarationStatement extends Statement<void> {
+  /// The identifier of the function.
+  final String identifier;
+
+  /// The arguments of the function.
+  final List<String> arguments;
+
+  /// The body of the function.
+  final Expression body;
+
+  /// Creates a new [FunctionDeclarationStatement].
+  ///
+  /// Requires the [name] of the function, the [parameters] of the function, and the [body] of the function.
+  FunctionDeclarationStatement(this.identifier, this.arguments, this.body);
+
+  @override
+  String toString() => "FUNCTION_DECLARATION $identifier($arguments) = $body";
+}
+
 /// A statement, which unconditionally ends the program.
 class EndStatement extends Statement<void> {
   /// Creates a new [EndStatement].
