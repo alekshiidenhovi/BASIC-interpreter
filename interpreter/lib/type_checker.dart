@@ -8,33 +8,53 @@ import "untyped_expressions.dart";
 import "untyped_statements.dart";
 
 /// Stores the type of each variable in the program.
-class IdentifierTypeTable {
-  /// Stores variables in different scopes.
-  final Stack<Scope<BasicType>> _scopes = Stack();
+class TypeCheckerContext {
+  /// Stores variables in isolated scopes.
+  final Stack<Scope<BasicType>> _variables = Stack();
 
-  /// Default [IdentifierTypeTable] constructor, initializes the stack with global scope.
-  IdentifierTypeTable() {
-    _scopes.push(Scope());
+  /// Stores function return types in isolated scopes.
+  final Stack<Scope<BasicType>> _functions = Stack();
+
+  /// Default [TypeCheckerContext] constructor, initializes the stack with global scope.
+  TypeCheckerContext() {
+    _variables.push(Scope());
+    _functions.push(Scope());
   }
 
   /// Adds a new scope to the stack.
   void createNewScope() {
-    _scopes.push(Scope());
+    _variables.push(Scope());
+    _functions.push(Scope());
   }
 
   /// Removes the top scope from the stack.
-  Scope<BasicType> removeTopScope() {
-    return _scopes.pop();
+  void removeTopScope() {
+    _variables.pop();
+    _functions.pop();
   }
 
   /// Declares a variable with the given [identifier] and [type].
-  void declare(String identifier, BasicType type) {
-    _scopes.peek.declare(identifier, type);
+  void declareVariable(String identifier, BasicType type) {
+    _variables.peek.declare(identifier, type);
+  }
+
+  /// Declares a function with the given [identifier] and [type].
+  void declareFunction(String identifier, BasicType type) {
+    _functions.peek.declare(identifier, type);
   }
 
   /// Returns the type of the variable with the given [identifier].
-  BasicType? lookup(String identifier) {
-    for (final scope in _scopes.topToBottom) {
+  BasicType? lookupVariable(String identifier) {
+    for (final scope in _variables.topToBottom) {
+      final type = scope.lookup(identifier);
+      if (type != null) return type;
+    }
+    return null;
+  }
+
+  /// Returns the type of the function with the given [identifier].
+  BasicType? lookupFunction(String identifier) {
+    for (final scope in _functions.topToBottom) {
       final type = scope.lookup(identifier);
       if (type != null) return type;
     }
@@ -47,7 +67,7 @@ class IdentifierTypeTable {
 /// This class walks the untyped statements and returns typed ones.
 class TypeChecker {
   /// The symbol table for storing variable types.
-  final IdentifierTypeTable _symbols = IdentifierTypeTable();
+  final TypeCheckerContext _typeCheckerContext = TypeCheckerContext();
 
   /// Index of the next statement to be type checked.
   int _statementIndex = 0;
@@ -87,7 +107,7 @@ class TypeChecker {
   /// Type checks a LET statement and returns a typed version of it.
   TypedLetStatement checkLetStatement(LetStatement statement) {
     final (typedExpr, type) = inferExpression(statement.expression);
-    _symbols.declare(statement.identifier, type);
+    _typeCheckerContext.declareVariable(statement.identifier, type);
     return TypedLetStatement(statement.identifier, typedExpr);
   }
 
@@ -143,7 +163,7 @@ class TypeChecker {
       );
     }
 
-    _symbols.declare(statement.loopVariableName, BasicType.integer);
+    _typeCheckerContext.declareVariable(statement.loopVariableName, BasicType.integer);
     final typedBody = checkStatement(statement.body);
     return TypedForStatement(
       statement.loopVariableName,
@@ -158,13 +178,13 @@ class TypeChecker {
   TypedFunctionDeclarationStatement checkFunctionDeclarationStatement(
     FunctionDeclarationStatement statement,
   ) {
-    _symbols.createNewScope();
+    _typeCheckerContext.createNewScope();
     for (final arg in statement.arguments) {
-      _symbols.declare(arg, BasicType.integer); // Only integers are supported for now
+      _typeCheckerContext.declareVariable(arg, BasicType.integer); // Only integers are supported for now
     }
     final (typedBody, bodyType) = inferExpression(statement.body);
-    _symbols.removeTopScope();
-    _symbols.declare(statement.identifier, bodyType);
+    _typeCheckerContext.removeTopScope();
+    _typeCheckerContext.declareFunction(statement.identifier, bodyType);
     return TypedFunctionDeclarationStatement(
       statement.identifier,
       statement.arguments,
@@ -202,7 +222,7 @@ class TypeChecker {
   (TypedIdentifierConstantExpression, BasicType) inferIdentifier(
     IdentifierConstantExpression expression,
   ) {
-    final type = _symbols.lookup(expression.identifier);
+    final type = _typeCheckerContext.lookupVariable(expression.identifier);
     if (type == null) {
       throw MissingIdentifierError(_getStatementIndex(), expression.identifier);
     }
@@ -232,7 +252,7 @@ class TypeChecker {
   (TypedFunctionCallExpression, BasicType) inferFunctionCall(
     FunctionCallExpression expression,
   ) {
-    final returnType = _symbols.lookup(expression.identifier);
+    final returnType = _typeCheckerContext.lookupFunction(expression.identifier);
     if (returnType == null) {
       throw MissingIdentifierError(_getStatementIndex(), expression.identifier);
     }
