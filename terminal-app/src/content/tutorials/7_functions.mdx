@@ -1,0 +1,34 @@
+---
+title: Functions
+index: 7
+starterCode:
+  - "DEF SQUARE(X) = X ^ 2"
+  - "REM DEFINE HYPOTENUSE HERE"
+  - ""
+  - "PRINT HYPOTENUSE(3, 4)"
+  - "PRINT HYPOTENUSE(5, 12)"
+  - "END"
+---
+import CodeBlock from "../../components/CodeBlock.vue";
+
+<p>Typical BASIC allows you to define your own reusable functions using the DEF FN statement. A function takes a parameter, evaluates a single expression using it, and returns the result. The syntax for defining a function is the following:</p>
+
+<CodeBlock client:load code="DEF <name>(<parameter>) = <expression>" />
+
+<p>Once defined, a function can be called anywhere an expression is expected by using the FN keyword followed by the function name and an argument:</p>
+
+<CodeBlock client:load code="<name>(<argument>)" />
+
+<p>For example, the following defines a function that computes the square of a number and then calls it:</p>
+
+<CodeBlock client:load code={"DEF SQUARE(X) = X ^ 2"} />
+<CodeBlock client:load code={"PRINT FN SQUARE(3)"} />
+
+<p>Functions can also call other functions inside their expression. For example, you could build a function that uses FN SQUARE to compute the sum of two squares:</p>
+
+<CodeBlock client:load code={"DEF SUM_OF_SQUARES(X) = SQUARE(X) + SQUARE(X + 1)"} />
+<CodeBlock client:load code={"PRINT SUM_OF_SQUARES(3)"} />
+
+<p>The code in the editor has a function FN SQUARE already defined. Using it, define FN HYPOTENUSE that computes the length of the hypotenuse of a right triangle given its two legs A and B. Recall that the hypotenuse is the square root of A² + B². In Typical BASIC, the square root can be computed with the SQR built-in function.</p>
+
+<p>When the program is correct, the output should be 5 and <strong>13</strong>.</p>
