@@ -51,6 +51,15 @@ class Context {
     _variables.peek.declare(identifier, value);
   }
 
+  /// Sets the value of a function in the context to the innermost scope.
+  void declareFunction(
+    String identifier,
+    List<String> arguments,
+    TypedExpression expression,
+  ) {
+    _functions.peek.declare(identifier, (arguments, expression));
+  }
+
   /// Returns the value of a variable in the context from the innermost scope.
   T lookupVariable<T>(String identifier) {
     for (final scope in _variables.topToBottom) {
@@ -67,15 +76,6 @@ class Context {
       return value as T;
     }
     throw MissingIdentifierError(_statementIndex, identifier);
-  }
-
-  /// Sets the value of a function in the context to the innermost scope.
-  void declareFunction(
-    String identifier,
-    List<String> arguments,
-    TypedExpression expression,
-  ) {
-    _functions.peek.declare(identifier, (arguments, expression));
   }
 
   T evaluateFunction<T>(String identifier, List<Object> argValues) {
