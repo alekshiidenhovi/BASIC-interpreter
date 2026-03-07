@@ -40,6 +40,9 @@ class Parser {
   ///
   /// Returns a [Statement] representing the parsed statement.
   Statement parseStatement() {
+    while (peekToken().kind() == TokenType.endOfLine) {
+      consumeToken();
+    }
     final keywordToken = peekToken();
     final statement = switch (keywordToken) {
       LetKeywordToken() => parseLetStatement(),
