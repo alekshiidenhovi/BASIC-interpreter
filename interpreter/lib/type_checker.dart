@@ -273,24 +273,10 @@ class TypeChecker {
     final typedAttributes = expression.arguments
         .map((arg) => inferExpression(arg).$1)
         .toList();
-    return switch (returnType) {
-      BasicType.integer => (
-        TypedFunctionCallExpression(expression.identifier, typedAttributes),
-        BasicType.integer,
-      ),
-      BasicType.double => (
-        TypedFunctionCallExpression(expression.identifier, typedAttributes),
-        BasicType.double,
-      ),
-      BasicType.string => (
-        TypedFunctionCallExpression(expression.identifier, typedAttributes),
-        BasicType.string,
-      ),
-      BasicType.boolean => (
-        TypedFunctionCallExpression(expression.identifier, typedAttributes),
-        BasicType.boolean,
-      ),
-    };
+    return (
+      TypedFunctionCallExpression(expression.identifier, typedAttributes),
+      returnType,
+    );
   }
 
   /// Infers the type of an unary expression.
